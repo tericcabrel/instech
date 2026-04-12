@@ -1,4 +1,4 @@
-# 🚀 StackAlt --- Project Plan
+# 🚀 Instech --- Project Plan
 
 ## 🧠 Project Overview
 
@@ -133,7 +133,7 @@ weight?: number metadata?: { reason?: string } createdAt: string }
 
 ### Frontend
 
--   TanStack
+-   TanStack Start
 -   Tailwind CSS
 
 ### Visualization

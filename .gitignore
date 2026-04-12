@@ -1,0 +1,5 @@
+**/db/data
+.env
+notes.txt
+tmp/
+.DS_Store

@@ -1,0 +1,35 @@
+version: "2"
+sql:
+  - schema: "db/migrations" 
+    queries: "db/sqlc" 
+    engine: "sqlite"
+    gen:
+      go:
+        out: "db/queries"
+        package: "queries"
+        initialisms: []
+        emit_json_tags: false
+        json_tags_case_style: "none"
+        emit_empty_slices: true
+        overrides:
+          - column: "tools.id"
+            go_type: "int"
+          - column: "tools.release_year"
+            go_type: "int"
+          - column: "tools.use_cases"
+            go_type: "string"
+          - column: "tools.tags"
+            go_type: "string"
+          - column: "relationships.id"
+            go_type: "int"
+          - column: "relationships.from_tool_id"
+            go_type: "int"
+          - column: "relationships.to_tool_id"
+            go_type: "int"
+          - column: "relationships.metadata"
+            nullable: true
+            go_type: "string"
+        rename:
+          tool: ToolRecord
+          relationship: RelationshipRecord
+  
