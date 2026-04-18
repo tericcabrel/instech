@@ -8,6 +8,7 @@ package queries
 import (
 	"context"
 	"database/sql"
+	"strings"
 )
 
 const createTool = `-- name: CreateTool :one
@@ -128,8 +129,61 @@ func (q *Queries) GetToolBySlug(ctx context.Context, slug string) (ToolRecord, e
 	return i, err
 }
 
+const getToolsByIds = `-- name: GetToolsByIds :many
+SELECT id, name, slug, category, sub_type, prolang, release_year, devstatus, details, use_cases, tags, website, github, created_at, updated_at FROM tools WHERE id IN (/*SLICE:ids*/?) ORDER BY name ASC
+`
+
+func (q *Queries) GetToolsByIds(ctx context.Context, ids []int) ([]ToolRecord, error) {
+	query := getToolsByIds
+	var queryParams []interface{}
+	if len(ids) > 0 {
+		for _, v := range ids {
+			queryParams = append(queryParams, v)
+		}
+		query = strings.Replace(query, "/*SLICE:ids*/?", strings.Repeat(",?", len(ids))[1:], 1)
+	} else {
+		query = strings.Replace(query, "/*SLICE:ids*/?", "NULL", 1)
+	}
+	rows, err := q.db.QueryContext(ctx, query, queryParams...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ToolRecord{}
+	for rows.Next() {
+		var i ToolRecord
+		if err := rows.Scan(
+			&i.Id,
+			&i.Name,
+			&i.Slug,
+			&i.Category,
+			&i.SubType,
+			&i.Prolang,
+			&i.ReleaseYear,
+			&i.Devstatus,
+			&i.Details,
+			&i.UseCases,
+			&i.Tags,
+			&i.Website,
+			&i.Github,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateTool = `-- name: UpdateTool :one
-UPDATE tools SET name = ?, slug = ?, category = ?, sub_type = ?, prolang = ?, release_year = ?, devstatus = ?, details = ?, use_cases = ?, tags = ?, website = ?, github = ? WHERE id = ? RETURNING id, name, slug, category, sub_type, prolang, release_year, devstatus, details, use_cases, tags, website, github, created_at, updated_at
+UPDATE tools SET name = ?, slug = ?, category = ?, sub_type = ?, prolang = ?, release_year = ?, devstatus = ?, details = ?, use_cases = ?, tags = ?, website = ?, github = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? RETURNING id, name, slug, category, sub_type, prolang, release_year, devstatus, details, use_cases, tags, website, github, created_at, updated_at
 `
 
 type UpdateToolParams struct {

@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"slices"
+	"time"
+)
 
 type RelationshipMetadata struct {
 	Reason string `json:"reason"`
@@ -17,3 +20,7 @@ type Relationship struct {
 }
 
 var RELATIONSHIP_KINDS = []string{"built_on", "inspired_by", "alternative_to", "replaced_by", "used_with"}
+
+func (r *Relationship) IsKindValid() bool {
+	return slices.Contains(RELATIONSHIP_KINDS, r.Kind)
+}

@@ -6,15 +6,15 @@ import (
 	"fmt"
 	"net/http"
 
+	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/feature/tool/usecase"
 	"tericcabrel/instech/internal/infra"
 	"tericcabrel/instech/internal/repository"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/rs/zerolog/log"
 )
 
-func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface) *chi.Mux {
+func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface, relationshipRepository repository.RelationshipRepositoryInterface) *chi.Mux {
 	toolRouter := chi.NewRouter()
 
 	toolRouter.Post("/", func(w http.ResponseWriter, r *http.Request) {
@@ -27,8 +27,6 @@ func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface) *ch
 		}
 
 		createdTool, err := usecase.AddToolUsecase(toolRepository, tool)
-
-		log.Info().Msgf("Created tool: %+v", createdTool)
 
 		if err != nil {
 			infra.InternalServerError(w, err, "AddToolUsecase")
@@ -43,8 +41,8 @@ func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface) *ch
 		tool, err := usecase.GetToolBySlugUsecase(toolRepository, slug)
 
 		if err != nil {
-			fmt.Printf("Error: %+v\n %t", err, errors.Is(err, usecase.ErrToolNotFound{}))
-			if _, ok := err.(usecase.ErrToolNotFound); ok {
+			fmt.Printf("Error: %+v\n %t", err, errors.Is(err, common.ErrResourceNotFound{}))
+			if _, ok := err.(common.ErrResourceNotFound); ok {
 				infra.NotFoundError(w, slug)
 				return
 			}
@@ -77,7 +75,7 @@ func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface) *ch
 
 		updatedTool, err := usecase.UpdateToolUsecase(toolRepository, slug, tool)
 		if err != nil {
-			if _, ok := err.(usecase.ErrToolNotFound); ok {
+			if _, ok := err.(common.ErrResourceNotFound); ok {
 				infra.NotFoundError(w, slug)
 				return
 			}
@@ -88,21 +86,41 @@ func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface) *ch
 	})
 
 	toolRouter.Get("/{id}/alternatives", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf("Tool alternatives for %s", chi.URLParam(r, "id"))))
+		slug := chi.URLParam(r, "id")
+
+		alternatives, err := usecase.GetToolAlternativesUsecase(toolRepository, relationshipRepository, slug)
+
+		if err != nil {
+			if _, ok := err.(common.ErrResourceNotFound); ok {
+				infra.NotFoundError(w, slug)
+				return
+			}
+			infra.InternalServerError(w, err, "GetToolAlternativesUsecase")
+			return
+		}
+
+		infra.OK(w, alternatives)
 	})
+
 	toolRouter.Get("/{id}/similar", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf("Tool similar to %s", chi.URLParam(r, "id"))))
-	})
-	toolRouter.Get("/{id}/relationships", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf("Tool relationships for %s", chi.URLParam(r, "id"))))
+		slug := chi.URLParam(r, "id")
+		similar, err := usecase.GetSimilarToolUsecase(toolRepository, relationshipRepository, slug)
+		if err != nil {
+			if _, ok := err.(common.ErrResourceNotFound); ok {
+				infra.NotFoundError(w, slug)
+				return
+			}
+			infra.InternalServerError(w, err, "GetSimilarToolUsecase")
+			return
+		}
+		infra.OK(w, similar)
 	})
 
 	toolRouter.Get("/{id}/graph", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf("Tool graph for %s", chi.URLParam(r, "id"))))
+		var result map[string]any = map[string]any{
+			"message": "Tool graph for " + chi.URLParam(r, "id"),
+		}
+		infra.OK(w, result)
 	})
 
 	return toolRouter

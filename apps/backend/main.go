@@ -8,6 +8,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog/pkgerrors"
 
 	"net/http"
 
@@ -16,8 +17,10 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 
+	// the _ is used to autoload the sqlite driver
 	_ "modernc.org/sqlite"
 
+	relationshiphttp "tericcabrel/instech/internal/feature/relationship/http"
 	toolhttp "tericcabrel/instech/internal/feature/tool/http"
 	"tericcabrel/instech/internal/repository"
 )
@@ -29,6 +32,7 @@ func main() {
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	if *debug {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
@@ -57,6 +61,7 @@ func main() {
 	}
 
 	toolRepository := repository.NewToolRepository(db)
+	relationshipRepository := repository.NewRelationshipRepository(db)
 
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -84,8 +89,11 @@ func main() {
 		w.Write([]byte(fmt.Sprintf("Search results for %s", r.URL.Query().Get("q"))))
 	})
 
-	toolRouter := toolhttp.InitializeToolRouter(toolRepository)
+	toolRouter := toolhttp.InitializeToolRouter(toolRepository, relationshipRepository)
 	r.Mount("/tools", toolRouter)
+
+	relationshipRouter := relationshiphttp.InitializeRelationshipRouter(relationshipRepository, toolRepository)
+	r.Mount("/relationships", relationshipRouter)
 
 	log.Info().Msg("Starting server on 8800")
 

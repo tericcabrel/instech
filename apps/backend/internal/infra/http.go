@@ -19,7 +19,7 @@ func writeJSON(w http.ResponseWriter, v interface{}) {
 }
 
 func InternalServerError(w http.ResponseWriter, err error, source string) {
-	log.Error().Err(err).Str("source", source).Msg("Internal server error")
+	log.Error().Stack().Err(err).Str("source", source).Msg("")
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusInternalServerError)

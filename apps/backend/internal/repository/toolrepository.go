@@ -11,7 +11,8 @@ import (
 type ToolRepositoryInterface interface {
 	CreateTool(ctx context.Context, tool domain.Tool) (domain.Tool, error)
 	DeleteTool(ctx context.Context, slug string) error
-	GetToolByID(ctx context.Context, id int) (domain.Tool, error)
+	GetToolById(ctx context.Context, id int) (domain.Tool, error)
+	GetToolByIds(ctx context.Context, ids []int) ([]domain.Tool, error)
 	GetToolBySlug(ctx context.Context, slug string) (domain.Tool, error)
 	UpdateTool(ctx context.Context, tool domain.Tool) (domain.Tool, error)
 }
@@ -24,7 +25,7 @@ func NewToolRepository(db *sql.DB) *ToolRepository {
 	return &ToolRepository{db: db}
 }
 
-func (t *ToolRepository) GetToolByID(ctx context.Context, id int) (domain.Tool, error) {
+func (t *ToolRepository) GetToolById(ctx context.Context, id int) (domain.Tool, error) {
 	record, err := queries.New(t.db).GetToolByID(ctx, id)
 	if err != nil {
 		return domain.Tool{}, err
@@ -133,4 +134,25 @@ func (t *ToolRepository) UpdateTool(ctx context.Context, tool domain.Tool) (doma
 
 func (t *ToolRepository) DeleteTool(ctx context.Context, slug string) error {
 	return queries.New(t.db).DeleteTool(ctx, slug)
+}
+
+func (t *ToolRepository) GetToolByIds(ctx context.Context, ids []int) ([]domain.Tool, error) {
+	records, err := queries.New(t.db).GetToolsByIds(ctx, ids)
+
+	if err != nil {
+		return []domain.Tool{}, err
+	}
+
+	var result []domain.Tool = make([]domain.Tool, 0)
+
+	for _, r := range records {
+		tool, err := MapToolRecordToTool(r)
+		if err != nil {
+			continue
+		} else {
+			result = append(result, tool)
+		}
+	}
+
+	return result, nil
 }

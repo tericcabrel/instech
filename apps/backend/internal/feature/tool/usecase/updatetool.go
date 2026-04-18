@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/repository"
 )
@@ -26,7 +27,7 @@ func UpdateToolUsecase(toolRepository repository.ToolRepositoryInterface, slug s
 	tool, err := toolRepository.GetToolBySlug(context.Background(), slug)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return domain.Tool{}, ErrToolNotFound{Slug: slug}
+			return domain.Tool{}, common.ErrResourceNotFound{Id: slug}
 		}
 		return domain.Tool{}, err
 	}
