@@ -148,7 +148,7 @@ func (t *ToolRepository) GetToolByIds(ctx context.Context, ids []int) ([]domain.
 	for _, r := range records {
 		tool, err := MapToolRecordToTool(r)
 		if err != nil {
-			continue
+			return []domain.Tool{}, err
 		} else {
 			result = append(result, tool)
 		}

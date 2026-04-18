@@ -5,8 +5,12 @@ import (
 	"tericcabrel/instech/internal/repository"
 )
 
-func DeleteToolUsecase(toolRepository repository.ToolRepositoryInterface, slug string) error {
-	err := toolRepository.DeleteTool(context.Background(), slug)
+type DeleteToolUseCase struct {
+	ToolRepository repository.ToolRepositoryInterface
+}
+
+func (uc *DeleteToolUseCase) Execute(slug string) error {
+	err := uc.ToolRepository.DeleteTool(context.Background(), slug)
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,10 @@ import (
 	"tericcabrel/instech/internal/repository"
 )
 
+type AddToolUseCase struct {
+	ToolRepository repository.ToolRepositoryInterface
+}
+
 type AddToolInput struct {
 	Name        string
 	Slug        string
@@ -21,8 +25,8 @@ type AddToolInput struct {
 	Github      string
 }
 
-func AddToolUsecase(toolRepository repository.ToolRepositoryInterface, input AddToolInput) (domain.Tool, error) {
-	tool := domain.Tool{
+func (uc *AddToolUseCase) Execute(input AddToolInput) (domain.Tool, error) {
+	tool, err := domain.CreateTool(domain.CreateToolInput{
 		Name:        input.Name,
 		Slug:        input.Slug,
 		Category:    input.Category,
@@ -35,12 +39,10 @@ func AddToolUsecase(toolRepository repository.ToolRepositoryInterface, input Add
 		Tags:        input.Tags,
 		Website:     input.Website,
 		Github:      input.Github,
-	}
-	tool, err := toolRepository.CreateTool(context.Background(), tool)
+	})
 	if err != nil {
-		// TODO: Handle error
 		return domain.Tool{}, err
 	}
 
-	return tool, nil
+	return uc.ToolRepository.CreateTool(context.Background(), tool)
 }

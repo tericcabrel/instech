@@ -3,7 +3,6 @@ package http
 import (
 	"encoding/json"
 	"net/http"
-	"slices"
 	"strconv"
 
 	"tericcabrel/instech/internal/common"
@@ -13,29 +12,34 @@ import (
 	"tericcabrel/instech/internal/repository"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/rs/zerolog/log"
 )
 
-func InitializeRelationshipRouter(relationshipRepository repository.RelationshipRepositoryInterface, toolRepository repository.ToolRepositoryInterface) *chi.Mux {
-	relationshipRouter := chi.NewRouter()
+type RelationshipRouter struct {
+	RelationshipRepository repository.RelationshipRepositoryInterface
+	ToolRepository         repository.ToolRepositoryInterface
+}
 
-	relationshipRouter.Post("/", func(w http.ResponseWriter, r *http.Request) {
+func (deps *RelationshipRouter) Initialize() *chi.Mux {
+	router := chi.NewRouter()
+
+	router.Post("/", func(w http.ResponseWriter, r *http.Request) {
 		var input usecase.CreateRelationshipInput
 		err := json.NewDecoder(r.Body).Decode(&input)
 		if err != nil {
 			infra.BadRequestError(w, input)
 			return
 		}
-		relationship, err := usecase.CreateRelationshipUseCase(relationshipRepository, toolRepository, input)
+		createRelationship := usecase.CreateRelationshipUseCase{
+			RelationshipRepository: deps.RelationshipRepository,
+			ToolRepository:         deps.ToolRepository,
+		}
+		relationship, err := createRelationship.Execute(input)
 		if err != nil {
 			if errToolNotFound, ok := err.(common.ErrResourceNotFound); ok {
-				infra.BadRequestError(w, map[string]string{
-					"message": errToolNotFound.Message,
-					"slug":    errToolNotFound.Id,
-				})
+				infra.NotFoundError(w, errToolNotFound.Id)
 				return
 			}
-			if errInvalidRelationshipKind, ok := err.(common.ErrInvalidRelationshipKind); ok {
+			if errInvalidRelationshipKind, ok := err.(domain.ErrInvalidRelationshipKind); ok {
 				infra.BadRequestError(w, map[string]string{
 					"message": errInvalidRelationshipKind.Message,
 					"kind":    errInvalidRelationshipKind.Kind,
@@ -48,7 +52,7 @@ func InitializeRelationshipRouter(relationshipRepository repository.Relationship
 		infra.Created(w, relationship)
 	})
 
-	relationshipRouter.Put("/{id}", func(w http.ResponseWriter, r *http.Request) {
+	router.Put("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id, castErr := strconv.Atoi(chi.URLParam(r, "id"))
 		if castErr != nil {
 			infra.BadRequestError(w, map[string]string{
@@ -64,17 +68,18 @@ func InitializeRelationshipRouter(relationshipRepository repository.Relationship
 			return
 		}
 
-		updatedRelationship, err := usecase.UpdateRelationshipUseCase(relationshipRepository, toolRepository, id, input)
+		updateRelationship := usecase.UpdateRelationshipUseCase{
+			RelationshipRepository: deps.RelationshipRepository,
+			ToolRepository:         deps.ToolRepository,
+		}
+		updatedRelationship, err := updateRelationship.Execute(id, input)
 
 		if err != nil {
 			if errToolNotFound, ok := err.(common.ErrResourceNotFound); ok {
-				infra.BadRequestError(w, map[string]string{
-					"message": errToolNotFound.Message,
-					"slug":    errToolNotFound.Id,
-				})
+				infra.NotFoundError(w, errToolNotFound.Id)
 				return
 			}
-			if errInvalidRelationshipKind, ok := err.(common.ErrInvalidRelationshipKind); ok {
+			if errInvalidRelationshipKind, ok := err.(domain.ErrInvalidRelationshipKind); ok {
 				infra.BadRequestError(w, map[string]string{
 					"message": errInvalidRelationshipKind.Message,
 					"kind":    errInvalidRelationshipKind.Kind,
@@ -87,7 +92,7 @@ func InitializeRelationshipRouter(relationshipRepository repository.Relationship
 		infra.OK(w, updatedRelationship)
 	})
 
-	relationshipRouter.Delete("/{id}", func(w http.ResponseWriter, r *http.Request) {
+	router.Delete("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id, castErr := strconv.Atoi(chi.URLParam(r, "id"))
 		if castErr != nil {
 			infra.BadRequestError(w, map[string]string{
@@ -96,19 +101,22 @@ func InitializeRelationshipRouter(relationshipRepository repository.Relationship
 			return
 		}
 
-		err := usecase.DeleteRelationshipUseCase(relationshipRepository, id)
+		deleteRelationship := usecase.DeleteRelationshipUseCase{
+			RelationshipRepository: deps.RelationshipRepository,
+		}
+		err := deleteRelationship.Execute(id)
 		if err != nil {
 			if errResourceNotFound, ok := err.(common.ErrResourceNotFound); ok {
-				log.Log().Err(errResourceNotFound).Msg("Relationship not found")
+				infra.NotFoundError(w, errResourceNotFound.Id)
 			} else {
 				infra.InternalServerError(w, err, "DeleteRelationshipUseCase")
-				return
 			}
+			return
 		}
 		infra.NoContent(w)
 	})
 
-	relationshipRouter.Get("/query", func(w http.ResponseWriter, r *http.Request) {
+	router.Get("/query", func(w http.ResponseWriter, r *http.Request) {
 		toolIdParam := r.URL.Query().Get("tool_id")
 		kindParam := r.URL.Query().Get("kind")
 		cursorParam := r.URL.Query().Get("cursor")
@@ -131,9 +139,10 @@ func InitializeRelationshipRouter(relationshipRepository repository.Relationship
 
 		if kindParam != "" {
 			kind = kindParam
-			if !slices.Contains(domain.RELATIONSHIP_KINDS, kind) {
+			if !domain.IsKindValid(kind) {
 				infra.BadRequestError(w, map[string]string{
 					"message": "Invalid kind",
+					"kind":    kind,
 				})
 				return
 			}
@@ -160,7 +169,11 @@ func InitializeRelationshipRouter(relationshipRepository repository.Relationship
 			}
 		}
 
-		results, err := usecase.GetRelationshipsUsecase(relationshipRepository, toolRepository, usecase.GetRelationshipsUseCaseParams{
+		getRelationships := usecase.GetRelationshipsUseCase{
+			RelationshipRepository: deps.RelationshipRepository,
+			ToolRepository:         deps.ToolRepository,
+		}
+		results, err := getRelationships.Execute(usecase.GetRelationshipsUseCaseParams{
 			Cursor: cursor,
 			ToolId: toolId,
 			Kind:   kind,
@@ -168,6 +181,10 @@ func InitializeRelationshipRouter(relationshipRepository repository.Relationship
 		})
 
 		if err != nil {
+			if errResourceNotFound, ok := err.(common.ErrResourceNotFound); ok {
+				infra.NotFoundError(w, errResourceNotFound.Id)
+				return
+			}
 			infra.InternalServerError(w, err, "GetRelationshipsUsecase")
 			return
 		}
@@ -175,5 +192,5 @@ func InitializeRelationshipRouter(relationshipRepository repository.Relationship
 		infra.OK(w, results)
 	})
 
-	return relationshipRouter
+	return router
 }

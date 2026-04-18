@@ -2,11 +2,10 @@ package http
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 
 	"tericcabrel/instech/internal/common"
+	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/feature/tool/usecase"
 	"tericcabrel/instech/internal/infra"
 	"tericcabrel/instech/internal/repository"
@@ -14,10 +13,15 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface, relationshipRepository repository.RelationshipRepositoryInterface) *chi.Mux {
-	toolRouter := chi.NewRouter()
+type ToolRouter struct {
+	ToolRepository         repository.ToolRepositoryInterface
+	RelationshipRepository repository.RelationshipRepositoryInterface
+}
 
-	toolRouter.Post("/", func(w http.ResponseWriter, r *http.Request) {
+func (deps *ToolRouter) Initialize() *chi.Mux {
+	router := chi.NewRouter()
+
+	router.Post("/", func(w http.ResponseWriter, r *http.Request) {
 		var tool usecase.AddToolInput
 		err := json.NewDecoder(r.Body).Decode(&tool)
 
@@ -25,10 +29,25 @@ func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface, rel
 			infra.BadRequestError(w, tool)
 			return
 		}
+		addTool := usecase.AddToolUseCase{
+			ToolRepository: deps.ToolRepository,
+		}
 
-		createdTool, err := usecase.AddToolUsecase(toolRepository, tool)
+		createdTool, err := addTool.Execute(tool)
 
 		if err != nil {
+			if _, ok := err.(domain.ErrInvalidToolCategory); ok {
+				infra.BadRequestError(w, err)
+				return
+			}
+			if _, ok := err.(domain.ErrInvalidToolSubType); ok {
+				infra.BadRequestError(w, err)
+				return
+			}
+			if _, ok := err.(domain.ErrInvalidToolDevstatus); ok {
+				infra.BadRequestError(w, err)
+				return
+			}
 			infra.InternalServerError(w, err, "AddToolUsecase")
 			return
 		}
@@ -36,12 +55,14 @@ func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface, rel
 		infra.Created(w, createdTool)
 	})
 
-	toolRouter.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
+	router.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		slug := chi.URLParam(r, "id")
-		tool, err := usecase.GetToolBySlugUsecase(toolRepository, slug)
+		getTool := usecase.GetToolBySlugUseCase{
+			ToolRepository: deps.ToolRepository,
+		}
+		tool, err := getTool.Execute(slug)
 
 		if err != nil {
-			fmt.Printf("Error: %+v\n %t", err, errors.Is(err, common.ErrResourceNotFound{}))
 			if _, ok := err.(common.ErrResourceNotFound); ok {
 				infra.NotFoundError(w, slug)
 				return
@@ -53,9 +74,12 @@ func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface, rel
 		infra.OK(w, tool)
 	})
 
-	toolRouter.Delete("/{id}", func(w http.ResponseWriter, r *http.Request) {
+	router.Delete("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		slug := chi.URLParam(r, "id")
-		err := usecase.DeleteToolUsecase(toolRepository, slug)
+		deleteTool := usecase.DeleteToolUseCase{
+			ToolRepository: deps.ToolRepository,
+		}
+		err := deleteTool.Execute(slug)
 		if err != nil {
 			infra.InternalServerError(w, err, "DeleteToolUsecase")
 			return
@@ -63,7 +87,7 @@ func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface, rel
 		infra.NoContent(w)
 	})
 
-	toolRouter.Put("/{id}", func(w http.ResponseWriter, r *http.Request) {
+	router.Put("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		slug := chi.URLParam(r, "id")
 
 		var tool usecase.UpdateToolInput
@@ -73,8 +97,23 @@ func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface, rel
 			return
 		}
 
-		updatedTool, err := usecase.UpdateToolUsecase(toolRepository, slug, tool)
+		updateTool := usecase.UpdateToolUseCase{
+			ToolRepository: deps.ToolRepository,
+		}
+		updatedTool, err := updateTool.Execute(slug, tool)
 		if err != nil {
+			if _, ok := err.(domain.ErrInvalidToolCategory); ok {
+				infra.BadRequestError(w, err)
+				return
+			}
+			if _, ok := err.(domain.ErrInvalidToolSubType); ok {
+				infra.BadRequestError(w, err)
+				return
+			}
+			if _, ok := err.(domain.ErrInvalidToolDevstatus); ok {
+				infra.BadRequestError(w, err)
+				return
+			}
 			if _, ok := err.(common.ErrResourceNotFound); ok {
 				infra.NotFoundError(w, slug)
 				return
@@ -85,10 +124,14 @@ func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface, rel
 		infra.OK(w, updatedTool)
 	})
 
-	toolRouter.Get("/{id}/alternatives", func(w http.ResponseWriter, r *http.Request) {
+	router.Get("/{id}/alternatives", func(w http.ResponseWriter, r *http.Request) {
 		slug := chi.URLParam(r, "id")
 
-		alternatives, err := usecase.GetToolAlternativesUsecase(toolRepository, relationshipRepository, slug)
+		getToolAlternatives := usecase.GetToolAlternativesUseCase{
+			ToolRepository:         deps.ToolRepository,
+			RelationshipRepository: deps.RelationshipRepository,
+		}
+		alternatives, err := getToolAlternatives.Execute(slug)
 
 		if err != nil {
 			if _, ok := err.(common.ErrResourceNotFound); ok {
@@ -102,9 +145,13 @@ func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface, rel
 		infra.OK(w, alternatives)
 	})
 
-	toolRouter.Get("/{id}/similar", func(w http.ResponseWriter, r *http.Request) {
+	router.Get("/{id}/similar", func(w http.ResponseWriter, r *http.Request) {
 		slug := chi.URLParam(r, "id")
-		similar, err := usecase.GetSimilarToolUsecase(toolRepository, relationshipRepository, slug)
+		getSimilarTool := usecase.GetSimilarToolUseCase{
+			ToolRepository:         deps.ToolRepository,
+			RelationshipRepository: deps.RelationshipRepository,
+		}
+		similar, err := getSimilarTool.Execute(slug)
 		if err != nil {
 			if _, ok := err.(common.ErrResourceNotFound); ok {
 				infra.NotFoundError(w, slug)
@@ -116,12 +163,12 @@ func InitializeToolRouter(toolRepository repository.ToolRepositoryInterface, rel
 		infra.OK(w, similar)
 	})
 
-	toolRouter.Get("/{id}/graph", func(w http.ResponseWriter, r *http.Request) {
+	router.Get("/{id}/graph", func(w http.ResponseWriter, r *http.Request) {
 		var result map[string]any = map[string]any{
 			"message": "Tool graph for " + chi.URLParam(r, "id"),
 		}
 		infra.OK(w, result)
 	})
 
-	return toolRouter
+	return router
 }

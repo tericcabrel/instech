@@ -14,12 +14,3 @@ func (e ErrResourceNotFound) Error() string {
 	}
 	return fmt.Sprintf("%s: %s", msg, e.Id)
 }
-
-type ErrInvalidRelationshipKind struct {
-	Kind    string
-	Message string
-}
-
-func (e ErrInvalidRelationshipKind) Error() string {
-	return fmt.Sprintf("Invalid relationship kind: %s", e.Kind)
-}

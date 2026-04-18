@@ -2,12 +2,18 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"strconv"
-	"strings"
 	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/repository"
 )
+
+type UpdateRelationshipUseCase struct {
+	RelationshipRepository repository.RelationshipRepositoryInterface
+	ToolRepository         repository.ToolRepositoryInterface
+}
 
 type UpdateRelationshipInput struct {
 	FromToolId int
@@ -16,41 +22,50 @@ type UpdateRelationshipInput struct {
 	Metadata   domain.RelationshipMetadata
 }
 
-func UpdateRelationshipUseCase(relationshipRepository repository.RelationshipRepositoryInterface, toolRepository repository.ToolRepositoryInterface, Id int, input UpdateRelationshipInput) (domain.Relationship, error) {
-	relationship, err := relationshipRepository.GetRelationshipById(context.Background(), Id)
+func (uc *UpdateRelationshipUseCase) Execute(Id int, input UpdateRelationshipInput) (domain.Relationship, error) {
+	var err error
+
+	relationship, err := uc.RelationshipRepository.GetRelationshipById(context.Background(), Id)
 	if err != nil {
-		return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(input.FromToolId), Message: "The relationship was not found"}
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(Id), Message: "The relationship was not found"}
+		}
+		return domain.Relationship{}, err
 	}
 
+	var fromTool, toTool domain.Tool
+
 	if relationship.FromToolId != input.FromToolId {
-		fromTool, err := toolRepository.GetToolById(context.Background(), input.FromToolId)
+		fromTool, err = uc.ToolRepository.GetToolById(context.Background(), input.FromToolId)
 		if err != nil {
-			return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(input.FromToolId), Message: "The source tool was not found"}
+			if errors.Is(err, sql.ErrNoRows) {
+				return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(input.FromToolId), Message: "The source tool was not found"}
+			}
+			return domain.Relationship{}, err
 		}
-		relationship.FromToolId = fromTool.Id
 	}
 
 	if relationship.ToToolId != input.ToToolId {
-		toTool, err := toolRepository.GetToolById(context.Background(), input.ToToolId)
+		toTool, err = uc.ToolRepository.GetToolById(context.Background(), input.ToToolId)
 		if err != nil {
-			return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(input.ToToolId), Message: "The target tool was not found"}
+			if errors.Is(err, sql.ErrNoRows) {
+				return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(input.ToToolId), Message: "The target tool was not found"}
+			}
+			return domain.Relationship{}, err
 		}
-		relationship.ToToolId = toTool.Id
 	}
 
-	if relationship.Kind != input.Kind {
-		relationship.Kind = input.Kind
+	err = relationship.Update(domain.UpdateRelationshipInput{
+		FromToolId: fromTool.Id,
+		ToToolId:   toTool.Id,
+		Kind:       input.Kind,
+		Metadata:   input.Metadata,
+	})
+	if err != nil {
+		return domain.Relationship{}, err
 	}
 
-	if !relationship.IsKindValid() {
-		return domain.Relationship{}, common.ErrInvalidRelationshipKind{Kind: input.Kind, Message: "The relationship kind is invalid. Valid kinds are: " + strings.Join(domain.RELATIONSHIP_KINDS, ", ")}
-	}
-
-	if relationship.Metadata != input.Metadata {
-		relationship.Metadata = input.Metadata
-	}
-
-	updatedRelationship, err := relationshipRepository.UpdateRelationship(context.Background(), relationship)
+	updatedRelationship, err := uc.RelationshipRepository.UpdateRelationship(context.Background(), relationship)
 	if err != nil {
 		return domain.Relationship{}, err
 	}

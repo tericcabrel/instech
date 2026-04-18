@@ -89,11 +89,17 @@ func main() {
 		w.Write([]byte(fmt.Sprintf("Search results for %s", r.URL.Query().Get("q"))))
 	})
 
-	toolRouter := toolhttp.InitializeToolRouter(toolRepository, relationshipRepository)
-	r.Mount("/tools", toolRouter)
+	toolRouter := toolhttp.ToolRouter{
+		ToolRepository:         toolRepository,
+		RelationshipRepository: relationshipRepository,
+	}
+	r.Mount("/tools", toolRouter.Initialize())
 
-	relationshipRouter := relationshiphttp.InitializeRelationshipRouter(relationshipRepository, toolRepository)
-	r.Mount("/relationships", relationshipRouter)
+	relationshipRouter := relationshiphttp.RelationshipRouter{
+		RelationshipRepository: relationshipRepository,
+		ToolRepository:         toolRepository,
+	}
+	r.Mount("/relationships", relationshipRouter.Initialize())
 
 	log.Info().Msg("Starting server on 8800")
 

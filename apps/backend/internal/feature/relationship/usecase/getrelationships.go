@@ -2,12 +2,17 @@ package usecase
 
 import (
 	"context"
-	"slices"
+	"strconv"
+	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/repository"
 	"time"
 )
 
+type GetRelationshipsUseCase struct {
+	RelationshipRepository repository.RelationshipRepositoryInterface
+	ToolRepository         repository.ToolRepositoryInterface
+}
 type ClientRelationshipDataTool struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`
@@ -42,8 +47,8 @@ type GetRelationshipsUseCaseParams struct {
 	Limit  int    `json:"limit"`
 }
 
-func GetRelationshipsUsecase(relationshipRepository repository.RelationshipRepositoryInterface, toolRepository repository.ToolRepositoryInterface, params GetRelationshipsUseCaseParams) (ClientRelationshipResult, error) {
-	paginatedRelationships, err := relationshipRepository.GetRelationshipsAll(context.Background(), repository.GetRelationshipsAllParams{
+func (uc *GetRelationshipsUseCase) Execute(params GetRelationshipsUseCaseParams) (ClientRelationshipResult, error) {
+	paginatedRelationships, err := uc.RelationshipRepository.GetRelationshipsAll(context.Background(), repository.GetRelationshipsAllParams{
 		Cursor: params.Cursor,
 		ToolId: params.ToolId,
 		Kind:   params.Kind,
@@ -53,17 +58,9 @@ func GetRelationshipsUsecase(relationshipRepository repository.RelationshipRepos
 		return ClientRelationshipResult{}, err
 	}
 
-	var uniqueToolIds []int = make([]int, 0)
-	for _, relationship := range paginatedRelationships.Relationships {
-		if !slices.Contains(uniqueToolIds, relationship.FromToolId) {
-			uniqueToolIds = append(uniqueToolIds, relationship.FromToolId)
-		}
-		if !slices.Contains(uniqueToolIds, relationship.ToToolId) {
-			uniqueToolIds = append(uniqueToolIds, relationship.ToToolId)
-		}
-	}
+	var uniqueToolIds []int = domain.DedupeToolIdsFromRelationships(paginatedRelationships.Relationships)
 
-	tools, err := toolRepository.GetToolByIds(context.Background(), uniqueToolIds)
+	tools, err := uc.ToolRepository.GetToolByIds(context.Background(), uniqueToolIds)
 	if err != nil {
 		return ClientRelationshipResult{}, err
 	}
@@ -75,17 +72,25 @@ func GetRelationshipsUsecase(relationshipRepository repository.RelationshipRepos
 
 	var relationships []ClientRelationshipData = make([]ClientRelationshipData, 0)
 	for _, relationship := range paginatedRelationships.Relationships {
+		fromTool, ok := toolMap[relationship.FromToolId]
+		if !ok {
+			return ClientRelationshipResult{}, common.ErrResourceNotFound{Id: strconv.Itoa(relationship.FromToolId), Message: "The from tool was not found"}
+		}
+		toTool, ok := toolMap[relationship.ToToolId]
+		if !ok {
+			return ClientRelationshipResult{}, common.ErrResourceNotFound{Id: strconv.Itoa(relationship.ToToolId), Message: "The to tool was not found"}
+		}
 		relationships = append(relationships, ClientRelationshipData{
 			Id: relationship.Id,
 			FromTool: ClientRelationshipDataTool{
-				Id:   relationship.FromToolId,
-				Name: toolMap[relationship.FromToolId].Name,
-				Slug: toolMap[relationship.FromToolId].Slug,
+				Id:   fromTool.Id,
+				Name: fromTool.Name,
+				Slug: fromTool.Slug,
 			},
 			ToTool: ClientRelationshipDataTool{
-				Id:   relationship.ToToolId,
-				Name: toolMap[relationship.ToToolId].Name,
-				Slug: toolMap[relationship.ToToolId].Slug,
+				Id:   toTool.Id,
+				Name: toTool.Name,
+				Slug: toTool.Slug,
 			},
 			Kind:      relationship.Kind,
 			Metadata:  relationship.Metadata,

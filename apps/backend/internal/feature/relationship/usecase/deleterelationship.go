@@ -9,8 +9,12 @@ import (
 	"tericcabrel/instech/internal/repository"
 )
 
-func DeleteRelationshipUseCase(relationshipRepository repository.RelationshipRepositoryInterface, id int) error {
-	_, err := relationshipRepository.GetRelationshipById(context.Background(), id)
+type DeleteRelationshipUseCase struct {
+	RelationshipRepository repository.RelationshipRepositoryInterface
+}
+
+func (uc *DeleteRelationshipUseCase) Execute(id int) error {
+	_, err := uc.RelationshipRepository.GetRelationshipById(context.Background(), id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return common.ErrResourceNotFound{Id: strconv.Itoa(id), Message: "The relationship was not found"}
@@ -18,5 +22,5 @@ func DeleteRelationshipUseCase(relationshipRepository repository.RelationshipRep
 		return err
 	}
 
-	return relationshipRepository.DeleteRelationship(context.Background(), id)
+	return uc.RelationshipRepository.DeleteRelationship(context.Background(), id)
 }

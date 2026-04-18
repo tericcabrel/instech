@@ -8,8 +8,6 @@ import (
 	"tericcabrel/instech/db/queries"
 	"tericcabrel/instech/internal/domain"
 	"time"
-
-	"github.com/rs/zerolog/log"
 )
 
 const DEFAULT_LIMIT = 25
@@ -188,11 +186,6 @@ func (r *RelationshipRepository) GetRelationshipsAll(ctx context.Context, params
 	}
 
 	var nextCursor int64 = -1
-	log.Log().Msgf("len(result): %d --- %d", len(result), params.Limit)
-	for _, item := range result {
-		log.Log().Msgf("item: %d ----- %v", item.Id, item.CreatedAt)
-	}
-	// log.Log().Msgf("last item: %v", result[len(result)-1])
 	if len(result) > limit {
 		nextCursor = result[len(result)-1].CreatedAt.Unix()
 		result = result[:len(result)-1]

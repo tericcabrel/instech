@@ -4,11 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"slices"
+	"strconv"
 	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/repository"
 )
+
+type GetToolAlternativesUseCase struct {
+	ToolRepository         repository.ToolRepositoryInterface
+	RelationshipRepository repository.RelationshipRepositoryInterface
+}
 
 type ToolAlternativesResult struct {
 	Id          string                      `json:"id"`
@@ -26,37 +31,29 @@ type ToolAlternativesResult struct {
 	Metadata    domain.RelationshipMetadata `json:"metadata"`
 }
 
-func GetToolAlternativesUsecase(toolRepository repository.ToolRepositoryInterface, relationshipRepository repository.RelationshipRepositoryInterface, toolSlug string) ([]ToolAlternativesResult, error) {
-	tool, err := toolRepository.GetToolBySlug(context.Background(), toolSlug)
+func (uc *GetToolAlternativesUseCase) Execute(toolSlug string) ([]ToolAlternativesResult, error) {
+	tool, err := uc.ToolRepository.GetToolBySlug(context.Background(), toolSlug)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return []ToolAlternativesResult{}, common.ErrResourceNotFound{Id: toolSlug, Message: err.Error()}
+			return []ToolAlternativesResult{}, common.ErrResourceNotFound{Id: toolSlug, Message: "The tool was not found"}
 		}
 
 		return []ToolAlternativesResult{}, err
 	}
 
-	relationships, err := relationshipRepository.GetToolAlternatives(context.Background(), tool.Id)
+	relationships, err := uc.RelationshipRepository.GetToolAlternatives(context.Background(), tool.Id)
 	if err != nil {
 		return []ToolAlternativesResult{}, err
 	}
 
-	var uniqueToolIds []int = make([]int, 0)
-	for _, relationship := range relationships {
-		if !slices.Contains(uniqueToolIds, relationship.FromToolId) {
-			uniqueToolIds = append(uniqueToolIds, relationship.FromToolId)
-		}
-		if !slices.Contains(uniqueToolIds, relationship.ToToolId) {
-			uniqueToolIds = append(uniqueToolIds, relationship.ToToolId)
-		}
-	}
+	var uniqueToolIds []int = domain.DedupeToolIdsFromRelationships(relationships)
 
 	if len(uniqueToolIds) == 0 {
 		return []ToolAlternativesResult{}, nil
 	}
 
-	tools, err := toolRepository.GetToolByIds(context.Background(), uniqueToolIds)
+	tools, err := uc.ToolRepository.GetToolByIds(context.Background(), uniqueToolIds)
 
 	if err != nil {
 		return []ToolAlternativesResult{}, err
@@ -75,19 +72,24 @@ func GetToolAlternativesUsecase(toolRepository repository.ToolRepositoryInterfac
 			otherToolId = r.ToToolId
 		}
 
+		otherTool, ok := toolMap[otherToolId]
+		if !ok {
+			return []ToolAlternativesResult{}, common.ErrResourceNotFound{Id: strconv.Itoa(otherToolId), Message: "The tool was not found"}
+		}
+
 		result = append(result, ToolAlternativesResult{
-			Id:          toolMap[otherToolId].Slug,
-			Name:        toolMap[otherToolId].Name,
-			Category:    toolMap[otherToolId].Category,
-			SubType:     toolMap[otherToolId].SubType,
-			Prolang:     toolMap[otherToolId].Prolang,
-			ReleaseYear: toolMap[otherToolId].ReleaseYear,
-			DevStatus:   toolMap[otherToolId].Devstatus,
-			Details:     toolMap[otherToolId].Details,
-			UseCases:    toolMap[otherToolId].UseCases,
-			Tags:        toolMap[otherToolId].Tags,
-			Website:     toolMap[otherToolId].Website,
-			Github:      toolMap[otherToolId].Github,
+			Id:          otherTool.Slug,
+			Name:        otherTool.Name,
+			Category:    otherTool.Category,
+			SubType:     otherTool.SubType,
+			Prolang:     otherTool.Prolang,
+			ReleaseYear: otherTool.ReleaseYear,
+			DevStatus:   otherTool.Devstatus,
+			Details:     otherTool.Details,
+			UseCases:    otherTool.UseCases,
+			Tags:        otherTool.Tags,
+			Website:     otherTool.Website,
+			Github:      otherTool.Github,
 			Metadata:    r.Metadata,
 		})
 	}
