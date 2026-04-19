@@ -42,8 +42,8 @@ func (uc *CreateRelationshipUseCase) Execute(input CreateRelationshipInput) (dom
 	}
 
 	relationship, err := domain.CreateRelationship(domain.CreateRelationshipInput{
-		FromToolID: fromTool.Id,
-		ToToolID:   toTool.Id,
+		FromToolId: fromTool.Id,
+		ToToolId:   toTool.Id,
 		Kind:       input.Kind,
 		Reason:     input.Metadata.Reason,
 	})

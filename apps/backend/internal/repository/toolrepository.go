@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"strconv"
 	"tericcabrel/instech/db/queries"
+	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
 )
 
@@ -148,7 +150,7 @@ func (t *ToolRepository) GetToolByIds(ctx context.Context, ids []int) ([]domain.
 	for _, r := range records {
 		tool, err := MapToolRecordToTool(r)
 		if err != nil {
-			return []domain.Tool{}, err
+			return []domain.Tool{}, common.ErrResourceNotFound{Id: strconv.Itoa(r.Id), Message: "The tool was not found"}
 		} else {
 			result = append(result, tool)
 		}

@@ -46,6 +46,10 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 				})
 				return
 			}
+			if errInvalidField, ok := err.(domain.ErrInvalidField); ok {
+				infra.BadRequestError(w, errInvalidField)
+				return
+			}
 			infra.InternalServerError(w, err, "CreateRelationshipUseCase")
 			return
 		}
@@ -84,6 +88,10 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 					"message": errInvalidRelationshipKind.Message,
 					"kind":    errInvalidRelationshipKind.Kind,
 				})
+				return
+			}
+			if errInvalidField, ok := err.(domain.ErrInvalidField); ok {
+				infra.BadRequestError(w, errInvalidField)
 				return
 			}
 			infra.InternalServerError(w, err, "UpdateRelationshipUseCase")

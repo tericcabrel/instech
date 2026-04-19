@@ -48,6 +48,10 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 				infra.BadRequestError(w, err)
 				return
 			}
+			if _, ok := err.(domain.ErrInvalidField); ok {
+				infra.BadRequestError(w, err)
+				return
+			}
 			infra.InternalServerError(w, err, "AddToolUsecase")
 			return
 		}
@@ -114,6 +118,10 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 				infra.BadRequestError(w, err)
 				return
 			}
+			if _, ok := err.(domain.ErrInvalidField); ok {
+				infra.BadRequestError(w, err)
+				return
+			}
 			if _, ok := err.(common.ErrResourceNotFound); ok {
 				infra.NotFoundError(w, slug)
 				return
@@ -143,24 +151,6 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 		}
 
 		infra.OK(w, alternatives)
-	})
-
-	router.Get("/{id}/similar", func(w http.ResponseWriter, r *http.Request) {
-		slug := chi.URLParam(r, "id")
-		getSimilarTool := usecase.GetSimilarToolUseCase{
-			ToolRepository:         deps.ToolRepository,
-			RelationshipRepository: deps.RelationshipRepository,
-		}
-		similar, err := getSimilarTool.Execute(slug)
-		if err != nil {
-			if _, ok := err.(common.ErrResourceNotFound); ok {
-				infra.NotFoundError(w, slug)
-				return
-			}
-			infra.InternalServerError(w, err, "GetSimilarToolUsecase")
-			return
-		}
-		infra.OK(w, similar)
 	})
 
 	router.Get("/{id}/graph", func(w http.ResponseWriter, r *http.Request) {

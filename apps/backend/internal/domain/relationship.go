@@ -21,8 +21,8 @@ type Relationship struct {
 }
 
 type CreateRelationshipInput struct {
-	FromToolID int
-	ToToolID   int
+	FromToolId int
+	ToToolId   int
 	Kind       string
 	Reason     string
 }
@@ -41,13 +41,17 @@ func IsKindValid(kind string) bool {
 }
 
 func CreateRelationship(input CreateRelationshipInput) (Relationship, error) {
-	relationship := Relationship{
-		FromToolId: input.FromToolID,
-		ToToolId:   input.ToToolID,
-		Kind:       input.Kind,
-		Metadata: RelationshipMetadata{
-			Reason: input.Reason,
-		},
+	var errors = make(map[string]string)
+
+	if input.FromToolId <= 0 {
+		errors["FromToolId"] = "The source tool ID is required"
+	}
+	if input.ToToolId <= 0 {
+		errors["ToToolId"] = "The target tool ID is required"
+	}
+
+	if len(errors) > 0 {
+		return Relationship{}, ErrInvalidField{Fields: errors}
 	}
 
 	if !IsKindValid(input.Kind) {
@@ -55,6 +59,15 @@ func CreateRelationship(input CreateRelationshipInput) (Relationship, error) {
 			Kind:    input.Kind,
 			Message: "The relationship kind is invalid. Valid kinds are: " + strings.Join(RELATIONSHIP_KINDS, ", "),
 		}
+	}
+
+	relationship := Relationship{
+		FromToolId: input.FromToolId,
+		ToToolId:   input.ToToolId,
+		Kind:       input.Kind,
+		Metadata: RelationshipMetadata{
+			Reason: input.Reason,
+		},
 	}
 
 	return relationship, nil
@@ -65,6 +78,8 @@ func (relationship *Relationship) Update(input UpdateRelationshipInput) error {
 		return ErrInvalidRelationshipKind{Kind: input.Kind, Message: "The relationship kind is invalid. Valid kinds are: " + strings.Join(RELATIONSHIP_KINDS, ", ")}
 	}
 
+	var errorsMap = make(map[string]string)
+
 	if relationship.Kind != input.Kind {
 		relationship.Kind = input.Kind
 	}
@@ -73,12 +88,24 @@ func (relationship *Relationship) Update(input UpdateRelationshipInput) error {
 		relationship.Metadata = input.Metadata
 	}
 
-	if relationship.FromToolId != input.FromToolId && input.FromToolId > 0 {
-		relationship.FromToolId = input.FromToolId
+	if relationship.FromToolId != input.FromToolId {
+		if input.FromToolId <= 0 {
+			errorsMap["FromToolId"] = "The source tool ID is required"
+		} else {
+			relationship.FromToolId = input.FromToolId
+		}
 	}
 
-	if relationship.ToToolId != input.ToToolId && input.ToToolId > 0 {
-		relationship.ToToolId = input.ToToolId
+	if relationship.ToToolId != input.ToToolId {
+		if input.ToToolId <= 0 {
+			errorsMap["ToToolId"] = "The target tool ID is required"
+		} else {
+			relationship.ToToolId = input.ToToolId
+		}
+	}
+
+	if len(errorsMap) > 0 {
+		return ErrInvalidField{Fields: errorsMap}
 	}
 
 	return nil

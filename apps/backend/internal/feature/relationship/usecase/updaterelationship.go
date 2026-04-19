@@ -33,10 +33,8 @@ func (uc *UpdateRelationshipUseCase) Execute(Id int, input UpdateRelationshipInp
 		return domain.Relationship{}, err
 	}
 
-	var fromTool, toTool domain.Tool
-
 	if relationship.FromToolId != input.FromToolId {
-		fromTool, err = uc.ToolRepository.GetToolById(context.Background(), input.FromToolId)
+		_, err = uc.ToolRepository.GetToolById(context.Background(), input.FromToolId)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(input.FromToolId), Message: "The source tool was not found"}
@@ -46,7 +44,7 @@ func (uc *UpdateRelationshipUseCase) Execute(Id int, input UpdateRelationshipInp
 	}
 
 	if relationship.ToToolId != input.ToToolId {
-		toTool, err = uc.ToolRepository.GetToolById(context.Background(), input.ToToolId)
+		_, err = uc.ToolRepository.GetToolById(context.Background(), input.ToToolId)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(input.ToToolId), Message: "The target tool was not found"}
@@ -56,8 +54,8 @@ func (uc *UpdateRelationshipUseCase) Execute(Id int, input UpdateRelationshipInp
 	}
 
 	err = relationship.Update(domain.UpdateRelationshipInput{
-		FromToolId: fromTool.Id,
-		ToToolId:   toTool.Id,
+		FromToolId: input.FromToolId,
+		ToToolId:   input.ToToolId,
 		Kind:       input.Kind,
 		Metadata:   input.Metadata,
 	})
