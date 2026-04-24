@@ -7,7 +7,6 @@ import (
 	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/feature/tool/usecase"
-	"tericcabrel/instech/internal/repository"
 	"tericcabrel/instech/testutil"
 
 	"testing"
@@ -18,7 +17,7 @@ import (
 
 func TestUpdateToolUseCase(t *testing.T) {
 	t.Run("Update tool fails when the tool is not found", func(t *testing.T) {
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 		toolRepository.EXPECT().
 			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
 			Return(domain.Tool{}, sql.ErrNoRows)
@@ -49,7 +48,7 @@ func TestUpdateToolUseCase(t *testing.T) {
 	})
 
 	t.Run("Update tool fails when there is an error getting the tool", func(t *testing.T) {
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 		toolRepository.EXPECT().
 			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
 			Return(domain.Tool{}, errors.New("error getting the tool"))
@@ -83,7 +82,7 @@ func TestUpdateToolUseCase(t *testing.T) {
 		tool := testutil.CreateTestTool()
 		tool.Id = 1
 
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 		toolRepository.EXPECT().
 			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
 			Return(tool, nil)
@@ -112,7 +111,7 @@ func TestUpdateToolUseCase(t *testing.T) {
 		tool := testutil.CreateTestTool()
 		tool.Id = 1
 
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 		toolRepository.EXPECT().
 			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
 			Return(tool, nil)
@@ -167,7 +166,7 @@ func TestUpdateToolUseCase(t *testing.T) {
 		tool := testutil.CreateTestTool()
 		tool.Id = 1
 
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 		toolRepository.EXPECT().
 			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
 			Return(tool, nil)
@@ -204,7 +203,7 @@ func TestUpdateToolUseCase(t *testing.T) {
 		tool := testutil.CreateTestTool()
 		tool.Id = 1
 
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 		toolRepository.EXPECT().
 			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
 			Return(tool, nil)

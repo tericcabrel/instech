@@ -34,7 +34,6 @@ type RelationshipRepositoryInterface interface {
 	GetRelationshipsByToolID(ctx context.Context, toolID int) ([]domain.Relationship, error)
 	UpdateRelationship(ctx context.Context, relationship domain.Relationship) (domain.Relationship, error)
 	GetToolAlternatives(ctx context.Context, toolID int) ([]domain.Relationship, error)
-	GetToolSimilar(ctx context.Context, toolID int) ([]domain.Relationship, error)
 	GetRelationshipsAll(ctx context.Context, params GetRelationshipsAllParams) (PaginatedRelationshipsResult, error)
 }
 
@@ -126,25 +125,6 @@ func (r *RelationshipRepository) GetToolAlternatives(ctx context.Context, toolId
 	}
 
 	records, err := queries.New(r.db).GetToolAlternatives(ctx, params)
-	if err != nil {
-		return []domain.Relationship{}, err
-	}
-
-	relationships := make([]domain.Relationship, len(records))
-	for i, record := range records {
-		relationships[i] = MapRelationshipRecordToRelationship(record)
-	}
-
-	return relationships, nil
-}
-
-func (r *RelationshipRepository) GetToolSimilar(ctx context.Context, toolId int) ([]domain.Relationship, error) {
-	params := queries.GetToolSimilarParams{
-		FromToolId: toolId,
-		ToToolId:   toolId,
-	}
-
-	records, err := queries.New(r.db).GetToolSimilar(ctx, params)
 	if err != nil {
 		return []domain.Relationship{}, err
 	}

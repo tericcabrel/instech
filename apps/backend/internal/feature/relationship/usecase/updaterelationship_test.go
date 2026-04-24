@@ -5,7 +5,6 @@ import (
 	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/feature/relationship/usecase"
-	"tericcabrel/instech/internal/repository"
 	"tericcabrel/instech/testutil"
 	"testing"
 
@@ -15,8 +14,8 @@ import (
 
 func TestUpdateRelationshipUseCase(t *testing.T) {
 	t.Run("Update relationship will fail if the relationship is not found", func(t *testing.T) {
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
 			GetRelationshipById(mock.Anything, 99).
@@ -49,8 +48,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 			Reason:     "original",
 		})
 
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
 			GetRelationshipById(mock.Anything, 1).
@@ -91,8 +90,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 			Reason:     "original",
 		})
 
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
 			GetRelationshipById(mock.Anything, 1).
@@ -133,8 +132,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 			Reason:     "original",
 		})
 
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
 			GetRelationshipById(mock.Anything, 1).
@@ -176,8 +175,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 		expected.Kind = "inspired_by"
 		expected.Metadata = domain.RelationshipMetadata{Reason: "updated reason"}
 
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
 			GetRelationshipById(mock.Anything, 1).
@@ -233,8 +232,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 		expectedRelationship.Kind = "alternative_to"
 		expectedRelationship.Metadata = domain.RelationshipMetadata{Reason: "swapped"}
 
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
 			GetRelationshipById(mock.Anything, 5).

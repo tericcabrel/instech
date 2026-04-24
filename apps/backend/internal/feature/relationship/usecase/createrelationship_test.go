@@ -5,7 +5,6 @@ import (
 	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/feature/relationship/usecase"
-	"tericcabrel/instech/internal/repository"
 	"tericcabrel/instech/testutil"
 	"testing"
 
@@ -15,8 +14,8 @@ import (
 
 func TestCreateRelationshipUseCase(t *testing.T) {
 	t.Run("Create relationship with invalid source tool ID", func(t *testing.T) {
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 		toolRepository.EXPECT().
 			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
 			Return(domain.Tool{}, sql.ErrNoRows)
@@ -49,8 +48,8 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 	t.Run("Create relationship with invalid target tool ID", func(t *testing.T) {
 		tool := testutil.CreateTestTool()
 
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		toolRepository.EXPECT().
 			GetToolBySlug(mock.Anything, tool.Slug).
@@ -102,8 +101,8 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			Prolang:     "JavaScript",
 		})
 
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		toolRepository.EXPECT().
 			GetToolBySlug(mock.Anything, tool1.Slug).
@@ -161,8 +160,8 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			Reason:     "This is a test relationship",
 		})
 
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		toolRepository.EXPECT().
 			GetToolBySlug(mock.Anything, tool1.Slug).

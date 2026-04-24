@@ -2,11 +2,12 @@
 // github.com/vektra/mockery
 // template: testify
 
-package repository
+package testutil
 
 import (
 	"context"
 	"tericcabrel/instech/internal/domain"
+	"tericcabrel/instech/internal/repository"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -228,24 +229,24 @@ func (_c *MockRelationshipRepositoryInterface_GetRelationshipById_Call) RunAndRe
 }
 
 // GetRelationshipsAll provides a mock function for the type MockRelationshipRepositoryInterface
-func (_mock *MockRelationshipRepositoryInterface) GetRelationshipsAll(ctx context.Context, params GetRelationshipsAllParams) (PaginatedRelationshipsResult, error) {
+func (_mock *MockRelationshipRepositoryInterface) GetRelationshipsAll(ctx context.Context, params repository.GetRelationshipsAllParams) (repository.PaginatedRelationshipsResult, error) {
 	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetRelationshipsAll")
 	}
 
-	var r0 PaginatedRelationshipsResult
+	var r0 repository.PaginatedRelationshipsResult
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetRelationshipsAllParams) (PaginatedRelationshipsResult, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, repository.GetRelationshipsAllParams) (repository.PaginatedRelationshipsResult, error)); ok {
 		return returnFunc(ctx, params)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetRelationshipsAllParams) PaginatedRelationshipsResult); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, repository.GetRelationshipsAllParams) repository.PaginatedRelationshipsResult); ok {
 		r0 = returnFunc(ctx, params)
 	} else {
-		r0 = ret.Get(0).(PaginatedRelationshipsResult)
+		r0 = ret.Get(0).(repository.PaginatedRelationshipsResult)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, GetRelationshipsAllParams) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, repository.GetRelationshipsAllParams) error); ok {
 		r1 = returnFunc(ctx, params)
 	} else {
 		r1 = ret.Error(1)
@@ -260,20 +261,20 @@ type MockRelationshipRepositoryInterface_GetRelationshipsAll_Call struct {
 
 // GetRelationshipsAll is a helper method to define mock.On call
 //   - ctx context.Context
-//   - params GetRelationshipsAllParams
+//   - params repository.GetRelationshipsAllParams
 func (_e *MockRelationshipRepositoryInterface_Expecter) GetRelationshipsAll(ctx interface{}, params interface{}) *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call {
 	return &MockRelationshipRepositoryInterface_GetRelationshipsAll_Call{Call: _e.mock.On("GetRelationshipsAll", ctx, params)}
 }
 
-func (_c *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call) Run(run func(ctx context.Context, params GetRelationshipsAllParams)) *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call {
+func (_c *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call) Run(run func(ctx context.Context, params repository.GetRelationshipsAllParams)) *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 GetRelationshipsAllParams
+		var arg1 repository.GetRelationshipsAllParams
 		if args[1] != nil {
-			arg1 = args[1].(GetRelationshipsAllParams)
+			arg1 = args[1].(repository.GetRelationshipsAllParams)
 		}
 		run(
 			arg0,
@@ -283,12 +284,12 @@ func (_c *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call) Run(run 
 	return _c
 }
 
-func (_c *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call) Return(paginatedRelationshipsResult PaginatedRelationshipsResult, err error) *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call {
+func (_c *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call) Return(paginatedRelationshipsResult repository.PaginatedRelationshipsResult, err error) *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call {
 	_c.Call.Return(paginatedRelationshipsResult, err)
 	return _c
 }
 
-func (_c *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call) RunAndReturn(run func(ctx context.Context, params GetRelationshipsAllParams) (PaginatedRelationshipsResult, error)) *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call {
+func (_c *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call) RunAndReturn(run func(ctx context.Context, params repository.GetRelationshipsAllParams) (repository.PaginatedRelationshipsResult, error)) *MockRelationshipRepositoryInterface_GetRelationshipsAll_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -425,74 +426,6 @@ func (_c *MockRelationshipRepositoryInterface_GetToolAlternatives_Call) Return(r
 }
 
 func (_c *MockRelationshipRepositoryInterface_GetToolAlternatives_Call) RunAndReturn(run func(ctx context.Context, toolID int) ([]domain.Relationship, error)) *MockRelationshipRepositoryInterface_GetToolAlternatives_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetToolSimilar provides a mock function for the type MockRelationshipRepositoryInterface
-func (_mock *MockRelationshipRepositoryInterface) GetToolSimilar(ctx context.Context, toolID int) ([]domain.Relationship, error) {
-	ret := _mock.Called(ctx, toolID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetToolSimilar")
-	}
-
-	var r0 []domain.Relationship
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) ([]domain.Relationship, error)); ok {
-		return returnFunc(ctx, toolID)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) []domain.Relationship); ok {
-		r0 = returnFunc(ctx, toolID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]domain.Relationship)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, int) error); ok {
-		r1 = returnFunc(ctx, toolID)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockRelationshipRepositoryInterface_GetToolSimilar_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetToolSimilar'
-type MockRelationshipRepositoryInterface_GetToolSimilar_Call struct {
-	*mock.Call
-}
-
-// GetToolSimilar is a helper method to define mock.On call
-//   - ctx context.Context
-//   - toolID int
-func (_e *MockRelationshipRepositoryInterface_Expecter) GetToolSimilar(ctx interface{}, toolID interface{}) *MockRelationshipRepositoryInterface_GetToolSimilar_Call {
-	return &MockRelationshipRepositoryInterface_GetToolSimilar_Call{Call: _e.mock.On("GetToolSimilar", ctx, toolID)}
-}
-
-func (_c *MockRelationshipRepositoryInterface_GetToolSimilar_Call) Run(run func(ctx context.Context, toolID int)) *MockRelationshipRepositoryInterface_GetToolSimilar_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 int
-		if args[1] != nil {
-			arg1 = args[1].(int)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *MockRelationshipRepositoryInterface_GetToolSimilar_Call) Return(relationships []domain.Relationship, err error) *MockRelationshipRepositoryInterface_GetToolSimilar_Call {
-	_c.Call.Return(relationships, err)
-	return _c
-}
-
-func (_c *MockRelationshipRepositoryInterface_GetToolSimilar_Call) RunAndReturn(run func(ctx context.Context, toolID int) ([]domain.Relationship, error)) *MockRelationshipRepositoryInterface_GetToolSimilar_Call {
 	_c.Call.Return(run)
 	return _c
 }

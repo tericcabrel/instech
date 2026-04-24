@@ -15,6 +15,3 @@ SELECT * FROM relationships WHERE id = ? LIMIT 1;
 
 -- name: GetToolAlternatives :many
 SELECT * FROM relationships WHERE (from_tool_id = ? OR to_tool_id = ?) AND kind = 'alternative_to';
-
--- name: GetToolSimilar :many
-SELECT * FROM relationships WHERE (from_tool_id = ? OR to_tool_id = ?) AND kind = 'similar';

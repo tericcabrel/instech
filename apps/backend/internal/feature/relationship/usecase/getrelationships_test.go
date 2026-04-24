@@ -29,8 +29,8 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 	}
 
 	t.Run("Get relationships propagates error from GetRelationshipsAll", func(t *testing.T) {
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		dbErr := errors.New("database unavailable")
 		relationshipRepository.EXPECT().
@@ -56,8 +56,8 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 			Reason:     "r",
 		})
 
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		toolsErr := errors.New("tools query failed")
 		relationshipRepository.EXPECT().
@@ -106,8 +106,8 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 			Prolang:     "Go",
 		})
 
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
 			GetRelationshipsAll(mock.Anything, repoParams).
@@ -134,8 +134,8 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 	})
 
 	t.Run("Get relationships returns empty result", func(t *testing.T) {
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
 			GetRelationshipsAll(mock.Anything, repoParams).
@@ -193,8 +193,8 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 			Prolang:     "JavaScript",
 		})
 
-		relationshipRepository := repository.NewMockRelationshipRepositoryInterface(t)
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
 			GetRelationshipsAll(mock.Anything, repoParams).

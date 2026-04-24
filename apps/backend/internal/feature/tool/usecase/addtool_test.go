@@ -4,7 +4,7 @@ import (
 	"context"
 	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/feature/tool/usecase"
-	"tericcabrel/instech/internal/repository"
+	"tericcabrel/instech/testutil"
 
 	"testing"
 
@@ -14,7 +14,7 @@ import (
 
 func TestAddToolUseCase(t *testing.T) {
 	t.Run("Add tool with valid input", func(t *testing.T) {
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 		toolRepository.EXPECT().
 			CreateTool(mock.Anything, mock.AnythingOfType("domain.Tool")).
 			RunAndReturn(func(_ context.Context, tool domain.Tool) (domain.Tool, error) {
@@ -49,7 +49,7 @@ func TestAddToolUseCase(t *testing.T) {
 	})
 
 	t.Run("Add tool with invalid category will fail", func(t *testing.T) {
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 		addTool := usecase.AddToolUseCase{
 			ToolRepository: toolRepository,
 		}
@@ -67,7 +67,7 @@ func TestAddToolUseCase(t *testing.T) {
 	})
 
 	t.Run("Add tool with invalid fields will fail", func(t *testing.T) {
-		toolRepository := repository.NewMockToolRepositoryInterface(t)
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 		addTool := usecase.AddToolUseCase{
 			ToolRepository: toolRepository,
 		}

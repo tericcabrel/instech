@@ -1,5 +1,5 @@
 all: false
-dir: '{{.InterfaceDir}}'
+dir: testutil
 filename: testmocks.go
 force-file-write: true
 formatter: goimports
@@ -16,7 +16,7 @@ generate: true
 include-auto-generated: false
 log-level: debug
 structname: '{{.Mock}}{{.InterfaceName}}'
-pkgname: '{{.SrcPackageName}}'
+pkgname: testutil
 recursive: false
 require-template-schema-exists: true
 template: testify

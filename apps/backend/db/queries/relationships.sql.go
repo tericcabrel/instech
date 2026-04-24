@@ -148,46 +148,6 @@ func (q *Queries) GetToolAlternatives(ctx context.Context, arg GetToolAlternativ
 	return items, nil
 }
 
-const getToolSimilar = `-- name: GetToolSimilar :many
-SELECT id, from_tool_id, to_tool_id, kind, metadata, created_at, updated_at FROM relationships WHERE (from_tool_id = ? OR to_tool_id = ?) AND kind = 'similar'
-`
-
-type GetToolSimilarParams struct {
-	FromToolId int
-	ToToolId   int
-}
-
-func (q *Queries) GetToolSimilar(ctx context.Context, arg GetToolSimilarParams) ([]RelationshipRecord, error) {
-	rows, err := q.db.QueryContext(ctx, getToolSimilar, arg.FromToolId, arg.ToToolId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []RelationshipRecord{}
-	for rows.Next() {
-		var i RelationshipRecord
-		if err := rows.Scan(
-			&i.Id,
-			&i.FromToolId,
-			&i.ToToolId,
-			&i.Kind,
-			&i.Metadata,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const updateRelationship = `-- name: UpdateRelationship :one
 UPDATE relationships SET from_tool_id = ?, to_tool_id = ?, kind = ?, metadata = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? RETURNING id, from_tool_id, to_tool_id, kind, metadata, created_at, updated_at
 `
