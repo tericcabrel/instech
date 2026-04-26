@@ -26,7 +26,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 		var input usecase.CreateRelationshipInput
 		err := json.NewDecoder(r.Body).Decode(&input)
 		if err != nil {
-			httprouter.BadRequestError(w, input)
+			httprouter.BadRequestError(w, err.Error())
 			return
 		}
 		createRelationship := usecase.CreateRelationshipUseCase{
@@ -68,7 +68,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 		var input usecase.UpdateRelationshipInput
 		parseErr := json.NewDecoder(r.Body).Decode(&input)
 		if parseErr != nil {
-			httprouter.BadRequestError(w, input)
+			httprouter.BadRequestError(w, parseErr.Error())
 			return
 		}
 

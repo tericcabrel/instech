@@ -4,6 +4,7 @@ package http_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,6 +12,7 @@ import (
 	"net/http/httptest"
 	"strconv"
 	"tericcabrel/instech/internal/core"
+	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/repository"
 	"tericcabrel/instech/testutil"
 	"testing"
@@ -21,67 +23,164 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createTool(t *testing.T, router *core.HTTPRouter) map[string]any {
+func buildRouter(t *testing.T, db *sql.DB) *core.HTTPRouter {
 	t.Helper()
 
-	bodyString := `{
-		"name": "Golang",
-		"slug": "golang",
-		"category": "language",
-		"subType": "backend",
-		"prolang": "Go",
-		"releaseYear": 2009,
-		"devStatus": "active",
-		"details": "Test Details",
-		"usecases": ["api", "backend"],
-		"tags": ["rest api", "server side", "cli"],
-		"website": "https://go.dev",
-		"github": "https://github.com/golang/go"
-	}`
-	body := bytes.NewBufferString(bodyString)
-	req := httptest.NewRequest(http.MethodPost, "/tools", body)
-	req.Header.Set("Content-Type", "application/json")
-	rec := httptest.NewRecorder()
-	router.Initialize().ServeHTTP(rec, req)
+	return &core.HTTPRouter{
+		ToolRepository:         repository.NewToolRepository(db),
+		RelationshipRepository: repository.NewRelationshipRepository(db),
+	}
+}
 
-	require.Equal(t, http.StatusCreated, rec.Code)
+func createTool(t *testing.T, db *sql.DB) int {
+	t.Helper()
 
-	responseBody, err := io.ReadAll(rec.Body)
+	tool, err := domain.CreateTool(domain.CreateToolInput{
+		Name:        "Golang",
+		Slug:        "golang",
+		Category:    "language",
+		SubType:     "backend",
+		Prolang:     "Go",
+		ReleaseYear: 2009,
+		Devstatus:   "active",
+		Details:     "Test Details",
+		UseCases:    []string{"api", "backend"},
+		Tags:        []string{"rest api", "server side", "cli"},
+		Website:     "https://go.dev",
+		Github:      "https://github.com/golang/go",
+	})
 	require.NoError(t, err)
 
-	var response map[string]any
-	err = json.Unmarshal(responseBody, &response)
+	toolRepository := repository.NewToolRepository(db)
+	createdTool, err := toolRepository.CreateTool(context.Background(), tool)
 	require.NoError(t, err)
 
-	return response
+	return createdTool.Id
+}
+
+func deleteTools(t *testing.T, db *sql.DB, toolIds ...int) {
+	t.Helper()
+
+	toolRepository := repository.NewToolRepository(db)
+
+	tools, err := toolRepository.GetToolByIds(context.Background(), toolIds)
+	require.NoError(t, err)
+
+	for _, tool := range tools {
+		err := toolRepository.DeleteTool(context.Background(), tool.Slug)
+		require.NoError(t, err)
+	}
 }
 
 func populateAlternatives(t *testing.T, db *sql.DB) {
 	t.Helper()
 
-	stmts := []string{
-		"INSERT INTO tools (id, name, slug, category, sub_type, prolang, release_year, devstatus, details, use_cases, tags, website, github) VALUES (11, 'Golang', 'golang', 'language', 'backend', 'Go', 2009, 'active', 'Golang details', '[\"api\", \"backend\"]', '[\"rest api\", \"server side\", \"cli\"]', 'https://golang.org', 'https://github.com/golang/go')",
-		"INSERT INTO tools (id, name, slug, category, sub_type, prolang, release_year, devstatus, details, use_cases, tags, website, github) VALUES (12, 'Node.js', 'nodejs', 'language', 'fullstack', 'JavaScript', 2009, 'active', 'Node.js details', '[\"api\", \"frontend\", \"fullstack\"]', '[\"web\", \"api\", \"frontend\"]', 'https://nodejs.org', 'https://github.com/nodejs/node')",
-		"INSERT INTO tools (id, name, slug, category, sub_type, prolang, release_year, devstatus, details, use_cases, tags, website, github) VALUES (13, 'Python', 'python', 'language', 'backend', 'Python', 2009, 'active', 'Python details', '[\"api\", \"backend\"]', '[\"rest api\", \"server side\", \"cli\"]', 'https://python.org', 'https://github.com/python/python')",
-		"INSERT INTO relationships (id, from_tool_id, to_tool_id, kind, metadata) VALUES (1, 11, 12, 'alternative_to', '{\"reason\": \"test relationship 1\"}')",
-		"INSERT INTO relationships (id, from_tool_id, to_tool_id, kind, metadata) VALUES (2, 12, 11, 'alternative_to', '{\"reason\": \"test relationship 2\"}')",
-		"INSERT INTO relationships (id, from_tool_id, to_tool_id, kind, metadata) VALUES (3, 11, 13, 'alternative_to', '{\"reason\": \"test relationship 3\"}')",
-	}
-	for _, stmt := range stmts {
-		_, err := db.Exec(stmt)
-		fmt.Printf("Error: %v", err)
-		require.NoError(t, err)
-	}
+	toolRepository := repository.NewToolRepository(db)
+	relationshipRepository := repository.NewRelationshipRepository(db)
+
+	golangTool, err := domain.CreateTool(domain.CreateToolInput{
+		Name:        "Golang",
+		Slug:        "golang",
+		Category:    "language",
+		SubType:     "backend",
+		Devstatus:   "active",
+		Prolang:     "Go",
+		ReleaseYear: 2009,
+		Details:     "Golang details",
+		UseCases:    []string{"api", "backend"},
+		Tags:        []string{"rest api", "server side", "cli"},
+		Website:     "https://golang.org",
+		Github:      "https://github.com/golang/go",
+	})
+	require.NoError(t, err)
+	createdGolangTool, err := toolRepository.CreateTool(context.Background(), golangTool)
+	require.NoError(t, err)
+
+	nodejsTool, err := domain.CreateTool(domain.CreateToolInput{
+		Name:        "Node.js",
+		Slug:        "nodejs",
+		Category:    "language",
+		SubType:     "fullstack",
+		Devstatus:   "active",
+		Prolang:     "JavaScript",
+		Details:     "Node.js details",
+		UseCases:    []string{"api", "frontend", "fullstack"},
+		Tags:        []string{"web", "api", "frontend"},
+		Website:     "https://nodejs.org",
+		Github:      "https://github.com/nodejs/node",
+		ReleaseYear: 2009,
+	})
+	require.NoError(t, err)
+	createdNodejsTool, err := toolRepository.CreateTool(context.Background(), nodejsTool)
+	require.NoError(t, err)
+
+	pythonTool, err := domain.CreateTool(domain.CreateToolInput{
+		Name:        "Python",
+		Slug:        "python",
+		Category:    "language",
+		SubType:     "backend",
+		Devstatus:   "active",
+		Prolang:     "Python",
+		Details:     "Python details",
+		UseCases:    []string{"api", "backend"},
+		Tags:        []string{"rest api", "server side", "cli"},
+		Website:     "https://python.org",
+		Github:      "https://github.com/python/python",
+		ReleaseYear: 1995,
+	})
+	require.NoError(t, err)
+	createdPythonTool, err := toolRepository.CreateTool(context.Background(), pythonTool)
+	require.NoError(t, err)
+
+	rel1, err := domain.CreateRelationship(domain.CreateRelationshipInput{
+		FromToolId: createdGolangTool.Id,
+		ToToolId:   createdNodejsTool.Id,
+		Kind:       "alternative_to",
+		Reason:     "test relationship 1",
+	})
+	require.NoError(t, err)
+	_, err = relationshipRepository.CreateRelationship(context.Background(), rel1)
+	require.NoError(t, err)
+
+	rel2, err := domain.CreateRelationship(domain.CreateRelationshipInput{
+		FromToolId: createdNodejsTool.Id,
+		ToToolId:   createdGolangTool.Id,
+		Kind:       "alternative_to",
+		Reason:     "test relationship 2",
+	})
+	require.NoError(t, err)
+	_, err = relationshipRepository.CreateRelationship(context.Background(), rel2)
+	require.NoError(t, err)
+
+	rel3, err := domain.CreateRelationship(domain.CreateRelationshipInput{
+		FromToolId: createdGolangTool.Id,
+		ToToolId:   createdPythonTool.Id,
+		Kind:       "alternative_to",
+		Reason:     "test relationship 3",
+	})
+	require.NoError(t, err)
+	_, err = relationshipRepository.CreateRelationship(context.Background(), rel3)
+	require.NoError(t, err)
 }
 
 func cleanAlternatives(t *testing.T, db *sql.DB) {
 	t.Helper()
-	stmts := []string{
-		"DELETE FROM tools WHERE id IN (11, 12, 13)",
-		"DELETE FROM relationships WHERE id IN (1, 2, 3)",
+
+	toolRepository := repository.NewToolRepository(db)
+	tools, err := toolRepository.GetToolByIds(context.Background(), []int{1, 2, 3})
+	require.NoError(t, err)
+	for _, tool := range tools {
+		err := toolRepository.DeleteTool(context.Background(), tool.Slug)
+		require.NoError(t, err)
 	}
-	for _, stmt := range stmts {
-		_, err := db.Exec(stmt)
+
+	relationshipRepository := repository.NewRelationshipRepository(db)
+	relationships, err := relationshipRepository.GetRelationshipsAll(context.Background(), repository.GetRelationshipsAllParams{
+		Limit: 100,
+	})
+	require.NoError(t, err)
+	for _, relationship := range relationships.Relationships {
+		err := relationshipRepository.DeleteRelationship(context.Background(), relationship.Id)
 		require.NoError(t, err)
 	}
 }
@@ -90,16 +189,9 @@ func TestToolRouter_CreateTool(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	defer db.Close()
 
-	toolRepository := repository.NewToolRepository(db)
-	relationshipRepository := repository.NewRelationshipRepository(db)
-
 	t.Run("[POST] /tools", func(t *testing.T) {
+		router := buildRouter(t, db)
 		t.Run("return error 400 when the request body is an invalid JSON", func(t *testing.T) {
-			router := core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			body := bytes.NewBufferString(`{
 				"name": "Golang",
 				"slug": "golang",
@@ -108,7 +200,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			req := httptest.NewRequest(http.MethodPost, "/tools", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
 			require.Equal(t, http.StatusBadRequest, rec.Code)
 
 			responseBody, err := io.ReadAll(rec.Body)
@@ -123,11 +215,6 @@ func TestToolRouter_CreateTool(t *testing.T) {
 		})
 
 		t.Run("return error 400 when the category is invalid", func(t *testing.T) {
-			router := core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			body := bytes.NewBufferString(`{
 				"name": "Golang",
 				"slug": "golang",
@@ -136,7 +223,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			req := httptest.NewRequest(http.MethodPost, "/tools", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
 
 			require.Equal(t, http.StatusBadRequest, rec.Code)
 
@@ -156,21 +243,16 @@ func TestToolRouter_CreateTool(t *testing.T) {
 		})
 
 		t.Run("return error 400 when the sub type is invalid", func(t *testing.T) {
-			router := core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			body := bytes.NewBufferString(`{
-			"name": "Golang",
-			"slug": "golang",
-			"category": "language",
-			"subType": "invalid"
-		}`)
+				"name": "Golang",
+				"slug": "golang",
+				"category": "language",
+				"subType": "invalid"
+			}`)
 			req := httptest.NewRequest(http.MethodPost, "/tools", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
 			require.Equal(t, http.StatusBadRequest, rec.Code)
 
 			responseBody, err := io.ReadAll(rec.Body)
@@ -188,29 +270,27 @@ func TestToolRouter_CreateTool(t *testing.T) {
 		})
 
 		t.Run("return error 400 when the dev status is invalid", func(t *testing.T) {
-			router := core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			body := bytes.NewBufferString(`{
-			"name": "Golang",
-			"slug": "golang",
-			"category": "language",
-			"subType": "backend",
-			"devStatus": "invalid"
-		}`)
+				"name": "Golang",
+				"slug": "golang",
+				"category": "language",
+				"subType": "backend",
+				"devStatus": "invalid"
+			}`)
 			req := httptest.NewRequest(http.MethodPost, "/tools", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
+
 			require.Equal(t, http.StatusBadRequest, rec.Code)
 
 			responseBody, err := io.ReadAll(rec.Body)
+
 			require.NoError(t, err)
 
 			var response map[string]any
 			err = json.Unmarshal(responseBody, &response)
+
 			require.NoError(t, err)
 			require.Equal(t, "Bad Request", response["message"])
 			expectedDetails := map[string]interface{}{
@@ -221,22 +301,17 @@ func TestToolRouter_CreateTool(t *testing.T) {
 		})
 
 		t.Run("return error 422 when the fields are invalid", func(t *testing.T) {
-			router := core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			body := bytes.NewBufferString(`{
-			"category": "language",
-			"subType": "backend",
-			"devStatus": "active",
-			"website": "invalid",
-			"github": "invalid"
-		}`)
+				"category": "language",
+				"subType": "backend",
+				"devStatus": "active",
+				"website": "invalid",
+				"github": "invalid"
+			}`)
 			req := httptest.NewRequest(http.MethodPost, "/tools", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
 			require.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 
 			responseBody, err := io.ReadAll(rec.Body)
@@ -264,11 +339,6 @@ func TestToolRouter_CreateTool(t *testing.T) {
 		})
 
 		t.Run("Create tool with valid input", func(t *testing.T) {
-			router := core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			body := bytes.NewBufferString(`{
 				"name": "Golang",
 				"slug": "golang",
@@ -286,15 +356,17 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			req := httptest.NewRequest(http.MethodPost, "/tools", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
 
 			require.Equal(t, http.StatusCreated, rec.Code)
 
 			responseBody, err := io.ReadAll(rec.Body)
+
 			require.NoError(t, err)
 
 			var response map[string]any
 			err = json.Unmarshal(responseBody, &response)
+
 			require.NoError(t, err)
 
 			require.Equal(t, float64(1), response["id"])
@@ -313,16 +385,10 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			require.Contains(t, response, "created_at")
 			require.Contains(t, response, "updated_at")
 
-			_, errDb := db.Exec("DELETE FROM tools WHERE slug = ?", response["slug"])
-			require.NoError(t, errDb)
+			deleteTools(t, db, int(response["id"].(float64)))
 		})
 
 		t.Run("return error 400 when the tool already exists", func(t *testing.T) {
-			router := core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			bodyString := `{
 				"name": "Node.js",
 				"slug": "nodejs",
@@ -341,8 +407,20 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			reqOne := httptest.NewRequest(http.MethodPost, "/tools", body)
 			reqOne.Header.Set("Content-Type", "application/json")
 			recOne := httptest.NewRecorder()
-			h.ServeHTTP(recOne, reqOne)
+			router.Initialize().ServeHTTP(recOne, reqOne)
+
 			require.Equal(t, http.StatusCreated, recOne.Code)
+
+			responseBodyOne, err := io.ReadAll(recOne.Body)
+
+			require.NoError(t, err)
+
+			var responseOne map[string]any
+			err = json.Unmarshal(responseBodyOne, &responseOne)
+
+			require.NoError(t, err)
+
+			toolIdCreated := responseOne["id"].(float64)
 
 			// Send the same request again
 			bodyTwo := bytes.NewBufferString(bodyString)
@@ -350,7 +428,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			reqTwo := httptest.NewRequest(http.MethodPost, "/tools", bodyTwo)
 			reqTwo.Header.Set("Content-Type", "application/json")
 			recTwo := httptest.NewRecorder()
-			h.ServeHTTP(recTwo, reqTwo)
+			router.Initialize().ServeHTTP(recTwo, reqTwo)
 			require.Equal(t, http.StatusBadRequest, recTwo.Code)
 
 			responseBody, err := io.ReadAll(recTwo.Body)
@@ -368,24 +446,17 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			}
 			require.Equal(t, expectedDetails, response["details"])
 
-			_, errDb := db.Exec("DELETE FROM tools WHERE slug = ?", "nodejs")
-			require.NoError(t, errDb)
+			deleteTools(t, db, int(toolIdCreated))
 		})
 	})
 
 	t.Run("[PUT] /tools/{id}", func(t *testing.T) {
-		router := &core.HTTPRouter{
-			ToolRepository:         toolRepository,
-			RelationshipRepository: relationshipRepository,
-		}
-		tool := createTool(t, router)
-
+		router := buildRouter(t, db)
+		createdToolId := createTool(t, db)
+		t.Cleanup(func() {
+			deleteTools(t, db, createdToolId)
+		})
 		t.Run("return error 400 when the request body is an invalid JSON", func(t *testing.T) {
-			router := core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			body := bytes.NewBufferString(`{
 				"name": "Golang",
 				"slug": "golang",
@@ -396,7 +467,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			req := httptest.NewRequest(http.MethodPut, "/tools/golang", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
 			require.Equal(t, http.StatusBadRequest, rec.Code)
 
 			responseBody, err := io.ReadAll(rec.Body)
@@ -410,11 +481,6 @@ func TestToolRouter_CreateTool(t *testing.T) {
 		})
 
 		t.Run("return error 400 when the category is invalid", func(t *testing.T) {
-			router := core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			body := bytes.NewBufferString(`{
 				"name": "Golang",
 				"slug": "golang",
@@ -423,14 +489,16 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			req := httptest.NewRequest(http.MethodPut, "/tools/golang", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
 			require.Equal(t, http.StatusBadRequest, rec.Code)
 
 			responseBody, err := io.ReadAll(rec.Body)
+
 			require.NoError(t, err)
 
 			var response map[string]any
 			err = json.Unmarshal(responseBody, &response)
+
 			require.NoError(t, err)
 			require.Equal(t, "Bad Request", response["message"])
 			expectedDetails := map[string]interface{}{
@@ -441,11 +509,6 @@ func TestToolRouter_CreateTool(t *testing.T) {
 		})
 
 		t.Run("return error 400 when the sub type is invalid", func(t *testing.T) {
-			router := core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			body := bytes.NewBufferString(`{
 				"name": "Golang",
 				"slug": "golang",
@@ -455,14 +518,17 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			req := httptest.NewRequest(http.MethodPut, "/tools/golang", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
+
 			require.Equal(t, http.StatusBadRequest, rec.Code)
 
 			responseBody, err := io.ReadAll(rec.Body)
+
 			require.NoError(t, err)
 
 			var response map[string]any
 			err = json.Unmarshal(responseBody, &response)
+
 			require.NoError(t, err)
 			require.Equal(t, "Bad Request", response["message"])
 			expectedDetails := map[string]interface{}{
@@ -473,11 +539,6 @@ func TestToolRouter_CreateTool(t *testing.T) {
 		})
 
 		t.Run("return error 400 when the dev status is invalid", func(t *testing.T) {
-			router := core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			body := bytes.NewBufferString(`{
 				"name": "Golang",
 				"slug": "golang",
@@ -488,16 +549,12 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			req := httptest.NewRequest(http.MethodPut, "/tools/golang", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
+
 			require.Equal(t, http.StatusBadRequest, rec.Code)
 		})
 
 		t.Run("return error 422 when the fields are invalid", func(t *testing.T) {
-			router := core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			body := bytes.NewBufferString(`{
 				"category": "language",
 				"subType": "backend",
@@ -508,14 +565,17 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			req := httptest.NewRequest(http.MethodPut, "/tools/golang", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
+
 			require.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 
 			responseBody, err := io.ReadAll(rec.Body)
+
 			require.NoError(t, err)
 
 			var response map[string]any
 			err = json.Unmarshal(responseBody, &response)
+
 			require.NoError(t, err)
 			require.Equal(t, "Unprocessable Entity", response["message"])
 
@@ -534,141 +594,90 @@ func TestToolRouter_CreateTool(t *testing.T) {
 		})
 
 		t.Run("Update tool with valid input", func(t *testing.T) {
-			router := core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
-
-			bodyString := `{
-				"name": "Node.js",
+			updateBody := bytes.NewBufferString(`{
+				"name": "GoLang",
 				"slug": "nodejs",
 				"category": "language",
-				"subType": "fullstack",
-				"prolang": "JavaScript",
-				"releaseYear": 2009,
-				"devStatus": "active",
-				"details": "Node.js details",
-				"usecases": ["api", "frontend"],
-				"tags": ["web"],
-				"website": "https://nodejs.org",
-				"github": "https://github.com/nodejs/node"
-			}`
-			createBody := bytes.NewBufferString(bodyString)
-			reqOne := httptest.NewRequest(http.MethodPost, "/tools", createBody)
-			reqOne.Header.Set("Content-Type", "application/json")
-			recOne := httptest.NewRecorder()
-			h.ServeHTTP(recOne, reqOne)
-
-			respBody, err := io.ReadAll(recOne.Body)
-			require.NoError(t, err)
-
-			var resp map[string]any
-			err = json.Unmarshal(respBody, &resp)
-			fmt.Printf("Response: %+v", resp)
-			require.Equal(t, http.StatusCreated, recOne.Code)
-
-			updateBody := bytes.NewBufferString(`{
-				"name": "Node JS",
-				"slug": "golang",
-				"category": "language",
 				"subType": "backend",
-				"prolang": "JS",
+				"prolang": "Golang",
 				"releaseYear": 2009,
 				"devStatus": "deprecated",
-				"details": "Node JS details",
-				"usecases": ["api", "frontend", "fullstack"],
-				"tags": ["web", "api", "frontend"],
-				"website": "https://nodejs-updated.org",
-				"github": "https://github.com/nodejs/node-updated"
+				"details": "Golang details",
+				"usecases": ["api", "backend"],
+				"tags": ["web", "api", "cli"],
+				"website": "https://golang-updated.org",
+				"github": "https://github.com/golang/go-updated"
 			}`)
-			req := httptest.NewRequest(http.MethodPut, "/tools/nodejs", updateBody)
+
+			req := httptest.NewRequest(http.MethodPut, "/tools/golang", updateBody)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
+
 			require.Equal(t, http.StatusOK, rec.Code)
 
 			responseBody, err := io.ReadAll(rec.Body)
+
 			require.NoError(t, err)
 
 			var response map[string]any
 			err = json.Unmarshal(responseBody, &response)
+
 			require.NoError(t, err)
 
-			require.Equal(t, float64(4), response["id"])
-			require.Equal(t, "Node JS", response["name"])
-			require.Equal(t, "nodejs", response["slug"]) // slug should not be updated
+			require.Equal(t, float64(createdToolId), response["id"])
+			require.Equal(t, "GoLang", response["name"])
+			require.Equal(t, "golang", response["slug"]) // slug should not be updated
 			require.Equal(t, "language", response["category"])
 			require.Equal(t, "backend", response["sub_type"])
 			require.Equal(t, "deprecated", response["devstatus"])
-			require.Equal(t, "JS", response["prolang"])
+			require.Equal(t, "Golang", response["prolang"])
 			require.Equal(t, float64(2009), response["release_year"])
-			require.Equal(t, "Node JS details", response["details"])
-			require.Equal(t, []interface{}{"api", "frontend", "fullstack"}, response["use_cases"])
-			require.Equal(t, []interface{}{"web", "api", "frontend"}, response["tags"])
-			require.Equal(t, "https://nodejs-updated.org", response["website"])
-			require.Equal(t, "https://github.com/nodejs/node-updated", response["github"])
+			require.Equal(t, "Golang details", response["details"])
+			require.Equal(t, []interface{}{"api", "backend"}, response["use_cases"])
+			require.Equal(t, []interface{}{"web", "api", "cli"}, response["tags"])
+			require.Equal(t, "https://golang-updated.org", response["website"])
+			require.Equal(t, "https://github.com/golang/go-updated", response["github"])
 			require.Contains(t, response, "created_at")
 			require.Contains(t, response, "updated_at")
 		})
-
-		_, errDb := db.Exec("DELETE FROM tools WHERE slug = ?", tool["slug"])
-		require.NoError(t, errDb)
-
-		_, errDb = db.Exec("DELETE FROM tools WHERE slug = ?", "nodejs")
-		require.NoError(t, errDb)
 	})
 
 	t.Run("[DELETE] /tools/{id}", func(t *testing.T) {
-		router := &core.HTTPRouter{
-			ToolRepository:         toolRepository,
-			RelationshipRepository: relationshipRepository,
-		}
-		createTool(t, router)
+		router := buildRouter(t, db)
+		createTool(t, db)
 
 		t.Run("Do not nothing when the tool is not found", func(t *testing.T) {
-			router := &core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			req := httptest.NewRequest(http.MethodDelete, "/tools/not-found", nil)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
+
 			require.Equal(t, http.StatusNoContent, rec.Code)
 		})
 
 		t.Run("delete tool successfully", func(t *testing.T) {
-			router := &core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			req := httptest.NewRequest(http.MethodDelete, "/tools/golang", nil)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
+
 			require.Equal(t, http.StatusNoContent, rec.Code)
 		})
 	})
 
 	t.Run("[GET] /tools/{id}", func(t *testing.T) {
-		router := &core.HTTPRouter{
-			ToolRepository:         toolRepository,
-			RelationshipRepository: relationshipRepository,
-		}
-		createTool(t, router)
+		router := buildRouter(t, db)
+		createdToolId := createTool(t, db)
+		t.Cleanup(func() {
+			deleteTools(t, db, createdToolId)
+		})
+
 		t.Run("return tool successfully", func(t *testing.T) {
-			router := &core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			req := httptest.NewRequest(http.MethodGet, "/tools/golang", nil)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
 			require.Equal(t, http.StatusOK, rec.Code)
 
 			responseBody, err := io.ReadAll(rec.Body)
@@ -691,26 +700,19 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			require.Equal(t, "https://github.com/golang/go", response["github"])
 			require.Contains(t, response, "created_at")
 			require.Contains(t, response, "updated_at")
-
-			_, errDb := db.Exec("DELETE FROM tools WHERE slug = ?", "golang")
-			require.NoError(t, errDb)
 		})
 
 		t.Run("return error 404 when the tool is not found", func(t *testing.T) {
-			router := &core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			req := httptest.NewRequest(http.MethodGet, "/tools/not-found", nil)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
 			require.Equal(t, http.StatusNotFound, rec.Code)
 		})
 	})
 
 	t.Run("[GET] /tools/{id}/alternatives", func(t *testing.T) {
+		router := buildRouter(t, db)
 		populateAlternatives(t, db)
 
 		t.Cleanup(func() {
@@ -718,15 +720,10 @@ func TestToolRouter_CreateTool(t *testing.T) {
 		})
 
 		t.Run("return tool alternatives successfully", func(t *testing.T) {
-			router := &core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			req := httptest.NewRequest(http.MethodGet, "/tools/golang/alternatives", nil)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
 			require.Equal(t, http.StatusOK, rec.Code)
 
 			responseBody, err := io.ReadAll(rec.Body)
@@ -759,7 +756,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			require.Equal(t, "language", response[1]["category"])
 			require.Equal(t, "backend", response[1]["sub_type"])
 			require.Equal(t, "Python", response[1]["prolang"])
-			require.Equal(t, float64(2009), response[1]["release_year"])
+			require.Equal(t, float64(1995), response[1]["release_year"])
 			require.Equal(t, "active", response[1]["dev_status"])
 			require.Equal(t, "Python details", response[1]["details"])
 			require.Equal(t, []interface{}{"api", "backend"}, response[1]["use_cases"])
@@ -770,15 +767,11 @@ func TestToolRouter_CreateTool(t *testing.T) {
 		})
 
 		t.Run("return error 404 when the tool is not found", func(t *testing.T) {
-			router := &core.HTTPRouter{
-				ToolRepository:         toolRepository,
-				RelationshipRepository: relationshipRepository,
-			}
-			h := router.Initialize()
 			req := httptest.NewRequest(http.MethodGet, "/tools/not-found/alternatives", nil)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
+			router.Initialize().ServeHTTP(rec, req)
+
 			require.Equal(t, http.StatusNotFound, rec.Code)
 		})
 	})
