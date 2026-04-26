@@ -7,7 +7,7 @@ import (
 	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/feature/tool/usecase"
-	"tericcabrel/instech/internal/infra"
+	"tericcabrel/instech/internal/infra/httprouter"
 	"tericcabrel/instech/internal/repository"
 
 	"github.com/go-chi/chi/v5"
@@ -26,7 +26,7 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 		err := json.NewDecoder(r.Body).Decode(&tool)
 
 		if err != nil {
-			infra.BadRequestError(w, tool)
+			httprouter.BadRequestError(w, err.Error())
 			return
 		}
 		addTool := usecase.AddToolUseCase{
@@ -37,26 +37,30 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 
 		if err != nil {
 			if _, ok := err.(domain.ErrInvalidToolCategory); ok {
-				infra.BadRequestError(w, err)
+				httprouter.BadRequestError(w, err)
 				return
 			}
 			if _, ok := err.(domain.ErrInvalidToolSubType); ok {
-				infra.BadRequestError(w, err)
+				httprouter.BadRequestError(w, err)
 				return
 			}
 			if _, ok := err.(domain.ErrInvalidToolDevstatus); ok {
-				infra.BadRequestError(w, err)
+				httprouter.BadRequestError(w, err)
 				return
 			}
 			if _, ok := err.(domain.ErrInvalidField); ok {
-				infra.BadRequestError(w, err)
+				httprouter.UnprocessableEntityError(w, err)
 				return
 			}
-			infra.InternalServerError(w, err, "AddToolUsecase")
+			if _, ok := err.(common.ErrResourceAlreadyExists); ok {
+				httprouter.BadRequestError(w, err)
+				return
+			}
+			httprouter.InternalServerError(w, err, "AddToolUsecase")
 			return
 		}
 
-		infra.Created(w, createdTool)
+		httprouter.Created(w, createdTool)
 	})
 
 	router.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
@@ -68,14 +72,14 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 
 		if err != nil {
 			if _, ok := err.(common.ErrResourceNotFound); ok {
-				infra.NotFoundError(w, slug)
+				httprouter.NotFoundError(w, slug)
 				return
 			}
 
-			infra.InternalServerError(w, err, "GetToolBySlugUsecase")
+			httprouter.InternalServerError(w, err, "GetToolBySlugUsecase")
 			return
 		}
-		infra.OK(w, tool)
+		httprouter.OK(w, tool)
 	})
 
 	router.Delete("/{id}", func(w http.ResponseWriter, r *http.Request) {
@@ -85,10 +89,10 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 		}
 		err := deleteTool.Execute(slug)
 		if err != nil {
-			infra.InternalServerError(w, err, "DeleteToolUsecase")
+			httprouter.InternalServerError(w, err, "DeleteToolUsecase")
 			return
 		}
-		infra.NoContent(w)
+		httprouter.NoContent(w)
 	})
 
 	router.Put("/{id}", func(w http.ResponseWriter, r *http.Request) {
@@ -97,7 +101,7 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 		var tool usecase.UpdateToolInput
 		err := json.NewDecoder(r.Body).Decode(&tool)
 		if err != nil {
-			infra.BadRequestError(w, tool)
+			httprouter.BadRequestError(w, err.Error())
 			return
 		}
 
@@ -107,29 +111,29 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 		updatedTool, err := updateTool.Execute(slug, tool)
 		if err != nil {
 			if _, ok := err.(domain.ErrInvalidToolCategory); ok {
-				infra.BadRequestError(w, err)
+				httprouter.BadRequestError(w, err)
 				return
 			}
 			if _, ok := err.(domain.ErrInvalidToolSubType); ok {
-				infra.BadRequestError(w, err)
+				httprouter.BadRequestError(w, err)
 				return
 			}
 			if _, ok := err.(domain.ErrInvalidToolDevstatus); ok {
-				infra.BadRequestError(w, err)
+				httprouter.BadRequestError(w, err)
 				return
 			}
 			if _, ok := err.(domain.ErrInvalidField); ok {
-				infra.BadRequestError(w, err)
+				httprouter.UnprocessableEntityError(w, err)
 				return
 			}
 			if _, ok := err.(common.ErrResourceNotFound); ok {
-				infra.NotFoundError(w, slug)
+				httprouter.NotFoundError(w, slug)
 				return
 			}
-			infra.InternalServerError(w, err, "UpdateToolUsecase")
+			httprouter.InternalServerError(w, err, "UpdateToolUsecase")
 			return
 		}
-		infra.OK(w, updatedTool)
+		httprouter.OK(w, updatedTool)
 	})
 
 	router.Get("/{id}/alternatives", func(w http.ResponseWriter, r *http.Request) {
@@ -143,21 +147,21 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 
 		if err != nil {
 			if _, ok := err.(common.ErrResourceNotFound); ok {
-				infra.NotFoundError(w, slug)
+				httprouter.NotFoundError(w, slug)
 				return
 			}
-			infra.InternalServerError(w, err, "GetToolAlternativesUsecase")
+			httprouter.InternalServerError(w, err, "GetToolAlternativesUsecase")
 			return
 		}
 
-		infra.OK(w, alternatives)
+		httprouter.OK(w, alternatives)
 	})
 
 	router.Get("/{id}/graph", func(w http.ResponseWriter, r *http.Request) {
 		var result map[string]any = map[string]any{
 			"message": "Tool graph for " + chi.URLParam(r, "id"),
 		}
-		infra.OK(w, result)
+		httprouter.OK(w, result)
 	})
 
 	return router

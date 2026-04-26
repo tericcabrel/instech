@@ -2,6 +2,7 @@ package usecase_test
 
 import (
 	"context"
+	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/feature/tool/usecase"
 	"tericcabrel/instech/testutil"
@@ -15,6 +16,9 @@ import (
 func TestAddToolUseCase(t *testing.T) {
 	t.Run("Add tool with valid input", func(t *testing.T) {
 		toolRepository := testutil.NewMockToolRepositoryInterface(t)
+		toolRepository.EXPECT().
+			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
+			Return(domain.Tool{}, nil)
 		toolRepository.EXPECT().
 			CreateTool(mock.Anything, mock.AnythingOfType("domain.Tool")).
 			RunAndReturn(func(_ context.Context, tool domain.Tool) (domain.Tool, error) {
@@ -114,6 +118,41 @@ func TestAddToolUseCase(t *testing.T) {
 		}
 		require.Equal(t, domain.Tool{}, tool)
 
+		toolRepository.AssertNotCalled(t, "CreateTool", mock.Anything, mock.AnythingOfType("domain.Tool"))
+	})
+
+	t.Run("Fail to add tool when it already exists", func(t *testing.T) {
+		toolRepository := testutil.NewMockToolRepositoryInterface(t)
+		toolRepository.EXPECT().
+			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
+			Return(domain.Tool{Id: 1}, nil)
+
+		addTool := usecase.AddToolUseCase{
+			ToolRepository: toolRepository,
+		}
+
+		input := usecase.AddToolInput{
+			Name:        "Node.js",
+			Slug:        "nodejs",
+			Category:    "language",
+			SubType:     "backend",
+			Prolang:     "JavaScript",
+			ReleaseYear: 2009,
+			Devstatus:   "active",
+			Details:     "JavaScript runtime built on Chrome's V8",
+			UseCases:    []string{"Backend", "Frontend", "Fullstack"},
+			Tags:        []string{"JavaScript", "Node.js", "Backend", "Frontend", "Fullstack"},
+			Website:     "https://nodejs.org",
+			Github:      "https://github.com/nodejs/node",
+		}
+
+		tool, err := addTool.Execute(input)
+
+		require.Error(t, err)
+		if _, ok := err.(common.ErrResourceAlreadyExists); !ok {
+			t.Errorf("Expected ErrResourceAlreadyExists, got %v", err)
+		}
+		require.Equal(t, domain.Tool{}, tool)
 		toolRepository.AssertNotCalled(t, "CreateTool", mock.Anything, mock.AnythingOfType("domain.Tool"))
 	})
 }

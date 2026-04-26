@@ -1,4 +1,4 @@
-package infra
+package httprouter
 
 import (
 	"encoding/json"
@@ -63,5 +63,15 @@ func NotFoundError(w http.ResponseWriter, id string) {
 		Code:    http.StatusNotFound,
 		Message: "Resource Not Found",
 		Details: map[string]string{"id": id},
+	})
+}
+
+func UnprocessableEntityError(w http.ResponseWriter, details interface{}) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusUnprocessableEntity)
+	writeJSON(w, HTTPError{
+		Code:    http.StatusUnprocessableEntity,
+		Message: "Unprocessable Entity",
+		Details: details,
 	})
 }

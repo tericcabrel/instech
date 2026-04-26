@@ -2,6 +2,9 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
+	"errors"
+	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/repository"
 )
@@ -42,6 +45,17 @@ func (uc *AddToolUseCase) Execute(input AddToolInput) (domain.Tool, error) {
 	})
 	if err != nil {
 		return domain.Tool{}, err
+	}
+
+	existingTool, err := uc.ToolRepository.GetToolBySlug(context.Background(), input.Slug)
+
+	if err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			return domain.Tool{}, err
+		}
+	}
+	if existingTool.Id != 0 {
+		return domain.Tool{}, common.ErrResourceAlreadyExists{Id: input.Slug, Message: "The tool already exists"}
 	}
 
 	return uc.ToolRepository.CreateTool(context.Background(), tool)

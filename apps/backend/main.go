@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"flag"
-	"fmt"
 	"os"
 
 	"github.com/rs/zerolog"
@@ -12,16 +11,12 @@ import (
 
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 
 	// the _ is used to autoload the sqlite driver
 	_ "modernc.org/sqlite"
 
-	relationshiphttp "tericcabrel/instech/internal/feature/relationship/http"
-	toolhttp "tericcabrel/instech/internal/feature/tool/http"
+	"tericcabrel/instech/internal/core"
 	"tericcabrel/instech/internal/repository"
 )
 
@@ -63,47 +58,16 @@ func main() {
 	toolRepository := repository.NewToolRepository(db)
 	relationshipRepository := repository.NewRelationshipRepository(db)
 
-	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.AllowContentType("application/json"))
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"https://instech.com", "http://localhost:3000"},
-		// AllowedOrigins: []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: false,
-		MaxAge:           300, // Maximum value not ignored by any of major browsers
-	}))
-
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hello from Instech"))
-	})
-
-	r.Get("/search", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf("Search results for %s", r.URL.Query().Get("q"))))
-	})
-
-	toolRouter := toolhttp.ToolRouter{
+	router := core.HTTPRouter{
 		ToolRepository:         toolRepository,
 		RelationshipRepository: relationshipRepository,
 	}
-	r.Mount("/tools", toolRouter.Initialize())
 
-	relationshipRouter := relationshiphttp.RelationshipRouter{
-		RelationshipRepository: relationshipRepository,
-		ToolRepository:         toolRepository,
-	}
-	r.Mount("/relationships", relationshipRouter.Initialize())
+	handler := router.Initialize()
 
 	log.Info().Msg("Starting server on 8800")
 
-	serverErr := http.ListenAndServe(":8800", r)
+	serverErr := http.ListenAndServe(":8800", handler)
 	if serverErr != nil {
 		log.Error().Err(serverErr).Msg("Failed to start server")
 		os.Exit(1)

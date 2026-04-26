@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strconv"
 	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
@@ -47,6 +48,8 @@ func (uc *GetToolAlternativesUseCase) Execute(toolSlug string) ([]ToolAlternativ
 		return []ToolAlternativesResult{}, err
 	}
 
+	fmt.Printf("Relationships: %+v", relationships)
+
 	var uniqueToolIds []int = domain.DedupeToolIdsFromRelationships(relationships)
 
 	if len(uniqueToolIds) == 0 {
@@ -66,6 +69,8 @@ func (uc *GetToolAlternativesUseCase) Execute(toolSlug string) ([]ToolAlternativ
 
 	var result []ToolAlternativesResult = make([]ToolAlternativesResult, 0)
 
+	var processedToolIds map[int]bool = make(map[int]bool)
+
 	for _, r := range relationships {
 		var otherToolId int = r.FromToolId
 		if tool.Id == r.FromToolId {
@@ -75,6 +80,10 @@ func (uc *GetToolAlternativesUseCase) Execute(toolSlug string) ([]ToolAlternativ
 		otherTool, ok := toolMap[otherToolId]
 		if !ok {
 			return []ToolAlternativesResult{}, common.ErrResourceNotFound{Id: strconv.Itoa(otherToolId), Message: "The tool was not found"}
+		}
+
+		if processedToolIds[otherToolId] {
+			continue
 		}
 
 		result = append(result, ToolAlternativesResult{
@@ -92,6 +101,8 @@ func (uc *GetToolAlternativesUseCase) Execute(toolSlug string) ([]ToolAlternativ
 			Github:      otherTool.Github,
 			Metadata:    r.Metadata,
 		})
+
+		processedToolIds[otherToolId] = true
 	}
 
 	return result, nil

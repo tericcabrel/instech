@@ -14,3 +14,16 @@ func (e ErrResourceNotFound) Error() string {
 	}
 	return fmt.Sprintf("%s: %s", msg, e.Id)
 }
+
+type ErrResourceAlreadyExists struct {
+	Id      string
+	Message string
+}
+
+func (e ErrResourceAlreadyExists) Error() string {
+	var msg string = "Resource already exists"
+	if e.Message != "" {
+		msg = e.Message
+	}
+	return fmt.Sprintf("%s: %s", msg, e.Id)
+}
