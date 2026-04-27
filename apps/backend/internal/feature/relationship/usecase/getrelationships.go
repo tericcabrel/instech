@@ -28,10 +28,10 @@ type ClientRelationshipPaginationMetadata struct {
 type ClientRelationshipData struct {
 	CreatedAt time.Time                   `json:"created_at"`
 	UpdatedAt time.Time                   `json:"updated_at"`
-	FromTool  ClientRelationshipDataTool  `json:"from_tool"`
-	ToTool    ClientRelationshipDataTool  `json:"to_tool"`
 	Kind      string                      `json:"kind"`
 	Metadata  domain.RelationshipMetadata `json:"metadata"`
+	FromTool  ClientRelationshipDataTool  `json:"from_tool"`
+	ToTool    ClientRelationshipDataTool  `json:"to_tool"`
 	ID        int                         `json:"id"`
 }
 
