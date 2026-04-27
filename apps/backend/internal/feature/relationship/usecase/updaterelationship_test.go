@@ -18,7 +18,7 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
-			GetRelationshipById(mock.Anything, 99).
+			GetRelationshipByID(mock.Anything, 99).
 			Return(domain.Relationship{}, sql.ErrNoRows)
 
 		uc := usecase.UpdateRelationshipUseCase{
@@ -26,8 +26,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 			ToolRepository:         toolRepository,
 		}
 		rel, err := uc.Execute(99, usecase.UpdateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   2,
+			FromToolID: 1,
+			ToToolID:   2,
 			Kind:       "built_on",
 			Metadata:   domain.RelationshipMetadata{Reason: "x"},
 		})
@@ -42,8 +42,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 
 	t.Run("Update relationship with invalid source tool", func(t *testing.T) {
 		existing := testutil.CreateTestDynamicRelationship(1, domain.CreateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   2,
+			FromToolID: 1,
+			ToToolID:   2,
 			Kind:       "built_on",
 			Reason:     "original",
 		})
@@ -52,10 +52,10 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
-			GetRelationshipById(mock.Anything, 1).
+			GetRelationshipByID(mock.Anything, 1).
 			Return(existing, nil)
 		toolRepository.EXPECT().
-			GetToolById(mock.Anything, 99).
+			GetToolByID(mock.Anything, 99).
 			Return(domain.Tool{}, sql.ErrNoRows)
 
 		updateRelationship := usecase.UpdateRelationshipUseCase{
@@ -63,8 +63,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 			ToolRepository:         toolRepository,
 		}
 		relationship, err := updateRelationship.Execute(1, usecase.UpdateRelationshipInput{
-			FromToolId: 99,
-			ToToolId:   2,
+			FromToolID: 99,
+			ToToolID:   2,
 			Kind:       "built_on",
 			Metadata:   domain.RelationshipMetadata{Reason: "x"},
 		})
@@ -84,8 +84,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 
 	t.Run("Update relationship with invalid target tool", func(t *testing.T) {
 		existing := testutil.CreateTestDynamicRelationship(1, domain.CreateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   2,
+			FromToolID: 1,
+			ToToolID:   2,
 			Kind:       "built_on",
 			Reason:     "original",
 		})
@@ -94,10 +94,10 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
-			GetRelationshipById(mock.Anything, 1).
+			GetRelationshipByID(mock.Anything, 1).
 			Return(existing, nil)
 		toolRepository.EXPECT().
-			GetToolById(mock.Anything, 99).
+			GetToolByID(mock.Anything, 99).
 			Return(domain.Tool{}, sql.ErrNoRows)
 
 		uc := usecase.UpdateRelationshipUseCase{
@@ -105,8 +105,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 			ToolRepository:         toolRepository,
 		}
 		rel, err := uc.Execute(1, usecase.UpdateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   99,
+			FromToolID: 1,
+			ToToolID:   99,
 			Kind:       "built_on",
 			Metadata:   domain.RelationshipMetadata{Reason: "x"},
 		})
@@ -126,8 +126,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 
 	t.Run("Update relationship with invalid kind", func(t *testing.T) {
 		existing := testutil.CreateTestDynamicRelationship(1, domain.CreateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   2,
+			FromToolID: 1,
+			ToToolID:   2,
 			Kind:       "built_on",
 			Reason:     "original",
 		})
@@ -136,7 +136,7 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
-			GetRelationshipById(mock.Anything, 1).
+			GetRelationshipByID(mock.Anything, 1).
 			Return(existing, nil)
 
 		updateRelationship := usecase.UpdateRelationshipUseCase{
@@ -144,8 +144,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 			ToolRepository:         toolRepository,
 		}
 		_, err := updateRelationship.Execute(1, usecase.UpdateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   2,
+			FromToolID: 1,
+			ToToolID:   2,
 			Kind:       "not_a_real_kind",
 			Metadata:   domain.RelationshipMetadata{Reason: "x"},
 		})
@@ -165,8 +165,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 
 	t.Run("Update relationship kind and metadata when source and target tool ids are the same", func(t *testing.T) {
 		existing := testutil.CreateTestDynamicRelationship(1, domain.CreateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   2,
+			FromToolID: 1,
+			ToToolID:   2,
 			Kind:       "built_on",
 			Reason:     "original",
 		})
@@ -179,7 +179,7 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
-			GetRelationshipById(mock.Anything, 1).
+			GetRelationshipByID(mock.Anything, 1).
 			Return(existing, nil)
 		relationshipRepository.EXPECT().
 			UpdateRelationship(mock.Anything, mock.AnythingOfType("domain.Relationship")).
@@ -190,8 +190,8 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 			ToolRepository:         toolRepository,
 		}
 		rel, err := updateRelationship.Execute(1, usecase.UpdateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   2,
+			FromToolID: 1,
+			ToToolID:   2,
 			Kind:       "inspired_by",
 			Metadata:   domain.RelationshipMetadata{Reason: "updated reason"},
 		})
@@ -220,15 +220,15 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 		})
 
 		existing := testutil.CreateTestDynamicRelationship(5, domain.CreateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   2,
+			FromToolID: 1,
+			ToToolID:   2,
 			Kind:       "built_on",
 			Reason:     "original",
 		})
 
 		expectedRelationship := existing
-		expectedRelationship.FromToolId = tool3.Id
-		expectedRelationship.ToToolId = tool1.Id
+		expectedRelationship.FromToolID = tool3.Id
+		expectedRelationship.ToToolID = tool1.Id
 		expectedRelationship.Kind = "alternative_to"
 		expectedRelationship.Metadata = domain.RelationshipMetadata{Reason: "swapped"}
 
@@ -236,13 +236,13 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 		toolRepository := testutil.NewMockToolRepositoryInterface(t)
 
 		relationshipRepository.EXPECT().
-			GetRelationshipById(mock.Anything, 5).
+			GetRelationshipByID(mock.Anything, 5).
 			Return(existing, nil)
 		toolRepository.EXPECT().
-			GetToolById(mock.Anything, tool3.Id).
+			GetToolByID(mock.Anything, tool3.Id).
 			Return(tool3, nil)
 		toolRepository.EXPECT().
-			GetToolById(mock.Anything, tool1.Id).
+			GetToolByID(mock.Anything, tool1.Id).
 			Return(tool1, nil)
 		relationshipRepository.EXPECT().
 			UpdateRelationship(mock.Anything, expectedRelationship).
@@ -253,16 +253,16 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 			ToolRepository:         toolRepository,
 		}
 		updatedRelationship, err := updateRelationship.Execute(5, usecase.UpdateRelationshipInput{
-			FromToolId: tool3.Id,
-			ToToolId:   tool1.Id,
+			FromToolID: tool3.Id,
+			ToToolID:   tool1.Id,
 			Kind:       "alternative_to",
 			Metadata:   domain.RelationshipMetadata{Reason: "swapped"},
 		})
 
 		require.NoError(t, err)
 		require.Equal(t, expectedRelationship, updatedRelationship)
-		toolRepository.AssertCalled(t, "GetToolById", mock.Anything, tool3.Id)
-		toolRepository.AssertCalled(t, "GetToolById", mock.Anything, tool1.Id)
+		toolRepository.AssertCalled(t, "GetToolByID", mock.Anything, tool3.Id)
+		toolRepository.AssertCalled(t, "GetToolByID", mock.Anything, tool1.Id)
 		relationshipRepository.AssertCalled(t, "UpdateRelationship", mock.Anything, expectedRelationship)
 	})
 }

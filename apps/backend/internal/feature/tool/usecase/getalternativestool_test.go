@@ -126,15 +126,15 @@ func TestGetToolAlternativesUseCase(t *testing.T) {
 		})
 
 		relationship1 := testutil.CreateTestDynamicRelationship(1, domain.CreateRelationshipInput{
-			FromToolId: tool1.Id,
-			ToToolId:   tool2.Id,
+			FromToolID: tool1.Id,
+			ToToolID:   tool2.Id,
 			Kind:       "alternative_to",
 			Reason:     "This is a test relationship for tool 1 and tool 2",
 		})
 
 		relationship2 := testutil.CreateTestDynamicRelationship(2, domain.CreateRelationshipInput{
-			FromToolId: tool3.Id,
-			ToToolId:   tool1.Id,
+			FromToolID: tool3.Id,
+			ToToolID:   tool1.Id,
 			Kind:       "alternative_to",
 			Reason:     "This is a test relationship for tool 3 and tool 1",
 		})
@@ -149,7 +149,7 @@ func TestGetToolAlternativesUseCase(t *testing.T) {
 			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
 			Return(tool1, nil)
 		toolRepository.EXPECT().
-			GetToolByIds(mock.Anything, mock.AnythingOfType("[]int")).
+			GetToolByIDs(mock.Anything, mock.AnythingOfType("[]int")).
 			Return([]domain.Tool{tool1, tool2, tool3}, nil)
 
 		getToolAlternatives := usecase.GetToolAlternativesUseCase{
@@ -165,7 +165,7 @@ func TestGetToolAlternativesUseCase(t *testing.T) {
 		}, toolAlternatives)
 
 		toolRepository.AssertCalled(t, "GetToolBySlug", mock.Anything, mock.AnythingOfType("string"))
-		toolRepository.AssertCalled(t, "GetToolByIds", mock.Anything, mock.AnythingOfType("[]int"))
+		toolRepository.AssertCalled(t, "GetToolByIDs", mock.Anything, mock.AnythingOfType("[]int"))
 		relationshipRepository.AssertCalled(t, "GetToolAlternatives", mock.Anything, mock.AnythingOfType("int"))
 	})
 }

@@ -79,8 +79,8 @@ func createRelationship(t *testing.T, db *sql.DB, fromToolID int, toToolID int, 
 	t.Helper()
 
 	relationship, err := domain.CreateRelationship(domain.CreateRelationshipInput{
-		FromToolId: fromToolID,
-		ToToolId:   toToolID,
+		FromToolID: fromToolID,
+		ToToolID:   toToolID,
 		Kind:       kind,
 		Reason:     "relationship test",
 	})
@@ -90,7 +90,7 @@ func createRelationship(t *testing.T, db *sql.DB, fromToolID int, toToolID int, 
 	createdRelationship, err := relationshipRepository.CreateRelationship(context.Background(), relationship)
 	require.NoError(t, err)
 
-	return createdRelationship.Id
+	return createdRelationship.ID
 }
 
 func deleteRelationships(t *testing.T, db *sql.DB, relationshipIds ...int) {
@@ -107,7 +107,7 @@ func deleteTools(t *testing.T, db *sql.DB, toolIds ...int) {
 	t.Helper()
 
 	toolRepository := repository.NewToolRepository(db)
-	tools, err := toolRepository.GetToolByIds(context.Background(), toolIds)
+	tools, err := toolRepository.GetToolByIDs(context.Background(), toolIds)
 	require.NoError(t, err)
 	for _, tool := range tools {
 		err := toolRepository.DeleteTool(context.Background(), tool.Slug)

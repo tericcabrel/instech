@@ -14,7 +14,7 @@ type DeleteRelationshipUseCase struct {
 }
 
 func (uc *DeleteRelationshipUseCase) Execute(id int) error {
-	_, err := uc.RelationshipRepository.GetRelationshipById(context.Background(), id)
+	_, err := uc.RelationshipRepository.GetRelationshipByID(context.Background(), id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return common.ErrResourceNotFound{Id: strconv.Itoa(id), Message: "The relationship was not found"}

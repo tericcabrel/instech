@@ -50,8 +50,8 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 
 	t.Run("Get relationships propagates error from GetToolByIds", func(t *testing.T) {
 		rel := testutil.CreateTestDynamicRelationship(1, domain.CreateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   2,
+			FromToolID: 1,
+			ToToolID:   2,
 			Kind:       "built_on",
 			Reason:     "r",
 		})
@@ -69,7 +69,7 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 				NextCursor:    0,
 			}, nil)
 		toolRepository.EXPECT().
-			GetToolByIds(mock.Anything, mock.MatchedBy(func(ids []int) bool {
+			GetToolByIDs(mock.Anything, mock.MatchedBy(func(ids []int) bool {
 				return len(ids) == 2
 			})).
 			Return(nil, toolsErr)
@@ -86,8 +86,8 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 
 	t.Run("Get relationships returns error when missing from tool in tool map", func(t *testing.T) {
 		rel := testutil.CreateTestDynamicRelationship(1, domain.CreateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   2,
+			FromToolID: 1,
+			ToToolID:   2,
 			Kind:       "built_on",
 			Reason:     "r",
 		})
@@ -118,7 +118,7 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 				NextCursor:    0,
 			}, nil)
 		toolRepository.EXPECT().
-			GetToolByIds(mock.Anything, mock.Anything).
+			GetToolByIDs(mock.Anything, mock.Anything).
 			Return([]domain.Tool{tool2}, nil)
 
 		getRelationships := usecase.GetRelationshipsUseCase{
@@ -146,7 +146,7 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 				NextCursor:    0,
 			}, nil)
 		toolRepository.EXPECT().
-			GetToolByIds(mock.Anything, mock.MatchedBy(func(ids []int) bool {
+			GetToolByIDs(mock.Anything, mock.MatchedBy(func(ids []int) bool {
 				return len(ids) == 0
 			})).
 			Return([]domain.Tool{}, nil)
@@ -169,8 +169,8 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 		updated := time.Date(2024, 2, 3, 4, 5, 6, 0, time.UTC)
 
 		rel := testutil.CreateTestDynamicRelationship(7, domain.CreateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   2,
+			FromToolID: 1,
+			ToToolID:   2,
 			Kind:       "inspired_by",
 			Reason:     "because",
 		})
@@ -205,7 +205,7 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 				NextCursor:    42,
 			}, nil)
 		toolRepository.EXPECT().
-			GetToolByIds(mock.Anything, mock.MatchedBy(func(ids []int) bool {
+			GetToolByIDs(mock.Anything, mock.MatchedBy(func(ids []int) bool {
 				return len(ids) == 2
 			})).
 			Return([]domain.Tool{tool1, tool2}, nil)
@@ -218,15 +218,15 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 
 		require.NoError(t, err)
 		require.Len(t, out.Data, 1)
-		require.Equal(t, 7, out.Data[0].Id)
+		require.Equal(t, 7, out.Data[0].ID)
 		require.Equal(t, "inspired_by", out.Data[0].Kind)
 		require.Equal(t, domain.RelationshipMetadata{Reason: "because"}, out.Data[0].Metadata)
 		require.Equal(t, created, out.Data[0].CreatedAt)
 		require.Equal(t, updated, out.Data[0].UpdatedAt)
-		require.Equal(t, tool1.Id, out.Data[0].FromTool.Id)
+		require.Equal(t, tool1.Id, out.Data[0].FromTool.ID)
 		require.Equal(t, tool1.Name, out.Data[0].FromTool.Name)
 		require.Equal(t, tool1.Slug, out.Data[0].FromTool.Slug)
-		require.Equal(t, tool2.Id, out.Data[0].ToTool.Id)
+		require.Equal(t, tool2.Id, out.Data[0].ToTool.ID)
 		require.Equal(t, tool2.Name, out.Data[0].ToTool.Name)
 		require.Equal(t, tool2.Slug, out.Data[0].ToTool.Slug)
 		require.Equal(t, int64(100), out.Meta.TotalCount)

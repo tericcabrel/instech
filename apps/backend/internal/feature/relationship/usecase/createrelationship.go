@@ -16,8 +16,8 @@ type CreateRelationshipUseCase struct {
 }
 
 type CreateRelationshipInput struct {
-	FromToolId string
-	ToToolId   string
+	FromToolID string
+	ToToolID   string
 	Kind       string
 	Metadata   struct {
 		Reason string
@@ -25,25 +25,25 @@ type CreateRelationshipInput struct {
 }
 
 func (uc *CreateRelationshipUseCase) Execute(input CreateRelationshipInput) (domain.Relationship, error) {
-	fromTool, err := uc.ToolRepository.GetToolBySlug(context.Background(), input.FromToolId)
+	fromTool, err := uc.ToolRepository.GetToolBySlug(context.Background(), input.FromToolID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return domain.Relationship{}, common.ErrResourceNotFound{Id: input.FromToolId, Message: "The source tool was not found"}
+			return domain.Relationship{}, common.ErrResourceNotFound{Id: input.FromToolID, Message: "The source tool was not found"}
 		}
 		return domain.Relationship{}, err
 	}
 
-	toTool, err := uc.ToolRepository.GetToolBySlug(context.Background(), input.ToToolId)
+	toTool, err := uc.ToolRepository.GetToolBySlug(context.Background(), input.ToToolID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return domain.Relationship{}, common.ErrResourceNotFound{Id: input.ToToolId, Message: "The target tool was not found"}
+			return domain.Relationship{}, common.ErrResourceNotFound{Id: input.ToToolID, Message: "The target tool was not found"}
 		}
 		return domain.Relationship{}, err
 	}
 
 	relationship, err := domain.CreateRelationship(domain.CreateRelationshipInput{
-		FromToolId: fromTool.Id,
-		ToToolId:   toTool.Id,
+		FromToolID: fromTool.Id,
+		ToToolID:   toTool.Id,
 		Kind:       input.Kind,
 		Reason:     input.Metadata.Reason,
 	})

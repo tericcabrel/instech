@@ -209,7 +209,7 @@ func TestUpdateToolUseCase(t *testing.T) {
 			Return(tool, nil)
 		toolRepository.EXPECT().
 			UpdateTool(mock.Anything, mock.AnythingOfType("domain.Tool")).
-			RunAndReturn(func(ctx context.Context, tool domain.Tool) (domain.Tool, error) {
+			RunAndReturn(func(_ context.Context, tool domain.Tool) (domain.Tool, error) {
 				tool.Name = "Node.js"
 				tool.Category = "language"
 				tool.SubType = "backend"

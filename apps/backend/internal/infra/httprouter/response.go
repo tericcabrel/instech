@@ -8,14 +8,17 @@ import (
 )
 
 type HTTPError struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
 	Details interface{} `json:"details"`
+	Message string      `json:"message"`
+	Code    int         `json:"code"`
 }
 
 func writeJSON(w http.ResponseWriter, v interface{}) {
 	enc := json.NewEncoder(w)
-	enc.Encode(v)
+	err := enc.Encode(v)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("")
+	}
 }
 
 func InternalServerError(w http.ResponseWriter, err error, source string) {

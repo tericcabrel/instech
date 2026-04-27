@@ -16,16 +16,16 @@ type UpdateRelationshipUseCase struct {
 }
 
 type UpdateRelationshipInput struct {
-	FromToolId int
-	ToToolId   int
 	Kind       string
 	Metadata   domain.RelationshipMetadata
+	FromToolID int
+	ToToolID   int
 }
 
 func (uc *UpdateRelationshipUseCase) Execute(Id int, input UpdateRelationshipInput) (domain.Relationship, error) {
 	var err error
 
-	relationship, err := uc.RelationshipRepository.GetRelationshipById(context.Background(), Id)
+	relationship, err := uc.RelationshipRepository.GetRelationshipByID(context.Background(), Id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(Id), Message: "The relationship was not found"}
@@ -33,29 +33,29 @@ func (uc *UpdateRelationshipUseCase) Execute(Id int, input UpdateRelationshipInp
 		return domain.Relationship{}, err
 	}
 
-	if relationship.FromToolId != input.FromToolId {
-		_, err = uc.ToolRepository.GetToolById(context.Background(), input.FromToolId)
+	if relationship.FromToolID != input.FromToolID {
+		_, err = uc.ToolRepository.GetToolByID(context.Background(), input.FromToolID)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(input.FromToolId), Message: "The source tool was not found"}
+				return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(input.FromToolID), Message: "The source tool was not found"}
 			}
 			return domain.Relationship{}, err
 		}
 	}
 
-	if relationship.ToToolId != input.ToToolId {
-		_, err = uc.ToolRepository.GetToolById(context.Background(), input.ToToolId)
+	if relationship.ToToolID != input.ToToolID {
+		_, err = uc.ToolRepository.GetToolByID(context.Background(), input.ToToolID)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(input.ToToolId), Message: "The target tool was not found"}
+				return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(input.ToToolID), Message: "The target tool was not found"}
 			}
 			return domain.Relationship{}, err
 		}
 	}
 
 	err = relationship.Update(domain.UpdateRelationshipInput{
-		FromToolId: input.FromToolId,
-		ToToolId:   input.ToToolId,
+		FromToolID: input.FromToolID,
+		ToToolID:   input.ToToolID,
 		Kind:       input.Kind,
 		Metadata:   input.Metadata,
 	})

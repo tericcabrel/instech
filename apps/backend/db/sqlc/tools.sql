@@ -13,5 +13,5 @@ UPDATE tools SET name = ?, slug = ?, category = ?, sub_type = ?, prolang = ?, re
 -- name: DeleteTool :exec
 DELETE FROM tools WHERE slug = ?;
 
--- name: GetToolsByIds :many
+-- name: GetToolsByIDs :many
 SELECT * FROM tools WHERE id IN (sqlc.slice('ids')) ORDER BY name ASC;

@@ -21,15 +21,15 @@ type PaginatedRelationshipsResult struct {
 }
 
 type GetRelationshipsAllParams struct {
+	Kind   string
 	Cursor int64
 	ToolId int
-	Kind   string
 	Limit  int
 }
 
 type RelationshipRepositoryInterface interface {
 	CreateRelationship(ctx context.Context, relationship domain.Relationship) (domain.Relationship, error)
-	GetRelationshipById(ctx context.Context, id int) (domain.Relationship, error)
+	GetRelationshipByID(ctx context.Context, id int) (domain.Relationship, error)
 	DeleteRelationship(ctx context.Context, id int) error
 	GetRelationshipsByToolID(ctx context.Context, toolID int) ([]domain.Relationship, error)
 	UpdateRelationship(ctx context.Context, relationship domain.Relationship) (domain.Relationship, error)
@@ -47,8 +47,8 @@ func NewRelationshipRepository(db *sql.DB) *RelationshipRepository {
 
 func (r *RelationshipRepository) CreateRelationship(ctx context.Context, relationship domain.Relationship) (domain.Relationship, error) {
 	params := queries.CreateRelationshipParams{
-		FromToolId: relationship.FromToolId,
-		ToToolId:   relationship.ToToolId,
+		FromToolId: relationship.FromToolID,
+		ToToolId:   relationship.ToToolID,
 		Kind:       relationship.Kind,
 	}
 
@@ -65,8 +65,8 @@ func (r *RelationshipRepository) CreateRelationship(ctx context.Context, relatio
 	return MapRelationshipRecordToRelationship(record), nil
 }
 
-func (r *RelationshipRepository) GetRelationshipById(ctx context.Context, id int) (domain.Relationship, error) {
-	record, err := queries.New(r.db).GetRelationshipById(ctx, id)
+func (r *RelationshipRepository) GetRelationshipByID(ctx context.Context, id int) (domain.Relationship, error) {
+	record, err := queries.New(r.db).GetRelationshipByID(ctx, id)
 	if err != nil {
 		return domain.Relationship{}, err
 	}
@@ -98,9 +98,9 @@ func (r *RelationshipRepository) GetRelationshipsByToolID(ctx context.Context, t
 
 func (r *RelationshipRepository) UpdateRelationship(ctx context.Context, relationship domain.Relationship) (domain.Relationship, error) {
 	params := queries.UpdateRelationshipParams{
-		Id:         relationship.Id,
-		FromToolId: relationship.FromToolId,
-		ToToolId:   relationship.ToToolId,
+		Id:         relationship.ID,
+		FromToolId: relationship.FromToolID,
+		ToToolId:   relationship.ToToolID,
 		Kind:       relationship.Kind,
 	}
 
@@ -138,7 +138,7 @@ func (r *RelationshipRepository) GetToolAlternatives(ctx context.Context, toolId
 }
 
 func (r *RelationshipRepository) GetRelationshipsAll(ctx context.Context, params GetRelationshipsAllParams) (PaginatedRelationshipsResult, error) {
-	var createdAtString string = ""
+	var createdAtString = ""
 	if params.Cursor > 0 {
 		createdAtString = time.Unix(params.Cursor, 0).UTC().Format(SQL_DATE_FORMAT)
 	}

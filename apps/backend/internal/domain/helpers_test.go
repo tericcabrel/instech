@@ -9,9 +9,9 @@ import (
 func TestHelpers(t *testing.T) {
 	t.Run("DedupeToolIdsFromRelationships with multiple relationships", func(t *testing.T) {
 		relationships := []domain.Relationship{
-			{FromToolId: 1, ToToolId: 2},
-			{FromToolId: 2, ToToolId: 3},
-			{FromToolId: 1, ToToolId: 3},
+			{FromToolID: 1, ToToolID: 2},
+			{FromToolID: 2, ToToolID: 3},
+			{FromToolID: 1, ToToolID: 3},
 		}
 
 		toolIds := domain.DedupeToolIdsFromRelationships(relationships)

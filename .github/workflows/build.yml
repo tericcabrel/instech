@@ -1,0 +1,40 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: apps/backend/go.mod
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.11.4
+          working-directory: apps/backend
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: apps/backend/go.mod
+
+      - name: Run tests
+        working-directory: apps/backend
+        run: |
+          go test -tags=integration -covermode=atomic -coverprofile=cover.out ./...
+          grep -vE '/db/|/testutil/' cover.out > cover.filtered.out
+          go tool cover -func=cover.filtered.out

@@ -17,13 +17,13 @@ type UpdateToolInput struct {
 	Category    string
 	SubType     string
 	Prolang     string
-	ReleaseYear int
 	DevStatus   string
 	Details     string
-	UseCases    []string
-	Tags        []string
 	Website     string
 	Github      string
+	UseCases    []string
+	Tags        []string
+	ReleaseYear int
 }
 
 func (uc *UpdateToolUseCase) Execute(slug string, input UpdateToolInput) (domain.Tool, error) {

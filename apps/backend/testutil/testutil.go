@@ -40,8 +40,8 @@ func CreateTestDynamicTool(id int, input domain.CreateToolInput) domain.Tool {
 
 func CreateTestRelationship() domain.Relationship {
 	relationship, err := domain.CreateRelationship(domain.CreateRelationshipInput{
-		FromToolId: 1,
-		ToToolId:   2,
+		FromToolID: 1,
+		ToToolID:   2,
 		Kind:       "built_on",
 		Reason:     "This is a test relationship",
 	})
@@ -50,7 +50,7 @@ func CreateTestRelationship() domain.Relationship {
 		panic(err)
 	}
 
-	relationship.Id = 1
+	relationship.ID = 1
 
 	return relationship
 }
@@ -61,7 +61,7 @@ func CreateTestDynamicRelationship(id int, input domain.CreateRelationshipInput)
 	if err != nil {
 		panic(err)
 	}
-	relationship.Id = id
+	relationship.ID = id
 
 	return relationship
 }

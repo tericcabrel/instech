@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -63,7 +62,7 @@ func deleteTools(t *testing.T, db *sql.DB, toolIds ...int) {
 
 	toolRepository := repository.NewToolRepository(db)
 
-	tools, err := toolRepository.GetToolByIds(context.Background(), toolIds)
+	tools, err := toolRepository.GetToolByIDs(context.Background(), toolIds)
 	require.NoError(t, err)
 
 	for _, tool := range tools {
@@ -72,7 +71,7 @@ func deleteTools(t *testing.T, db *sql.DB, toolIds ...int) {
 	}
 }
 
-func populateAlternatives(t *testing.T, db *sql.DB) {
+func populateAlternatives(t *testing.T, db *sql.DB) []string {
 	t.Helper()
 
 	toolRepository := repository.NewToolRepository(db)
@@ -133,8 +132,8 @@ func populateAlternatives(t *testing.T, db *sql.DB) {
 	require.NoError(t, err)
 
 	rel1, err := domain.CreateRelationship(domain.CreateRelationshipInput{
-		FromToolId: createdGolangTool.Id,
-		ToToolId:   createdNodejsTool.Id,
+		FromToolID: createdGolangTool.Id,
+		ToToolID:   createdNodejsTool.Id,
 		Kind:       "alternative_to",
 		Reason:     "test relationship 1",
 	})
@@ -143,8 +142,8 @@ func populateAlternatives(t *testing.T, db *sql.DB) {
 	require.NoError(t, err)
 
 	rel2, err := domain.CreateRelationship(domain.CreateRelationshipInput{
-		FromToolId: createdNodejsTool.Id,
-		ToToolId:   createdGolangTool.Id,
+		FromToolID: createdNodejsTool.Id,
+		ToToolID:   createdGolangTool.Id,
 		Kind:       "alternative_to",
 		Reason:     "test relationship 2",
 	})
@@ -153,24 +152,24 @@ func populateAlternatives(t *testing.T, db *sql.DB) {
 	require.NoError(t, err)
 
 	rel3, err := domain.CreateRelationship(domain.CreateRelationshipInput{
-		FromToolId: createdGolangTool.Id,
-		ToToolId:   createdPythonTool.Id,
+		FromToolID: createdGolangTool.Id,
+		ToToolID:   createdPythonTool.Id,
 		Kind:       "alternative_to",
 		Reason:     "test relationship 3",
 	})
 	require.NoError(t, err)
 	_, err = relationshipRepository.CreateRelationship(context.Background(), rel3)
 	require.NoError(t, err)
+
+	return []string{createdGolangTool.Slug, createdNodejsTool.Slug, createdPythonTool.Slug}
 }
 
-func cleanAlternatives(t *testing.T, db *sql.DB) {
+func cleanAlternatives(t *testing.T, db *sql.DB, toolSlugs []string) {
 	t.Helper()
 
 	toolRepository := repository.NewToolRepository(db)
-	tools, err := toolRepository.GetToolByIds(context.Background(), []int{1, 2, 3})
-	require.NoError(t, err)
-	for _, tool := range tools {
-		err := toolRepository.DeleteTool(context.Background(), tool.Slug)
+	for _, slug := range toolSlugs {
+		err := toolRepository.DeleteTool(context.Background(), slug)
 		require.NoError(t, err)
 	}
 
@@ -180,16 +179,17 @@ func cleanAlternatives(t *testing.T, db *sql.DB) {
 	})
 	require.NoError(t, err)
 	for _, relationship := range relationships.Relationships {
-		err := relationshipRepository.DeleteRelationship(context.Background(), relationship.Id)
+		err := relationshipRepository.DeleteRelationship(context.Background(), relationship.ID)
 		require.NoError(t, err)
 	}
 }
 
 func TestToolRouter_CreateTool(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	defer db.Close()
-
 	t.Run("[POST] /tools", func(t *testing.T) {
+		db := testutil.SetupTestDB(t)
+		t.Cleanup(func() {
+			db.Close()
+		})
 		router := buildRouter(t, db)
 		t.Run("return error 400 when the request body is an invalid JSON", func(t *testing.T) {
 			body := bytes.NewBufferString(`{
@@ -451,10 +451,12 @@ func TestToolRouter_CreateTool(t *testing.T) {
 	})
 
 	t.Run("[PUT] /tools/{id}", func(t *testing.T) {
+		db := testutil.SetupTestDB(t)
 		router := buildRouter(t, db)
 		createdToolId := createTool(t, db)
 		t.Cleanup(func() {
 			deleteTools(t, db, createdToolId)
+			db.Close()
 		})
 		t.Run("return error 400 when the request body is an invalid JSON", func(t *testing.T) {
 			body := bytes.NewBufferString(`{
@@ -644,8 +646,13 @@ func TestToolRouter_CreateTool(t *testing.T) {
 	})
 
 	t.Run("[DELETE] /tools/{id}", func(t *testing.T) {
+		db := testutil.SetupTestDB(t)
 		router := buildRouter(t, db)
 		createTool(t, db)
+
+		t.Cleanup(func() {
+			db.Close()
+		})
 
 		t.Run("Do not nothing when the tool is not found", func(t *testing.T) {
 			req := httptest.NewRequest(http.MethodDelete, "/tools/not-found", nil)
@@ -667,10 +674,12 @@ func TestToolRouter_CreateTool(t *testing.T) {
 	})
 
 	t.Run("[GET] /tools/{id}", func(t *testing.T) {
+		db := testutil.SetupTestDB(t)
 		router := buildRouter(t, db)
 		createdToolId := createTool(t, db)
 		t.Cleanup(func() {
 			deleteTools(t, db, createdToolId)
+			db.Close()
 		})
 
 		t.Run("return tool successfully", func(t *testing.T) {
@@ -712,11 +721,13 @@ func TestToolRouter_CreateTool(t *testing.T) {
 	})
 
 	t.Run("[GET] /tools/{id}/alternatives", func(t *testing.T) {
+		db := testutil.SetupTestDB(t)
 		router := buildRouter(t, db)
-		populateAlternatives(t, db)
+		toolSlugs := populateAlternatives(t, db)
 
 		t.Cleanup(func() {
-			cleanAlternatives(t, db)
+			cleanAlternatives(t, db, toolSlugs)
+			db.Close()
 		})
 
 		t.Run("return tool alternatives successfully", func(t *testing.T) {
@@ -732,8 +743,6 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			var response []map[string]any
 			err = json.Unmarshal(responseBody, &response)
 			require.NoError(t, err)
-
-			fmt.Printf("Response: %+v", response)
 
 			require.Equal(t, 2, len(response))
 

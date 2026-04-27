@@ -11,42 +11,42 @@ type RelationshipMetadata struct {
 }
 
 type Relationship struct {
-	Id         int                  `json:"id"`
-	FromToolId int                  `json:"from_tool_id"`
-	ToToolId   int                  `json:"to_tool_id"`
-	Kind       string               `json:"kind"`
-	Metadata   RelationshipMetadata `json:"metadata"`
 	CreatedAt  time.Time            `json:"created_at"`
 	UpdatedAt  time.Time            `json:"updated_at"`
+	Kind       string               `json:"kind"`
+	Metadata   RelationshipMetadata `json:"metadata"`
+	ID         int                  `json:"id"`
+	FromToolID int                  `json:"from_tool_id"`
+	ToToolID   int                  `json:"to_tool_id"`
 }
 
 type CreateRelationshipInput struct {
-	FromToolId int
-	ToToolId   int
 	Kind       string
 	Reason     string
+	FromToolID int
+	ToToolID   int
 }
 
 type UpdateRelationshipInput struct {
-	FromToolId int
-	ToToolId   int
 	Kind       string
 	Metadata   RelationshipMetadata
+	FromToolID int
+	ToToolID   int
 }
 
-var RELATIONSHIP_KINDS = []string{"built_on", "inspired_by", "alternative_to", "replaced_by", "used_with"}
+var RelationshipKinds = []string{"built_on", "inspired_by", "alternative_to", "replaced_by", "used_with"}
 
 func IsKindValid(kind string) bool {
-	return slices.Contains(RELATIONSHIP_KINDS, kind)
+	return slices.Contains(RelationshipKinds, kind)
 }
 
 func CreateRelationship(input CreateRelationshipInput) (Relationship, error) {
 	var errors = make(map[string]string)
 
-	if input.FromToolId <= 0 {
+	if input.FromToolID <= 0 {
 		errors["FromToolId"] = "The source tool ID is required"
 	}
-	if input.ToToolId <= 0 {
+	if input.ToToolID <= 0 {
 		errors["ToToolId"] = "The target tool ID is required"
 	}
 
@@ -57,13 +57,13 @@ func CreateRelationship(input CreateRelationshipInput) (Relationship, error) {
 	if !IsKindValid(input.Kind) {
 		return Relationship{}, ErrInvalidRelationshipKind{
 			Kind:    input.Kind,
-			Message: "The relationship kind is invalid. Valid kinds are: " + strings.Join(RELATIONSHIP_KINDS, ", "),
+			Message: "The relationship kind is invalid. Valid kinds are: " + strings.Join(RelationshipKinds, ", "),
 		}
 	}
 
 	relationship := Relationship{
-		FromToolId: input.FromToolId,
-		ToToolId:   input.ToToolId,
+		FromToolID: input.FromToolID,
+		ToToolID:   input.ToToolID,
 		Kind:       input.Kind,
 		Metadata: RelationshipMetadata{
 			Reason: input.Reason,
@@ -75,7 +75,7 @@ func CreateRelationship(input CreateRelationshipInput) (Relationship, error) {
 
 func (relationship *Relationship) Update(input UpdateRelationshipInput) error {
 	if !IsKindValid(input.Kind) {
-		return ErrInvalidRelationshipKind{Kind: input.Kind, Message: "The relationship kind is invalid. Valid kinds are: " + strings.Join(RELATIONSHIP_KINDS, ", ")}
+		return ErrInvalidRelationshipKind{Kind: input.Kind, Message: "The relationship kind is invalid. Valid kinds are: " + strings.Join(RelationshipKinds, ", ")}
 	}
 
 	var errorsMap = make(map[string]string)
@@ -88,19 +88,19 @@ func (relationship *Relationship) Update(input UpdateRelationshipInput) error {
 		relationship.Metadata = input.Metadata
 	}
 
-	if relationship.FromToolId != input.FromToolId {
-		if input.FromToolId <= 0 {
+	if relationship.FromToolID != input.FromToolID {
+		if input.FromToolID <= 0 {
 			errorsMap["FromToolId"] = "The source tool ID is required"
 		} else {
-			relationship.FromToolId = input.FromToolId
+			relationship.FromToolID = input.FromToolID
 		}
 	}
 
-	if relationship.ToToolId != input.ToToolId {
-		if input.ToToolId <= 0 {
+	if relationship.ToToolID != input.ToToolID {
+		if input.ToToolID <= 0 {
 			errorsMap["ToToolId"] = "The target tool ID is required"
 		} else {
-			relationship.ToToolId = input.ToToolId
+			relationship.ToToolID = input.ToToolID
 		}
 	}
 

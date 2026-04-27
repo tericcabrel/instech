@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"flag"
 	"os"
@@ -47,9 +48,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			log.Error().Stack().Err(closeErr).Msg("Failed to close database")
+		}
+	}()
 
-	pingErr := db.Ping()
+	pingErr := db.PingContext(context.Background())
 	if pingErr != nil {
 		log.Error().Err(pingErr).Msg("Failed to ping database")
 		os.Exit(1)

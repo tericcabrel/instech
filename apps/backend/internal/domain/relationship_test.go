@@ -9,8 +9,8 @@ import (
 func TestRelationship(t *testing.T) {
 	t.Run("Create relationship with invalid kind", func(t *testing.T) {
 		_, err := domain.CreateRelationship(domain.CreateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   1,
+			FromToolID: 1,
+			ToToolID:   1,
 			Kind:       "invalid",
 			Reason:     "",
 		})
@@ -29,8 +29,8 @@ func TestRelationship(t *testing.T) {
 
 	t.Run("Create relationship with invalid fields", func(t *testing.T) {
 		_, err := domain.CreateRelationship(domain.CreateRelationshipInput{
-			FromToolId: 0,
-			ToToolId:   -3,
+			FromToolID: 0,
+			ToToolID:   -3,
 			Kind:       "built_on",
 			Reason:     "",
 		})
@@ -52,19 +52,19 @@ func TestRelationship(t *testing.T) {
 
 	t.Run("Create relationship with valid input", func(t *testing.T) {
 		relationship, err := domain.CreateRelationship(domain.CreateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   1,
+			FromToolID: 1,
+			ToToolID:   1,
 			Kind:       "built_on",
 			Reason:     "This is a test relationship",
 		})
 		if err != nil {
 			t.Errorf("Expected no error, got %v", err)
 		}
-		if relationship.FromToolId != 1 {
-			t.Errorf("Expected source tool ID to be 1, got %d", relationship.FromToolId)
+		if relationship.FromToolID != 1 {
+			t.Errorf("Expected source tool ID to be 1, got %d", relationship.FromToolID)
 		}
-		if relationship.ToToolId != 1 {
-			t.Errorf("Expected target tool ID to be 1, got %d", relationship.ToToolId)
+		if relationship.ToToolID != 1 {
+			t.Errorf("Expected target tool ID to be 1, got %d", relationship.ToToolID)
 		}
 		if relationship.Kind != "built_on" {
 			t.Errorf("Expected kind to be 'built_on', got %s", relationship.Kind)
@@ -77,8 +77,8 @@ func TestRelationship(t *testing.T) {
 	t.Run("Update relationship with invalid kind", func(t *testing.T) {
 		relationship := testutil.CreateTestRelationship()
 		err := relationship.Update(domain.UpdateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   1,
+			FromToolID: 1,
+			ToToolID:   1,
 			Kind:       "invalid",
 			Metadata: domain.RelationshipMetadata{
 				Reason: "This is a test relationship",
@@ -100,8 +100,8 @@ func TestRelationship(t *testing.T) {
 	t.Run("Update relationship with invalid fields", func(t *testing.T) {
 		relationship := testutil.CreateTestRelationship()
 		err := relationship.Update(domain.UpdateRelationshipInput{
-			FromToolId: -3,
-			ToToolId:   0,
+			FromToolID: -3,
+			ToToolID:   0,
 			Kind:       "built_on",
 			Metadata: domain.RelationshipMetadata{
 				Reason: "This is a test relationship",
@@ -126,8 +126,8 @@ func TestRelationship(t *testing.T) {
 	t.Run("Update relationship with valid input", func(t *testing.T) {
 		relationship := testutil.CreateTestRelationship()
 		err := relationship.Update(domain.UpdateRelationshipInput{
-			FromToolId: 2,
-			ToToolId:   3,
+			FromToolID: 2,
+			ToToolID:   3,
 			Kind:       "inspired_by",
 			Metadata: domain.RelationshipMetadata{
 				Reason: "reason updated",
@@ -136,11 +136,11 @@ func TestRelationship(t *testing.T) {
 		if err != nil {
 			t.Errorf("Expected no error, got %v", err)
 		}
-		if relationship.FromToolId != 2 {
-			t.Errorf("Expected source tool ID to be 2, got %d", relationship.FromToolId)
+		if relationship.FromToolID != 2 {
+			t.Errorf("Expected source tool ID to be 2, got %d", relationship.FromToolID)
 		}
-		if relationship.ToToolId != 3 {
-			t.Errorf("Expected target tool ID to be 3, got %d", relationship.ToToolId)
+		if relationship.ToToolID != 3 {
+			t.Errorf("Expected target tool ID to be 3, got %d", relationship.ToToolID)
 		}
 		if relationship.Kind != "inspired_by" {
 			t.Errorf("Expected kind to be 'inspired_by', got %s", relationship.Kind)

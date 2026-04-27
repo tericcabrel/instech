@@ -19,13 +19,13 @@ type AddToolInput struct {
 	Category    string
 	SubType     string
 	Prolang     string
-	ReleaseYear int
 	Devstatus   string
 	Details     string
-	UseCases    []string
-	Tags        []string
 	Website     string
 	Github      string
+	UseCases    []string
+	Tags        []string
+	ReleaseYear int
 }
 
 func (uc *AddToolUseCase) Execute(input AddToolInput) (domain.Tool, error) {

@@ -53,20 +53,20 @@ func TestRelationshipRepositoryIntegration(t *testing.T) {
 		relationship := testutil.CreateTestRelationship()
 		relationship, err := relationshipRepository.CreateRelationship(context.Background(), relationship)
 		require.NoError(t, err)
-		require.NotZero(t, relationship.Id)
+		require.NotZero(t, relationship.ID)
 
-		createdRelationship, err := relationshipRepository.GetRelationshipById(context.Background(), relationship.Id)
+		createdRelationship, err := relationshipRepository.GetRelationshipByID(context.Background(), relationship.ID)
 		require.NoError(t, err)
 		require.Equal(t, relationship, createdRelationship)
 
-		db.Exec("DELETE FROM relationships WHERE id = ?", relationship.Id)
+		db.Exec("DELETE FROM relationships WHERE id = ?", relationship.ID)
 	})
 
 	t.Run("UpdateRelationship", func(t *testing.T) {
 		relationship := testutil.CreateTestRelationship()
 		relationship, err := relationshipRepository.CreateRelationship(context.Background(), relationship)
 		require.NoError(t, err)
-		require.NotZero(t, relationship.Id)
+		require.NotZero(t, relationship.ID)
 
 		relationship.Kind = "alternative_to"
 		relationship.Metadata = domain.RelationshipMetadata{Reason: "This is an updated test relationship"}
@@ -75,16 +75,16 @@ func TestRelationshipRepositoryIntegration(t *testing.T) {
 		require.Equal(t, updatedRelationship.Kind, "alternative_to")
 		require.Equal(t, updatedRelationship.Metadata.Reason, "This is an updated test relationship")
 
-		db.Exec("DELETE FROM relationships WHERE id = ?", relationship.Id)
+		db.Exec("DELETE FROM relationships WHERE id = ?", relationship.ID)
 	})
 
 	t.Run("DeleteRelationship", func(t *testing.T) {
 		relationship := testutil.CreateTestRelationship()
 		relationship, err := relationshipRepository.CreateRelationship(context.Background(), relationship)
 		require.NoError(t, err)
-		require.NotZero(t, relationship.Id)
+		require.NotZero(t, relationship.ID)
 
-		err = relationshipRepository.DeleteRelationship(context.Background(), relationship.Id)
+		err = relationshipRepository.DeleteRelationship(context.Background(), relationship.ID)
 		require.NoError(t, err)
 	})
 
@@ -92,17 +92,17 @@ func TestRelationshipRepositoryIntegration(t *testing.T) {
 		relationship := testutil.CreateTestRelationship()
 		relationship, err := relationshipRepository.CreateRelationship(context.Background(), relationship)
 		require.NoError(t, err)
-		require.NotZero(t, relationship.Id)
+		require.NotZero(t, relationship.ID)
 
-		createdRelationship, err := relationshipRepository.GetRelationshipById(context.Background(), relationship.Id)
+		createdRelationship, err := relationshipRepository.GetRelationshipByID(context.Background(), relationship.ID)
 		require.NoError(t, err)
 		require.Equal(t, relationship, createdRelationship)
 
-		db.Exec("DELETE FROM relationships WHERE id = ?", relationship.Id)
+		db.Exec("DELETE FROM relationships WHERE id = ?", relationship.ID)
 	})
 
 	t.Run("GetRelationshipById fails when relationship is not found", func(t *testing.T) {
-		_, err := relationshipRepository.GetRelationshipById(context.Background(), 1)
+		_, err := relationshipRepository.GetRelationshipByID(context.Background(), 1)
 		require.Error(t, err)
 		require.ErrorIs(t, err, sql.ErrNoRows)
 	})
@@ -110,29 +110,29 @@ func TestRelationshipRepositoryIntegration(t *testing.T) {
 	t.Run("GetRelationshipsByToolID", func(t *testing.T) {
 		firstRelationship := testutil.CreateTestRelationship() // FromToolId: 1, ToToolId: 2
 		secondRelationship := testutil.CreateTestDynamicRelationship(89, domain.CreateRelationshipInput{
-			FromToolId: 3,
-			ToToolId:   2,
+			FromToolID: 3,
+			ToToolID:   2,
 			Kind:       "inspired_by",
 			Reason:     "parent to child",
 		})
 		thirdRelationship := testutil.CreateTestDynamicRelationship(90, domain.CreateRelationshipInput{
-			FromToolId: 1,
-			ToToolId:   3,
+			FromToolID: 1,
+			ToToolID:   3,
 			Kind:       "used_with",
 			Reason:     "child to parent",
 		})
 
 		firstRelationshipCreated, err := relationshipRepository.CreateRelationship(context.Background(), firstRelationship)
 		require.NoError(t, err)
-		require.NotZero(t, firstRelationshipCreated.Id)
+		require.NotZero(t, firstRelationshipCreated.ID)
 
 		secondRelationshipCreated, err := relationshipRepository.CreateRelationship(context.Background(), secondRelationship)
 		require.NoError(t, err)
-		require.NotZero(t, secondRelationshipCreated.Id)
+		require.NotZero(t, secondRelationshipCreated.ID)
 
 		thirdRelationshipCreated, err := relationshipRepository.CreateRelationship(context.Background(), thirdRelationship)
 		require.NoError(t, err)
-		require.NotZero(t, thirdRelationshipCreated.Id)
+		require.NotZero(t, thirdRelationshipCreated.ID)
 
 		relationships, err := relationshipRepository.GetRelationshipsByToolID(context.Background(), 1)
 		require.NoError(t, err)
@@ -140,9 +140,9 @@ func TestRelationshipRepositoryIntegration(t *testing.T) {
 		require.Equal(t, relationships[0], firstRelationshipCreated)
 		require.Equal(t, relationships[1], thirdRelationshipCreated)
 
-		db.Exec("DELETE FROM relationships WHERE id = ?", firstRelationshipCreated.Id)
-		db.Exec("DELETE FROM relationships WHERE id = ?", secondRelationshipCreated.Id)
-		db.Exec("DELETE FROM relationships WHERE id = ?", thirdRelationshipCreated.Id)
+		db.Exec("DELETE FROM relationships WHERE id = ?", firstRelationshipCreated.ID)
+		db.Exec("DELETE FROM relationships WHERE id = ?", secondRelationshipCreated.ID)
+		db.Exec("DELETE FROM relationships WHERE id = ?", thirdRelationshipCreated.ID)
 	})
 
 	t.Run("GetRelationshipsByToolID succeeds when tool is not found", func(t *testing.T) {
@@ -155,27 +155,27 @@ func TestRelationshipRepositoryIntegration(t *testing.T) {
 		relationship := testutil.CreateTestRelationship() // built_on 1 -> 2
 		relationship, err := relationshipRepository.CreateRelationship(context.Background(), relationship)
 		require.NoError(t, err)
-		require.NotZero(t, relationship.Id)
+		require.NotZero(t, relationship.ID)
 
 		secondRelationship := testutil.CreateTestDynamicRelationship(89, domain.CreateRelationshipInput{
-			FromToolId: 3,
-			ToToolId:   2,
+			FromToolID: 3,
+			ToToolID:   2,
 			Kind:       "alternative_to",
 			Reason:     "parent to child",
 		})
 		secondRelationshipCreated, err := relationshipRepository.CreateRelationship(context.Background(), secondRelationship)
 		require.NoError(t, err)
-		require.NotZero(t, secondRelationshipCreated.Id)
+		require.NotZero(t, secondRelationshipCreated.ID)
 
 		thirdRelationship := testutil.CreateTestDynamicRelationship(90, domain.CreateRelationshipInput{
-			FromToolId: 2,
-			ToToolId:   3,
+			FromToolID: 2,
+			ToToolID:   3,
 			Kind:       "alternative_to",
 			Reason:     "alternative to parent",
 		})
 		thirdRelationshipCreated, err := relationshipRepository.CreateRelationship(context.Background(), thirdRelationship)
 		require.NoError(t, err)
-		require.NotZero(t, thirdRelationshipCreated.Id)
+		require.NotZero(t, thirdRelationshipCreated.ID)
 
 		relationships, err := relationshipRepository.GetToolAlternatives(context.Background(), 2)
 		require.NoError(t, err)
@@ -183,8 +183,8 @@ func TestRelationshipRepositoryIntegration(t *testing.T) {
 		require.Equal(t, relationships[0], secondRelationshipCreated)
 		require.Equal(t, relationships[1], thirdRelationshipCreated)
 
-		db.Exec("DELETE FROM relationships WHERE id = ?", secondRelationshipCreated.Id)
-		db.Exec("DELETE FROM relationships WHERE id = ?", thirdRelationshipCreated.Id)
+		db.Exec("DELETE FROM relationships WHERE id = ?", secondRelationshipCreated.ID)
+		db.Exec("DELETE FROM relationships WHERE id = ?", thirdRelationshipCreated.ID)
 	})
 
 	t.Run("GetToolAlternatives succeeds when tool is not found", func(t *testing.T) {
@@ -216,8 +216,8 @@ func TestGetRelationshipsAll(t *testing.T) {
 		res, err := repo.GetRelationshipsAll(ctx, repository.GetRelationshipsAllParams{Cursor: 0, Limit: 0})
 		require.NoError(t, err)
 		require.Len(t, res.Relationships, 15)
-		require.Equal(t, 79, res.Relationships[0].Id)
-		require.Equal(t, 65, res.Relationships[14].Id)
+		require.Equal(t, 79, res.Relationships[0].ID)
+		require.Equal(t, 65, res.Relationships[14].ID)
 		require.Equal(t, int64(15), res.TotalCount)
 		require.Equal(t, int64(15), res.ItemsCount)
 		require.Equal(t, int64(-1), res.NextCursor)
@@ -240,8 +240,8 @@ func TestGetRelationshipsAll(t *testing.T) {
 		first, err := repo.GetRelationshipsAll(ctx, repository.GetRelationshipsAllParams{Limit: 2})
 		require.NoError(t, err)
 		require.Len(t, first.Relationships, 2)
-		require.Equal(t, 79, first.Relationships[0].Id)
-		require.Equal(t, 78, first.Relationships[1].Id)
+		require.Equal(t, 79, first.Relationships[0].ID)
+		require.Equal(t, 78, first.Relationships[1].ID)
 		require.Equal(t, int64(15), first.TotalCount)
 		require.Equal(t, int64(2), first.ItemsCount)
 		// next cursor is the peeked (limit+1)th row’s time (id 77), not the last returned item
@@ -255,8 +255,8 @@ func TestGetRelationshipsAll(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.Len(t, second.Relationships, 2)
-		require.Equal(t, 77, second.Relationships[0].Id)
-		require.Equal(t, 76, second.Relationships[1].Id)
+		require.Equal(t, 77, second.Relationships[0].ID)
+		require.Equal(t, 76, second.Relationships[1].ID)
 	})
 
 	t.Run("filter by kind", func(t *testing.T) {
@@ -266,8 +266,8 @@ func TestGetRelationshipsAll(t *testing.T) {
 		res, err := repo.GetRelationshipsAll(ctx, repository.GetRelationshipsAllParams{Kind: "built_on"})
 		require.NoError(t, err)
 		require.Len(t, res.Relationships, 5)
-		require.Equal(t, 77, res.Relationships[0].Id)
-		require.Equal(t, 65, res.Relationships[4].Id)
+		require.Equal(t, 77, res.Relationships[0].ID)
+		require.Equal(t, 65, res.Relationships[4].ID)
 		require.Equal(t, int64(5), res.TotalCount)
 	})
 
@@ -278,9 +278,9 @@ func TestGetRelationshipsAll(t *testing.T) {
 		res, err := repo.GetRelationshipsAll(ctx, repository.GetRelationshipsAllParams{ToolId: 11})
 		require.NoError(t, err)
 		require.Len(t, res.Relationships, 3)
-		require.Equal(t, 76, res.Relationships[0].Id)
-		require.Equal(t, 67, res.Relationships[1].Id)
-		require.Equal(t, 65, res.Relationships[2].Id)
+		require.Equal(t, 76, res.Relationships[0].ID)
+		require.Equal(t, 67, res.Relationships[1].ID)
+		require.Equal(t, 65, res.Relationships[2].ID)
 		require.Equal(t, int64(3), res.TotalCount)
 	})
 
@@ -294,7 +294,7 @@ func TestGetRelationshipsAll(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.Len(t, p1.Relationships, 1)
-		require.Equal(t, 77, p1.Relationships[0].Id)
+		require.Equal(t, 77, p1.Relationships[0].ID)
 		require.Equal(t, int64(5), p1.TotalCount)
 
 		after, err := repo.GetRelationshipsAll(ctx, repository.GetRelationshipsAllParams{

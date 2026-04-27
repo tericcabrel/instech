@@ -33,5 +33,5 @@ func TestHTTPRouter_GetRoot(t *testing.T) {
 	require.Equal(t, http.StatusOK, rec.Code)
 	body, err := io.ReadAll(rec.Body)
 	require.NoError(t, err)
-	require.Equal(t, "Hello from Instech", string(body))
+	require.Equal(t, "{\"message\":\"Hello from Instech\"}\n", string(body))
 }

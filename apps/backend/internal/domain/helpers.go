@@ -1,16 +1,16 @@
 package domain
 
 func DedupeToolIdsFromRelationships(relationships []Relationship) []int {
-	var seen map[int]bool = make(map[int]bool)
+	var seen = make(map[int]bool)
 	for _, relationship := range relationships {
-		seen[relationship.FromToolId] = true
-		seen[relationship.ToToolId] = true
+		seen[relationship.FromToolID] = true
+		seen[relationship.ToToolID] = true
 	}
 
-	var toolIds []int = make([]int, 0)
-	for toolId := range seen {
-		toolIds = append(toolIds, toolId)
+	var toolIDs = make([]int, 0)
+	for toolID := range seen {
+		toolIDs = append(toolIDs, toolID)
 	}
 
-	return toolIds
+	return toolIDs
 }

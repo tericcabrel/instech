@@ -129,12 +129,12 @@ func (q *Queries) GetToolBySlug(ctx context.Context, slug string) (ToolRecord, e
 	return i, err
 }
 
-const getToolsByIds = `-- name: GetToolsByIds :many
+const getToolsByIDs = `-- name: GetToolsByIDs :many
 SELECT id, name, slug, category, sub_type, prolang, release_year, devstatus, details, use_cases, tags, website, github, created_at, updated_at FROM tools WHERE id IN (/*SLICE:ids*/?) ORDER BY name ASC
 `
 
-func (q *Queries) GetToolsByIds(ctx context.Context, ids []int) ([]ToolRecord, error) {
-	query := getToolsByIds
+func (q *Queries) GetToolsByIDs(ctx context.Context, ids []int) ([]ToolRecord, error) {
+	query := getToolsByIDs
 	var queryParams []interface{}
 	if len(ids) > 0 {
 		for _, v := range ids {

@@ -23,7 +23,7 @@ func TestToolRepositoryIntegration(t *testing.T) {
 		require.NoError(t, err)
 		require.NotZero(t, tool.Id)
 
-		createdTool, err := toolRepository.GetToolById(context.Background(), tool.Id)
+		createdTool, err := toolRepository.GetToolByID(context.Background(), tool.Id)
 		require.NoError(t, err)
 		require.Equal(t, tool, createdTool)
 
@@ -153,14 +153,14 @@ func TestToolRepositoryIntegration(t *testing.T) {
 		require.NotZero(t, secondToolCreated.Id)
 
 		toolsIds := []int{firstToolCreated.Id, secondToolCreated.Id}
-		tools, err := toolRepository.GetToolByIds(context.Background(), toolsIds)
+		tools, err := toolRepository.GetToolByIDs(context.Background(), toolsIds)
 		require.NoError(t, err)
 		require.Equal(t, []domain.Tool{firstToolCreated, secondToolCreated}, tools)
 	})
 
 	t.Run("GetToolByIds succeeds when tools are not found", func(t *testing.T) {
 		toolsIds := []int{1, 2}
-		tools, err := toolRepository.GetToolByIds(context.Background(), toolsIds)
+		tools, err := toolRepository.GetToolByIDs(context.Background(), toolsIds)
 		require.NoError(t, err)
 		require.Equal(t, []domain.Tool{}, tools)
 	})

@@ -49,12 +49,12 @@ func (q *Queries) DeleteRelationship(ctx context.Context, id int) error {
 	return err
 }
 
-const getRelationshipById = `-- name: GetRelationshipById :one
+const getRelationshipByID = `-- name: GetRelationshipByID :one
 SELECT id, from_tool_id, to_tool_id, kind, metadata, created_at, updated_at FROM relationships WHERE id = ? LIMIT 1
 `
 
-func (q *Queries) GetRelationshipById(ctx context.Context, id int) (RelationshipRecord, error) {
-	row := q.db.QueryRowContext(ctx, getRelationshipById, id)
+func (q *Queries) GetRelationshipByID(ctx context.Context, id int) (RelationshipRecord, error) {
+	row := q.db.QueryRowContext(ctx, getRelationshipByID, id)
 	var i RelationshipRecord
 	err := row.Scan(
 		&i.Id,

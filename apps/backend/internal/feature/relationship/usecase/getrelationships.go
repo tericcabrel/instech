@@ -14,9 +14,9 @@ type GetRelationshipsUseCase struct {
 	ToolRepository         repository.ToolRepositoryInterface
 }
 type ClientRelationshipDataTool struct {
-	Id   int    `json:"id"`
 	Name string `json:"name"`
 	Slug string `json:"slug"`
+	ID   int    `json:"id"`
 }
 
 type ClientRelationshipPaginationMetadata struct {
@@ -26,13 +26,13 @@ type ClientRelationshipPaginationMetadata struct {
 }
 
 type ClientRelationshipData struct {
-	Id        int                         `json:"id"`
+	CreatedAt time.Time                   `json:"created_at"`
+	UpdatedAt time.Time                   `json:"updated_at"`
 	FromTool  ClientRelationshipDataTool  `json:"from_tool"`
 	ToTool    ClientRelationshipDataTool  `json:"to_tool"`
 	Kind      string                      `json:"kind"`
 	Metadata  domain.RelationshipMetadata `json:"metadata"`
-	CreatedAt time.Time                   `json:"created_at"`
-	UpdatedAt time.Time                   `json:"updated_at"`
+	ID        int                         `json:"id"`
 }
 
 type ClientRelationshipResult struct {
@@ -41,9 +41,9 @@ type ClientRelationshipResult struct {
 }
 
 type GetRelationshipsUseCaseParams struct {
+	Kind   string `json:"kind"`
 	Cursor int64  `json:"cursor"`
 	ToolId int    `json:"tool_id"`
-	Kind   string `json:"kind"`
 	Limit  int    `json:"limit"`
 }
 
@@ -58,37 +58,37 @@ func (uc *GetRelationshipsUseCase) Execute(params GetRelationshipsUseCaseParams)
 		return ClientRelationshipResult{}, err
 	}
 
-	var uniqueToolIds []int = domain.DedupeToolIdsFromRelationships(paginatedRelationships.Relationships)
+	var uniqueToolIds = domain.DedupeToolIdsFromRelationships(paginatedRelationships.Relationships)
 
-	tools, err := uc.ToolRepository.GetToolByIds(context.Background(), uniqueToolIds)
+	tools, err := uc.ToolRepository.GetToolByIDs(context.Background(), uniqueToolIds)
 	if err != nil {
 		return ClientRelationshipResult{}, err
 	}
 
-	var toolMap map[int]domain.Tool = map[int]domain.Tool{}
+	var toolMap = map[int]domain.Tool{}
 	for _, tool := range tools {
 		toolMap[tool.Id] = tool
 	}
 
-	var relationships []ClientRelationshipData = make([]ClientRelationshipData, 0)
+	var relationships = make([]ClientRelationshipData, 0)
 	for _, relationship := range paginatedRelationships.Relationships {
-		fromTool, ok := toolMap[relationship.FromToolId]
+		fromTool, ok := toolMap[relationship.FromToolID]
 		if !ok {
-			return ClientRelationshipResult{}, common.ErrResourceNotFound{Id: strconv.Itoa(relationship.FromToolId), Message: "The from tool was not found"}
+			return ClientRelationshipResult{}, common.ErrResourceNotFound{Id: strconv.Itoa(relationship.FromToolID), Message: "The from tool was not found"}
 		}
-		toTool, ok := toolMap[relationship.ToToolId]
+		toTool, ok := toolMap[relationship.ToToolID]
 		if !ok {
-			return ClientRelationshipResult{}, common.ErrResourceNotFound{Id: strconv.Itoa(relationship.ToToolId), Message: "The to tool was not found"}
+			return ClientRelationshipResult{}, common.ErrResourceNotFound{Id: strconv.Itoa(relationship.ToToolID), Message: "The to tool was not found"}
 		}
 		relationships = append(relationships, ClientRelationshipData{
-			Id: relationship.Id,
+			ID: relationship.ID,
 			FromTool: ClientRelationshipDataTool{
-				Id:   fromTool.Id,
+				ID:   fromTool.Id,
 				Name: fromTool.Name,
 				Slug: fromTool.Slug,
 			},
 			ToTool: ClientRelationshipDataTool{
-				Id:   toTool.Id,
+				ID:   toTool.Id,
 				Name: toTool.Name,
 				Slug: toTool.Slug,
 			},

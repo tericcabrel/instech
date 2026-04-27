@@ -9,21 +9,21 @@ import (
 )
 
 type Tool struct {
-	Id          int       `json:"id"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	Website     string    `json:"website"`
 	Name        string    `json:"name"`
 	Slug        string    `json:"slug"`
 	Category    string    `json:"category"`
 	SubType     string    `json:"sub_type"`
 	Prolang     string    `json:"prolang"`
-	ReleaseYear int       `json:"release_year"`
 	Devstatus   string    `json:"devstatus"`
 	Details     string    `json:"details"`
+	Github      string    `json:"github"`
 	UseCases    []string  `json:"use_cases"`
 	Tags        []string  `json:"tags"`
-	Website     string    `json:"website"`
-	Github      string    `json:"github"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	Id          int       `json:"id"`
+	ReleaseYear int       `json:"release_year"`
 }
 
 type CreateToolInput struct {
@@ -32,13 +32,13 @@ type CreateToolInput struct {
 	Category    string
 	SubType     string
 	Prolang     string
-	ReleaseYear int
 	Devstatus   string
 	Details     string
-	UseCases    []string
-	Tags        []string
 	Website     string
 	Github      string
+	UseCases    []string
+	Tags        []string
+	ReleaseYear int
 }
 
 type UpdateToolInput struct {
@@ -47,18 +47,18 @@ type UpdateToolInput struct {
 	Category    string
 	SubType     string
 	Prolang     string
-	ReleaseYear int
 	Devstatus   string
 	Details     string
-	UseCases    []string
-	Tags        []string
 	Website     string
 	Github      string
+	UseCases    []string
+	Tags        []string
+	ReleaseYear int
 }
 
-var TOOL_CATEGORIES = []string{"language", "framework", "library"}
-var TOOL_SUBTYPES = []string{"backend", "frontend", "fullstack", "mobile", "desktop", "game", "other"}
-var TOOL_DEVSTATUSES = []string{"active", "deprecated"}
+var ToolCategories = []string{"language", "framework", "library"}
+var ToolSubtypes = []string{"backend", "frontend", "fullstack", "mobile", "desktop", "game", "other"}
+var ToolDevStatuses = []string{"active", "deprecated"}
 
 const MIN_RELEASE_YEAR = 1940
 
@@ -73,18 +73,18 @@ const ERROR_USE_CASES_INVALID = "The tool use cases are invalid. Valid use cases
 const ERROR_TAGS_INVALID = "The tool tags are invalid. Valid tags must be an array of strings"
 
 var ERROR_RELEASE_YEAR_INVALID = fmt.Sprintf("The tool release year is invalid. Valid release years are between %d and %d", MIN_RELEASE_YEAR, MAX_RELEASE_YEAR)
-var ERROR_CATEGORY_INVALID = fmt.Sprintf("The tool category is invalid. Valid categories are: %s", strings.Join(TOOL_CATEGORIES, ", "))
-var ERROR_SUBTYPE_INVALID = fmt.Sprintf("The tool sub type is invalid. Valid sub types are: %s", strings.Join(TOOL_SUBTYPES, ", "))
-var ERROR_DEVSTATUS_INVALID = fmt.Sprintf("The tool dev status is invalid. Valid dev statuses are: %s", strings.Join(TOOL_DEVSTATUSES, ", "))
+var ERROR_CATEGORY_INVALID = fmt.Sprintf("The tool category is invalid. Valid categories are: %s", strings.Join(ToolCategories, ", "))
+var ERROR_SUBTYPE_INVALID = fmt.Sprintf("The tool sub type is invalid. Valid sub types are: %s", strings.Join(ToolSubtypes, ", "))
+var ERROR_DEVSTATUS_INVALID = fmt.Sprintf("The tool dev status is invalid. Valid dev statuses are: %s", strings.Join(ToolDevStatuses, ", "))
 
 func IsCategoryValid(category string) bool {
-	return slices.Contains(TOOL_CATEGORIES, category)
+	return slices.Contains(ToolCategories, category)
 }
 func IsSubTypeValid(subType string) bool {
-	return slices.Contains(TOOL_SUBTYPES, subType)
+	return slices.Contains(ToolSubtypes, subType)
 }
 func IsDevstatusValid(devstatus string) bool {
-	return slices.Contains(TOOL_DEVSTATUSES, devstatus)
+	return slices.Contains(ToolDevStatuses, devstatus)
 }
 
 func areStringsEqual(a, b []string) bool {

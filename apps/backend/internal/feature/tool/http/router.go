@@ -158,7 +158,7 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 	})
 
 	router.Get("/{id}/graph", func(w http.ResponseWriter, r *http.Request) {
-		var result map[string]any = map[string]any{
+		var result = map[string]any{
 			"message": "Tool graph for " + chi.URLParam(r, "id"),
 		}
 		httprouter.OK(w, result)

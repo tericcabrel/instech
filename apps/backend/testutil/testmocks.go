@@ -162,12 +162,12 @@ func (_c *MockRelationshipRepositoryInterface_DeleteRelationship_Call) RunAndRet
 	return _c
 }
 
-// GetRelationshipById provides a mock function for the type MockRelationshipRepositoryInterface
-func (_mock *MockRelationshipRepositoryInterface) GetRelationshipById(ctx context.Context, id int) (domain.Relationship, error) {
+// GetRelationshipByID provides a mock function for the type MockRelationshipRepositoryInterface
+func (_mock *MockRelationshipRepositoryInterface) GetRelationshipByID(ctx context.Context, id int) (domain.Relationship, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetRelationshipById")
+		panic("no return value specified for GetRelationshipByID")
 	}
 
 	var r0 domain.Relationship
@@ -188,19 +188,19 @@ func (_mock *MockRelationshipRepositoryInterface) GetRelationshipById(ctx contex
 	return r0, r1
 }
 
-// MockRelationshipRepositoryInterface_GetRelationshipById_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRelationshipById'
-type MockRelationshipRepositoryInterface_GetRelationshipById_Call struct {
+// MockRelationshipRepositoryInterface_GetRelationshipByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRelationshipByID'
+type MockRelationshipRepositoryInterface_GetRelationshipByID_Call struct {
 	*mock.Call
 }
 
-// GetRelationshipById is a helper method to define mock.On call
+// GetRelationshipByID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int
-func (_e *MockRelationshipRepositoryInterface_Expecter) GetRelationshipById(ctx interface{}, id interface{}) *MockRelationshipRepositoryInterface_GetRelationshipById_Call {
-	return &MockRelationshipRepositoryInterface_GetRelationshipById_Call{Call: _e.mock.On("GetRelationshipById", ctx, id)}
+func (_e *MockRelationshipRepositoryInterface_Expecter) GetRelationshipByID(ctx interface{}, id interface{}) *MockRelationshipRepositoryInterface_GetRelationshipByID_Call {
+	return &MockRelationshipRepositoryInterface_GetRelationshipByID_Call{Call: _e.mock.On("GetRelationshipByID", ctx, id)}
 }
 
-func (_c *MockRelationshipRepositoryInterface_GetRelationshipById_Call) Run(run func(ctx context.Context, id int)) *MockRelationshipRepositoryInterface_GetRelationshipById_Call {
+func (_c *MockRelationshipRepositoryInterface_GetRelationshipByID_Call) Run(run func(ctx context.Context, id int)) *MockRelationshipRepositoryInterface_GetRelationshipByID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -218,12 +218,12 @@ func (_c *MockRelationshipRepositoryInterface_GetRelationshipById_Call) Run(run 
 	return _c
 }
 
-func (_c *MockRelationshipRepositoryInterface_GetRelationshipById_Call) Return(relationship domain.Relationship, err error) *MockRelationshipRepositoryInterface_GetRelationshipById_Call {
+func (_c *MockRelationshipRepositoryInterface_GetRelationshipByID_Call) Return(relationship domain.Relationship, err error) *MockRelationshipRepositoryInterface_GetRelationshipByID_Call {
 	_c.Call.Return(relationship, err)
 	return _c
 }
 
-func (_c *MockRelationshipRepositoryInterface_GetRelationshipById_Call) RunAndReturn(run func(ctx context.Context, id int) (domain.Relationship, error)) *MockRelationshipRepositoryInterface_GetRelationshipById_Call {
+func (_c *MockRelationshipRepositoryInterface_GetRelationshipByID_Call) RunAndReturn(run func(ctx context.Context, id int) (domain.Relationship, error)) *MockRelationshipRepositoryInterface_GetRelationshipByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -646,12 +646,12 @@ func (_c *MockToolRepositoryInterface_DeleteTool_Call) RunAndReturn(run func(ctx
 	return _c
 }
 
-// GetToolById provides a mock function for the type MockToolRepositoryInterface
-func (_mock *MockToolRepositoryInterface) GetToolById(ctx context.Context, id int) (domain.Tool, error) {
+// GetToolByID provides a mock function for the type MockToolRepositoryInterface
+func (_mock *MockToolRepositoryInterface) GetToolByID(ctx context.Context, id int) (domain.Tool, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetToolById")
+		panic("no return value specified for GetToolByID")
 	}
 
 	var r0 domain.Tool
@@ -672,19 +672,19 @@ func (_mock *MockToolRepositoryInterface) GetToolById(ctx context.Context, id in
 	return r0, r1
 }
 
-// MockToolRepositoryInterface_GetToolById_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetToolById'
-type MockToolRepositoryInterface_GetToolById_Call struct {
+// MockToolRepositoryInterface_GetToolByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetToolByID'
+type MockToolRepositoryInterface_GetToolByID_Call struct {
 	*mock.Call
 }
 
-// GetToolById is a helper method to define mock.On call
+// GetToolByID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int
-func (_e *MockToolRepositoryInterface_Expecter) GetToolById(ctx interface{}, id interface{}) *MockToolRepositoryInterface_GetToolById_Call {
-	return &MockToolRepositoryInterface_GetToolById_Call{Call: _e.mock.On("GetToolById", ctx, id)}
+func (_e *MockToolRepositoryInterface_Expecter) GetToolByID(ctx interface{}, id interface{}) *MockToolRepositoryInterface_GetToolByID_Call {
+	return &MockToolRepositoryInterface_GetToolByID_Call{Call: _e.mock.On("GetToolByID", ctx, id)}
 }
 
-func (_c *MockToolRepositoryInterface_GetToolById_Call) Run(run func(ctx context.Context, id int)) *MockToolRepositoryInterface_GetToolById_Call {
+func (_c *MockToolRepositoryInterface_GetToolByID_Call) Run(run func(ctx context.Context, id int)) *MockToolRepositoryInterface_GetToolByID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -702,22 +702,22 @@ func (_c *MockToolRepositoryInterface_GetToolById_Call) Run(run func(ctx context
 	return _c
 }
 
-func (_c *MockToolRepositoryInterface_GetToolById_Call) Return(tool domain.Tool, err error) *MockToolRepositoryInterface_GetToolById_Call {
+func (_c *MockToolRepositoryInterface_GetToolByID_Call) Return(tool domain.Tool, err error) *MockToolRepositoryInterface_GetToolByID_Call {
 	_c.Call.Return(tool, err)
 	return _c
 }
 
-func (_c *MockToolRepositoryInterface_GetToolById_Call) RunAndReturn(run func(ctx context.Context, id int) (domain.Tool, error)) *MockToolRepositoryInterface_GetToolById_Call {
+func (_c *MockToolRepositoryInterface_GetToolByID_Call) RunAndReturn(run func(ctx context.Context, id int) (domain.Tool, error)) *MockToolRepositoryInterface_GetToolByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetToolByIds provides a mock function for the type MockToolRepositoryInterface
-func (_mock *MockToolRepositoryInterface) GetToolByIds(ctx context.Context, ids []int) ([]domain.Tool, error) {
+// GetToolByIDs provides a mock function for the type MockToolRepositoryInterface
+func (_mock *MockToolRepositoryInterface) GetToolByIDs(ctx context.Context, ids []int) ([]domain.Tool, error) {
 	ret := _mock.Called(ctx, ids)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetToolByIds")
+		panic("no return value specified for GetToolByIDs")
 	}
 
 	var r0 []domain.Tool
@@ -740,19 +740,19 @@ func (_mock *MockToolRepositoryInterface) GetToolByIds(ctx context.Context, ids 
 	return r0, r1
 }
 
-// MockToolRepositoryInterface_GetToolByIds_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetToolByIds'
-type MockToolRepositoryInterface_GetToolByIds_Call struct {
+// MockToolRepositoryInterface_GetToolByIDs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetToolByIDs'
+type MockToolRepositoryInterface_GetToolByIDs_Call struct {
 	*mock.Call
 }
 
-// GetToolByIds is a helper method to define mock.On call
+// GetToolByIDs is a helper method to define mock.On call
 //   - ctx context.Context
 //   - ids []int
-func (_e *MockToolRepositoryInterface_Expecter) GetToolByIds(ctx interface{}, ids interface{}) *MockToolRepositoryInterface_GetToolByIds_Call {
-	return &MockToolRepositoryInterface_GetToolByIds_Call{Call: _e.mock.On("GetToolByIds", ctx, ids)}
+func (_e *MockToolRepositoryInterface_Expecter) GetToolByIDs(ctx interface{}, ids interface{}) *MockToolRepositoryInterface_GetToolByIDs_Call {
+	return &MockToolRepositoryInterface_GetToolByIDs_Call{Call: _e.mock.On("GetToolByIDs", ctx, ids)}
 }
 
-func (_c *MockToolRepositoryInterface_GetToolByIds_Call) Run(run func(ctx context.Context, ids []int)) *MockToolRepositoryInterface_GetToolByIds_Call {
+func (_c *MockToolRepositoryInterface_GetToolByIDs_Call) Run(run func(ctx context.Context, ids []int)) *MockToolRepositoryInterface_GetToolByIDs_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -770,12 +770,12 @@ func (_c *MockToolRepositoryInterface_GetToolByIds_Call) Run(run func(ctx contex
 	return _c
 }
 
-func (_c *MockToolRepositoryInterface_GetToolByIds_Call) Return(tools []domain.Tool, err error) *MockToolRepositoryInterface_GetToolByIds_Call {
+func (_c *MockToolRepositoryInterface_GetToolByIDs_Call) Return(tools []domain.Tool, err error) *MockToolRepositoryInterface_GetToolByIDs_Call {
 	_c.Call.Return(tools, err)
 	return _c
 }
 
-func (_c *MockToolRepositoryInterface_GetToolByIds_Call) RunAndReturn(run func(ctx context.Context, ids []int) ([]domain.Tool, error)) *MockToolRepositoryInterface_GetToolByIds_Call {
+func (_c *MockToolRepositoryInterface_GetToolByIDs_Call) RunAndReturn(run func(ctx context.Context, ids []int) ([]domain.Tool, error)) *MockToolRepositoryInterface_GetToolByIDs_Call {
 	_c.Call.Return(run)
 	return _c
 }

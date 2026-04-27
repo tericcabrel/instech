@@ -1,14 +1,15 @@
 package core
 
 import (
-	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
 	"net/http"
 	relationshiphttp "tericcabrel/instech/internal/feature/relationship/http"
 	toolhttp "tericcabrel/instech/internal/feature/tool/http"
+	"tericcabrel/instech/internal/infra/httprouter"
 	"tericcabrel/instech/internal/repository"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
 type HTTPRouter struct {
@@ -33,14 +34,12 @@ func (router *HTTPRouter) Initialize() http.Handler {
 		MaxAge:           300,
 	}))
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hello from Instech"))
+	r.Get("/", func(w http.ResponseWriter, _ *http.Request) {
+		httprouter.OK(w, map[string]string{"message": "Hello from Instech"})
 	})
 
 	r.Get("/search", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf("Search results for %s", r.URL.Query().Get("q"))))
+		httprouter.OK(w, map[string]string{"message": "Search results for " + r.URL.Query().Get("q")})
 	})
 
 	toolRouter := toolhttp.ToolRouter{

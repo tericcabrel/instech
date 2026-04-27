@@ -17,19 +17,19 @@ type GetToolAlternativesUseCase struct {
 }
 
 type ToolAlternativesResult struct {
-	Id          string                      `json:"id"`
+	DevStatus   string                      `json:"dev_status"`
 	Name        string                      `json:"name"`
 	Category    string                      `json:"category"`
 	SubType     string                      `json:"sub_type"`
 	Prolang     string                      `json:"prolang"`
-	ReleaseYear int                         `json:"release_year"`
-	DevStatus   string                      `json:"dev_status"`
+	Id          string                      `json:"id"`
 	Details     string                      `json:"details"`
-	UseCases    []string                    `json:"use_cases"`
-	Tags        []string                    `json:"tags"`
 	Website     string                      `json:"website"`
 	Github      string                      `json:"github"`
 	Metadata    domain.RelationshipMetadata `json:"metadata"`
+	UseCases    []string                    `json:"use_cases"`
+	Tags        []string                    `json:"tags"`
+	ReleaseYear int                         `json:"release_year"`
 }
 
 func (uc *GetToolAlternativesUseCase) Execute(toolSlug string) ([]ToolAlternativesResult, error) {
@@ -50,31 +50,31 @@ func (uc *GetToolAlternativesUseCase) Execute(toolSlug string) ([]ToolAlternativ
 
 	fmt.Printf("Relationships: %+v", relationships)
 
-	var uniqueToolIds []int = domain.DedupeToolIdsFromRelationships(relationships)
+	var uniqueToolIds = domain.DedupeToolIdsFromRelationships(relationships)
 
 	if len(uniqueToolIds) == 0 {
 		return []ToolAlternativesResult{}, nil
 	}
 
-	tools, err := uc.ToolRepository.GetToolByIds(context.Background(), uniqueToolIds)
+	tools, err := uc.ToolRepository.GetToolByIDs(context.Background(), uniqueToolIds)
 
 	if err != nil {
 		return []ToolAlternativesResult{}, err
 	}
 
-	var toolMap map[int]domain.Tool = map[int]domain.Tool{}
+	var toolMap = map[int]domain.Tool{}
 	for _, t := range tools {
 		toolMap[t.Id] = t
 	}
 
-	var result []ToolAlternativesResult = make([]ToolAlternativesResult, 0)
+	var result = make([]ToolAlternativesResult, 0)
 
-	var processedToolIds map[int]bool = make(map[int]bool)
+	var processedToolIds = make(map[int]bool)
 
 	for _, r := range relationships {
-		var otherToolId int = r.FromToolId
-		if tool.Id == r.FromToolId {
-			otherToolId = r.ToToolId
+		var otherToolId = r.FromToolID
+		if tool.Id == r.FromToolID {
+			otherToolId = r.ToToolID
 		}
 
 		otherTool, ok := toolMap[otherToolId]

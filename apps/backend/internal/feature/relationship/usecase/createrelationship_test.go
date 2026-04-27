@@ -24,8 +24,8 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			ToolRepository:         toolRepository,
 		}
 		relationship, err := createRelationship.Execute(usecase.CreateRelationshipInput{
-			FromToolId: "invalid",
-			ToToolId:   "1",
+			FromToolID: "invalid",
+			ToToolID:   "1",
 			Kind:       "built_on",
 			Metadata:   struct{ Reason string }{Reason: "This is a test relationship"},
 		})
@@ -63,8 +63,8 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			ToolRepository:         toolRepository,
 		}
 		relationship, err := createRelationship.Execute(usecase.CreateRelationshipInput{
-			FromToolId: tool.Slug,
-			ToToolId:   "invalid",
+			FromToolID: tool.Slug,
+			ToToolID:   "invalid",
 			Kind:       "built_on",
 			Metadata:   struct{ Reason string }{Reason: "This is a test relationship"},
 		})
@@ -116,8 +116,8 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			ToolRepository:         toolRepository,
 		}
 		relationship, err := createRelationship.Execute(usecase.CreateRelationshipInput{
-			FromToolId: tool1.Slug,
-			ToToolId:   tool2.Slug,
+			FromToolID: tool1.Slug,
+			ToToolID:   tool2.Slug,
 			Kind:       "invalid",
 			Metadata:   struct{ Reason string }{Reason: "This is a test relationship"},
 		})
@@ -154,8 +154,8 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 		})
 
 		expectedRelationship := testutil.CreateTestDynamicRelationship(1, domain.CreateRelationshipInput{
-			FromToolId: tool1.Id,
-			ToToolId:   tool2.Id,
+			FromToolID: tool1.Id,
+			ToToolID:   tool2.Id,
 			Kind:       "built_on",
 			Reason:     "This is a test relationship",
 		})
@@ -178,8 +178,8 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			ToolRepository:         toolRepository,
 		}
 		relationship, err := createRelationship.Execute(usecase.CreateRelationshipInput{
-			FromToolId: tool1.Slug,
-			ToToolId:   tool2.Slug,
+			FromToolID: tool1.Slug,
+			ToToolID:   tool2.Slug,
 			Kind:       "built_on",
 			Metadata:   struct{ Reason string }{Reason: "This is a test relationship"},
 		})
@@ -187,8 +187,8 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, relationship, expectedRelationship)
 		relationshipRepository.AssertCalled(t, "CreateRelationship", mock.Anything, domain.Relationship{
-			FromToolId: tool1.Id,
-			ToToolId:   tool2.Id,
+			FromToolID: tool1.Id,
+			ToToolID:   tool2.Id,
 			Kind:       "built_on",
 			Metadata: domain.RelationshipMetadata{
 				Reason: "This is a test relationship",

@@ -9,7 +9,7 @@ import (
 
 const SQL_DATE_FORMAT = "2006-01-02 15:04:05"
 
-func parseJsonArray[T any](jsonArray string) []T {
+func parseJSONArray[T any](jsonArray string) []T {
 	var result []T
 	err := json.Unmarshal([]byte(jsonArray), &result)
 	if err != nil {
@@ -18,7 +18,7 @@ func parseJsonArray[T any](jsonArray string) []T {
 	return result
 }
 
-func parseJsonObject[T any](jsonObject string) T {
+func parseJSONObject[T any](jsonObject string) T {
 	var result T
 	err := json.Unmarshal([]byte(jsonObject), &result)
 	if err != nil {
@@ -37,7 +37,7 @@ func MapToolRecordToTool(tool queries.ToolRecord) (domain.Tool, error) {
 		return domain.Tool{}, err
 	}
 
-	var mappedTool domain.Tool = domain.Tool{
+	var mappedTool = domain.Tool{
 		Id:          tool.Id,
 		Name:        tool.Name,
 		Slug:        tool.Slug,
@@ -66,8 +66,8 @@ func MapToolRecordToTool(tool queries.ToolRecord) (domain.Tool, error) {
 		mappedTool.Github = tool.Github.String
 	}
 
-	mappedTool.UseCases = parseJsonArray[string](tool.UseCases)
-	mappedTool.Tags = parseJsonArray[string](tool.Tags)
+	mappedTool.UseCases = parseJSONArray[string](tool.UseCases)
+	mappedTool.Tags = parseJSONArray[string](tool.Tags)
 
 	return mappedTool, nil
 }
@@ -82,16 +82,16 @@ func MapRelationshipRecordToRelationship(record queries.RelationshipRecord) doma
 		return domain.Relationship{}
 	}
 	var mappedRelationship = domain.Relationship{
-		Id:         record.Id,
-		FromToolId: record.FromToolId,
-		ToToolId:   record.ToToolId,
+		ID:         record.Id,
+		FromToolID: record.FromToolId,
+		ToToolID:   record.ToToolId,
 		Kind:       record.Kind,
 		CreatedAt:  createdAt,
 		UpdatedAt:  updatedAt,
 	}
 
 	if len(record.Metadata) > 0 {
-		mappedRelationship.Metadata = parseJsonObject[domain.RelationshipMetadata](record.Metadata)
+		mappedRelationship.Metadata = parseJSONObject[domain.RelationshipMetadata](record.Metadata)
 	}
 
 	return mappedRelationship

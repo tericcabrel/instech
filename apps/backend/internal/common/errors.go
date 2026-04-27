@@ -8,7 +8,7 @@ type ErrResourceNotFound struct {
 }
 
 func (e ErrResourceNotFound) Error() string {
-	var msg string = "Resource not found"
+	var msg = "Resource not found"
 	if e.Message != "" {
 		msg = e.Message
 	}
@@ -21,7 +21,7 @@ type ErrResourceAlreadyExists struct {
 }
 
 func (e ErrResourceAlreadyExists) Error() string {
-	var msg string = "Resource already exists"
+	var msg = "Resource already exists"
 	if e.Message != "" {
 		msg = e.Message
 	}

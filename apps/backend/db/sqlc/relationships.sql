@@ -10,7 +10,7 @@ DELETE FROM relationships WHERE id = ?;
 -- name: GetRelationshipsByToolID :many
 SELECT * FROM relationships WHERE from_tool_id = ? OR to_tool_id = ?;
 
--- name: GetRelationshipById :one
+-- name: GetRelationshipByID :one
 SELECT * FROM relationships WHERE id = ? LIMIT 1;
 
 -- name: GetToolAlternatives :many

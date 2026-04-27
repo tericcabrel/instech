@@ -125,18 +125,18 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 	})
 
 	router.Get("/query", func(w http.ResponseWriter, r *http.Request) {
-		toolIdParam := r.URL.Query().Get("tool_id")
+		toolIDParam := r.URL.Query().Get("tool_id")
 		kindParam := r.URL.Query().Get("kind")
 		cursorParam := r.URL.Query().Get("cursor")
 		limitParam := r.URL.Query().Get("limit")
 
-		var toolId int
+		var toolID int
 		var kind string
 		var cursor int64
 		var castErr error
 
-		if toolIdParam != "" {
-			toolId, castErr = strconv.Atoi(toolIdParam)
+		if toolIDParam != "" {
+			toolID, castErr = strconv.Atoi(toolIDParam)
 			if castErr != nil {
 				httprouter.BadRequestError(w, map[string]string{
 					"message": "Invalid tool Id",
@@ -183,7 +183,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 		}
 		results, err := getRelationships.Execute(usecase.GetRelationshipsUseCaseParams{
 			Cursor: cursor,
-			ToolId: toolId,
+			ToolId: toolID,
 			Kind:   kind,
 			Limit:  limit,
 		})
