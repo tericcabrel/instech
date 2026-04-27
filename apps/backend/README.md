@@ -56,9 +56,14 @@ Install [golangci-lint](https://golangci-lint.run/welcome/install/) v2.x, then f
 golangci-lint run ./...
 ```
 
-Configuration lives in [`.golangci.yml`](.golangci.yml). CI runs the same check via [`.github/workflows/golangci-lint.yml`](../../.github/workflows/golangci-lint.yml) with `working-directory: apps/backend`.
+To run the linting and fix the files, run the following command:
+```bash
+golangci-lint run ./... --fix
+```
 
-## Pre-commit hook (optional)
+Configuration lives in [`.golangci.yml`](.golangci.yml). CI runs the same check via [`.github/workflows/build.yml`](../../.github/workflows/build.yml) with `working-directory: apps/backend`.
+
+### Pre-commit hook
 
 From the **repository root** (not `apps/backend`), enable the shared hooks so commits run lint:
 
