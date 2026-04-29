@@ -7,7 +7,7 @@ func DedupeToolIdsFromRelationships(relationships []Relationship) []int {
 		seen[relationship.ToToolID] = true
 	}
 
-	var toolIDs = make([]int, 0)
+	var toolIDs = make([]int, 0, len(seen))
 	for toolID := range seen {
 		toolIDs = append(toolIDs, toolID)
 	}

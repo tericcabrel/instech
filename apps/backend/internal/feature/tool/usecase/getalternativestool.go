@@ -93,7 +93,7 @@ func (uc *GetToolAlternativesUseCase) Execute(toolSlug string) ([]ToolAlternativ
 			SubType:     otherTool.SubType,
 			Prolang:     otherTool.Prolang,
 			ReleaseYear: otherTool.ReleaseYear,
-			DevStatus:   otherTool.Devstatus,
+			DevStatus:   otherTool.DevStatus,
 			Details:     otherTool.Details,
 			UseCases:    otherTool.UseCases,
 			Tags:        otherTool.Tags,

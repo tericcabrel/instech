@@ -7,7 +7,7 @@ CREATE TABLE tools (
     sub_type TEXT, -- backend, frontend, fullstack, etc.
     prolang TEXT, -- python, javascript, etc.
     release_year INTEGER,
-    devStatus TEXT, -- active, deprecated, etc.
+    dev_status TEXT, -- active, deprecated, etc.
     details TEXT,
     use_cases TEXT[], -- json array of strings ["UI", "SPA", "SSR", "Fullstack", "SEO", "API", "Backend"]
     tags TEXT[], -- json array of strings [component-based, declarative, functional, object-oriented].

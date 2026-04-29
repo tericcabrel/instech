@@ -19,6 +19,7 @@ func (uc *DeleteRelationshipUseCase) Execute(id int) error {
 		if errors.Is(err, sql.ErrNoRows) {
 			return common.ErrResourceNotFound{Id: strconv.Itoa(id), Message: "The relationship was not found"}
 		}
+
 		return err
 	}
 

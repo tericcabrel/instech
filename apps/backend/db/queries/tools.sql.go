@@ -12,7 +12,7 @@ import (
 )
 
 const createTool = `-- name: CreateTool :one
-INSERT INTO tools (name, slug, category, sub_type, prolang, release_year, devstatus, details, use_cases, tags, website, github) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id, name, slug, category, sub_type, prolang, release_year, devstatus, details, use_cases, tags, website, github, created_at, updated_at
+INSERT INTO tools (name, slug, category, sub_type, prolang, release_year, dev_status, details, use_cases, tags, website, github) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id, name, slug, category, sub_type, prolang, release_year, dev_status, details, use_cases, tags, website, github, created_at, updated_at
 `
 
 type CreateToolParams struct {
@@ -22,7 +22,7 @@ type CreateToolParams struct {
 	SubType     sql.NullString
 	Prolang     sql.NullString
 	ReleaseYear int
-	Devstatus   sql.NullString
+	DevStatus   sql.NullString
 	Details     sql.NullString
 	UseCases    string
 	Tags        string
@@ -38,7 +38,7 @@ func (q *Queries) CreateTool(ctx context.Context, arg CreateToolParams) (ToolRec
 		arg.SubType,
 		arg.Prolang,
 		arg.ReleaseYear,
-		arg.Devstatus,
+		arg.DevStatus,
 		arg.Details,
 		arg.UseCases,
 		arg.Tags,
@@ -54,7 +54,7 @@ func (q *Queries) CreateTool(ctx context.Context, arg CreateToolParams) (ToolRec
 		&i.SubType,
 		&i.Prolang,
 		&i.ReleaseYear,
-		&i.Devstatus,
+		&i.DevStatus,
 		&i.Details,
 		&i.UseCases,
 		&i.Tags,
@@ -76,7 +76,7 @@ func (q *Queries) DeleteTool(ctx context.Context, slug string) error {
 }
 
 const getToolByID = `-- name: GetToolByID :one
-SELECT id, name, slug, category, sub_type, prolang, release_year, devstatus, details, use_cases, tags, website, github, created_at, updated_at FROM tools WHERE id = ? LIMIT 1
+SELECT id, name, slug, category, sub_type, prolang, release_year, dev_status, details, use_cases, tags, website, github, created_at, updated_at FROM tools WHERE id = ? LIMIT 1
 `
 
 func (q *Queries) GetToolByID(ctx context.Context, id int) (ToolRecord, error) {
@@ -90,7 +90,7 @@ func (q *Queries) GetToolByID(ctx context.Context, id int) (ToolRecord, error) {
 		&i.SubType,
 		&i.Prolang,
 		&i.ReleaseYear,
-		&i.Devstatus,
+		&i.DevStatus,
 		&i.Details,
 		&i.UseCases,
 		&i.Tags,
@@ -103,7 +103,7 @@ func (q *Queries) GetToolByID(ctx context.Context, id int) (ToolRecord, error) {
 }
 
 const getToolBySlug = `-- name: GetToolBySlug :one
-SELECT id, name, slug, category, sub_type, prolang, release_year, devstatus, details, use_cases, tags, website, github, created_at, updated_at FROM tools WHERE slug = ? LIMIT 1
+SELECT id, name, slug, category, sub_type, prolang, release_year, dev_status, details, use_cases, tags, website, github, created_at, updated_at FROM tools WHERE slug = ? LIMIT 1
 `
 
 func (q *Queries) GetToolBySlug(ctx context.Context, slug string) (ToolRecord, error) {
@@ -117,7 +117,7 @@ func (q *Queries) GetToolBySlug(ctx context.Context, slug string) (ToolRecord, e
 		&i.SubType,
 		&i.Prolang,
 		&i.ReleaseYear,
-		&i.Devstatus,
+		&i.DevStatus,
 		&i.Details,
 		&i.UseCases,
 		&i.Tags,
@@ -130,7 +130,7 @@ func (q *Queries) GetToolBySlug(ctx context.Context, slug string) (ToolRecord, e
 }
 
 const getToolsByIDs = `-- name: GetToolsByIDs :many
-SELECT id, name, slug, category, sub_type, prolang, release_year, devstatus, details, use_cases, tags, website, github, created_at, updated_at FROM tools WHERE id IN (/*SLICE:ids*/?) ORDER BY name ASC
+SELECT id, name, slug, category, sub_type, prolang, release_year, dev_status, details, use_cases, tags, website, github, created_at, updated_at FROM tools WHERE id IN (/*SLICE:ids*/?) ORDER BY name ASC
 `
 
 func (q *Queries) GetToolsByIDs(ctx context.Context, ids []int) ([]ToolRecord, error) {
@@ -160,7 +160,7 @@ func (q *Queries) GetToolsByIDs(ctx context.Context, ids []int) ([]ToolRecord, e
 			&i.SubType,
 			&i.Prolang,
 			&i.ReleaseYear,
-			&i.Devstatus,
+			&i.DevStatus,
 			&i.Details,
 			&i.UseCases,
 			&i.Tags,
@@ -183,7 +183,7 @@ func (q *Queries) GetToolsByIDs(ctx context.Context, ids []int) ([]ToolRecord, e
 }
 
 const updateTool = `-- name: UpdateTool :one
-UPDATE tools SET name = ?, slug = ?, category = ?, sub_type = ?, prolang = ?, release_year = ?, devstatus = ?, details = ?, use_cases = ?, tags = ?, website = ?, github = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? RETURNING id, name, slug, category, sub_type, prolang, release_year, devstatus, details, use_cases, tags, website, github, created_at, updated_at
+UPDATE tools SET name = ?, slug = ?, category = ?, sub_type = ?, prolang = ?, release_year = ?, dev_status = ?, details = ?, use_cases = ?, tags = ?, website = ?, github = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? RETURNING id, name, slug, category, sub_type, prolang, release_year, dev_status, details, use_cases, tags, website, github, created_at, updated_at
 `
 
 type UpdateToolParams struct {
@@ -193,7 +193,7 @@ type UpdateToolParams struct {
 	SubType     sql.NullString
 	Prolang     sql.NullString
 	ReleaseYear int
-	Devstatus   sql.NullString
+	DevStatus   sql.NullString
 	Details     sql.NullString
 	UseCases    string
 	Tags        string
@@ -210,7 +210,7 @@ func (q *Queries) UpdateTool(ctx context.Context, arg UpdateToolParams) (ToolRec
 		arg.SubType,
 		arg.Prolang,
 		arg.ReleaseYear,
-		arg.Devstatus,
+		arg.DevStatus,
 		arg.Details,
 		arg.UseCases,
 		arg.Tags,
@@ -227,7 +227,7 @@ func (q *Queries) UpdateTool(ctx context.Context, arg UpdateToolParams) (ToolRec
 		&i.SubType,
 		&i.Prolang,
 		&i.ReleaseYear,
-		&i.Devstatus,
+		&i.DevStatus,
 		&i.Details,
 		&i.UseCases,
 		&i.Tags,

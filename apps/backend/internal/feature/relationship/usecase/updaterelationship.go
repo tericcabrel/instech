@@ -30,6 +30,7 @@ func (uc *UpdateRelationshipUseCase) Execute(Id int, input UpdateRelationshipInp
 		if errors.Is(err, sql.ErrNoRows) {
 			return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(Id), Message: "The relationship was not found"}
 		}
+
 		return domain.Relationship{}, err
 	}
 
@@ -39,6 +40,7 @@ func (uc *UpdateRelationshipUseCase) Execute(Id int, input UpdateRelationshipInp
 			if errors.Is(err, sql.ErrNoRows) {
 				return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(input.FromToolID), Message: "The source tool was not found"}
 			}
+
 			return domain.Relationship{}, err
 		}
 	}
@@ -49,6 +51,7 @@ func (uc *UpdateRelationshipUseCase) Execute(Id int, input UpdateRelationshipInp
 			if errors.Is(err, sql.ErrNoRows) {
 				return domain.Relationship{}, common.ErrResourceNotFound{Id: strconv.Itoa(input.ToToolID), Message: "The target tool was not found"}
 			}
+
 			return domain.Relationship{}, err
 		}
 	}

@@ -39,7 +39,7 @@ func createTools(t *testing.T, db *sql.DB) (nodejsId int, golangId int, pythonId
 		SubType:     "backend",
 		Prolang:     "JavaScript",
 		ReleaseYear: 2009,
-		Devstatus:   "active",
+		DevStatus:   "active",
 	})
 	require.NoError(t, err)
 
@@ -50,7 +50,7 @@ func createTools(t *testing.T, db *sql.DB) (nodejsId int, golangId int, pythonId
 		SubType:     "backend",
 		Prolang:     "Go",
 		ReleaseYear: 2009,
-		Devstatus:   "active",
+		DevStatus:   "active",
 	})
 	require.NoError(t, err)
 
@@ -61,7 +61,7 @@ func createTools(t *testing.T, db *sql.DB) (nodejsId int, golangId int, pythonId
 		SubType:     "backend",
 		Prolang:     "Python",
 		ReleaseYear: 1995,
-		Devstatus:   "active",
+		DevStatus:   "active",
 	})
 
 	toolRepository := repository.NewToolRepository(db)

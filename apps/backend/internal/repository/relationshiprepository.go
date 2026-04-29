@@ -62,6 +62,7 @@ func (r *RelationshipRepository) CreateRelationship(ctx context.Context, relatio
 	if err != nil {
 		return domain.Relationship{}, err
 	}
+
 	return MapRelationshipRecordToRelationship(record), nil
 }
 
@@ -70,6 +71,7 @@ func (r *RelationshipRepository) GetRelationshipByID(ctx context.Context, id int
 	if err != nil {
 		return domain.Relationship{}, err
 	}
+
 	return MapRelationshipRecordToRelationship(record), nil
 }
 

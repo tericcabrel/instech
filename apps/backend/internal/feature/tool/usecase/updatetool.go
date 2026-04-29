@@ -32,6 +32,7 @@ func (uc *UpdateToolUseCase) Execute(slug string, input UpdateToolInput) (domain
 		if errors.Is(err, sql.ErrNoRows) {
 			return domain.Tool{}, common.ErrResourceNotFound{Id: slug}
 		}
+
 		return domain.Tool{}, err
 	}
 
@@ -42,7 +43,7 @@ func (uc *UpdateToolUseCase) Execute(slug string, input UpdateToolInput) (domain
 		SubType:     input.SubType,
 		Prolang:     input.Prolang,
 		ReleaseYear: input.ReleaseYear,
-		Devstatus:   input.DevStatus,
+		DevStatus:   input.DevStatus,
 		Details:     input.Details,
 		UseCases:    input.UseCases,
 		Tags:        input.Tags,
@@ -59,5 +60,6 @@ func (uc *UpdateToolUseCase) Execute(slug string, input UpdateToolInput) (domain
 	if err != nil {
 		return domain.Tool{}, err
 	}
+
 	return updatedTool, nil
 }

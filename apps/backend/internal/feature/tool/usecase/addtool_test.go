@@ -24,6 +24,7 @@ func TestAddToolUseCase(t *testing.T) {
 			RunAndReturn(func(_ context.Context, tool domain.Tool) (domain.Tool, error) {
 				out := tool
 				out.Id = 99
+
 				return out, nil
 			})
 
@@ -38,7 +39,7 @@ func TestAddToolUseCase(t *testing.T) {
 			SubType:     "backend",
 			Prolang:     "JavaScript",
 			ReleaseYear: 2009,
-			Devstatus:   "active",
+			DevStatus:   "active",
 			Details:     "JavaScript runtime built on Chrome's V8",
 			UseCases:    []string{"Backend", "Frontend", "Fullstack"},
 			Tags:        []string{"JavaScript", "Node.js", "Backend", "Frontend", "Fullstack"},
@@ -82,7 +83,7 @@ func TestAddToolUseCase(t *testing.T) {
 			SubType:     "backend",
 			Prolang:     "",
 			ReleaseYear: 1922,
-			Devstatus:   "active",
+			DevStatus:   "active",
 			Details:     "8",
 			UseCases:    []string{""},
 			Tags:        []string{""},
@@ -97,23 +98,11 @@ func TestAddToolUseCase(t *testing.T) {
 			t.Errorf("Expected ErrInvalidField, got %v", err)
 		}
 		if e, ok := err.(domain.ErrInvalidField); ok {
-			if _, exist := e.Fields["Name"]; !exist {
-				t.Errorf("Expected the field \"Name\" to be present")
-			}
-			if _, exist := e.Fields["Slug"]; !exist {
-				t.Errorf("Expected the field \"Slug\" to be present")
-			}
-			if _, exist := e.Fields["ReleaseYear"]; !exist {
-				t.Errorf("Expected the field \"ReleaseYear\" to be present")
-			}
-			if _, exist := e.Fields["Prolang"]; !exist {
-				t.Errorf("Expected the field \"Prolang\" to be present")
-			}
-			if _, exist := e.Fields["Website"]; !exist {
-				t.Errorf("Expected the field \"Website\" to be present")
-			}
-			if _, exist := e.Fields["Github"]; !exist {
-				t.Errorf("Expected the field \"Github\" to be present")
+			fields := []string{"Name", "Slug", "ReleaseYear", "Prolang", "Website", "Github"}
+			for _, field := range fields {
+				if _, exist := e.Fields[field]; !exist {
+					t.Errorf("Expected the field \"%s\" to be present", field)
+				}
 			}
 		}
 		require.Equal(t, domain.Tool{}, tool)
@@ -138,7 +127,7 @@ func TestAddToolUseCase(t *testing.T) {
 			SubType:     "backend",
 			Prolang:     "JavaScript",
 			ReleaseYear: 2009,
-			Devstatus:   "active",
+			DevStatus:   "active",
 			Details:     "JavaScript runtime built on Chrome's V8",
 			UseCases:    []string{"Backend", "Frontend", "Fullstack"},
 			Tags:        []string{"JavaScript", "Node.js", "Backend", "Frontend", "Fullstack"},

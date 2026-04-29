@@ -8,12 +8,12 @@ import (
 )
 
 type HTTPError struct {
-	Details interface{} `json:"details"`
-	Message string      `json:"message"`
-	Code    int         `json:"code"`
+	Details any    `json:"details"`
+	Message string `json:"message"`
+	Code    int    `json:"code"`
 }
 
-func writeJSON(w http.ResponseWriter, v interface{}) {
+func writeJSON(w http.ResponseWriter, v any) {
 	enc := json.NewEncoder(w)
 	err := enc.Encode(v)
 	if err != nil {
@@ -32,7 +32,7 @@ func InternalServerError(w http.ResponseWriter, err error, source string) {
 	})
 }
 
-func BadRequestError(w http.ResponseWriter, details interface{}) {
+func BadRequestError(w http.ResponseWriter, details any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusBadRequest)
 	writeJSON(w, HTTPError{
@@ -42,13 +42,13 @@ func BadRequestError(w http.ResponseWriter, details interface{}) {
 	})
 }
 
-func Created(w http.ResponseWriter, data interface{}) {
+func Created(w http.ResponseWriter, data any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
 	writeJSON(w, data)
 }
 
-func OK(w http.ResponseWriter, data interface{}) {
+func OK(w http.ResponseWriter, data any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	writeJSON(w, data)
@@ -69,7 +69,7 @@ func NotFoundError(w http.ResponseWriter, id string) {
 	})
 }
 
-func UnprocessableEntityError(w http.ResponseWriter, details interface{}) {
+func UnprocessableEntityError(w http.ResponseWriter, details any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusUnprocessableEntity)
 	writeJSON(w, HTTPError{

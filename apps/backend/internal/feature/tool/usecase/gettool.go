@@ -19,6 +19,7 @@ func (uc *GetToolBySlugUseCase) Execute(slug string) (domain.Tool, error) {
 		if errors.Is(err, sql.ErrNoRows) {
 			return domain.Tool{}, common.ErrResourceNotFound{Id: slug}
 		}
+
 		return domain.Tool{}, err
 	}
 

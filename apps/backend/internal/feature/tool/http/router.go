@@ -27,6 +27,7 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 
 		if err != nil {
 			httprouter.BadRequestError(w, err.Error())
+
 			return
 		}
 		addTool := usecase.AddToolUseCase{
@@ -36,27 +37,31 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 		createdTool, err := addTool.Execute(tool)
 
 		if err != nil {
-			if _, ok := err.(domain.ErrInvalidToolCategory); ok {
+			switch err.(type) {
+			case domain.ErrInvalidToolCategory:
 				httprouter.BadRequestError(w, err)
+
 				return
-			}
-			if _, ok := err.(domain.ErrInvalidToolSubType); ok {
+			case domain.ErrInvalidToolSubType:
 				httprouter.BadRequestError(w, err)
+
 				return
-			}
-			if _, ok := err.(domain.ErrInvalidToolDevstatus); ok {
+			case domain.ErrInvalidToolDevStatus:
 				httprouter.BadRequestError(w, err)
+
 				return
-			}
-			if _, ok := err.(domain.ErrInvalidField); ok {
+			case domain.ErrInvalidField:
 				httprouter.UnprocessableEntityError(w, err)
+
 				return
-			}
-			if _, ok := err.(common.ErrResourceAlreadyExists); ok {
+			case common.ErrResourceAlreadyExists:
 				httprouter.BadRequestError(w, err)
+
 				return
 			}
+
 			httprouter.InternalServerError(w, err, "AddToolUsecase")
+
 			return
 		}
 
@@ -73,10 +78,12 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 		if err != nil {
 			if _, ok := err.(common.ErrResourceNotFound); ok {
 				httprouter.NotFoundError(w, slug)
+
 				return
 			}
 
 			httprouter.InternalServerError(w, err, "GetToolBySlugUsecase")
+
 			return
 		}
 		httprouter.OK(w, tool)
@@ -90,6 +97,7 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 		err := deleteTool.Execute(slug)
 		if err != nil {
 			httprouter.InternalServerError(w, err, "DeleteToolUsecase")
+
 			return
 		}
 		httprouter.NoContent(w)
@@ -102,6 +110,7 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 		err := json.NewDecoder(r.Body).Decode(&tool)
 		if err != nil {
 			httprouter.BadRequestError(w, err.Error())
+
 			return
 		}
 
@@ -110,27 +119,31 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 		}
 		updatedTool, err := updateTool.Execute(slug, tool)
 		if err != nil {
-			if _, ok := err.(domain.ErrInvalidToolCategory); ok {
+			switch err.(type) {
+			case domain.ErrInvalidToolCategory:
 				httprouter.BadRequestError(w, err)
+
 				return
-			}
-			if _, ok := err.(domain.ErrInvalidToolSubType); ok {
+			case domain.ErrInvalidToolSubType:
 				httprouter.BadRequestError(w, err)
+
 				return
-			}
-			if _, ok := err.(domain.ErrInvalidToolDevstatus); ok {
+			case domain.ErrInvalidToolDevStatus:
 				httprouter.BadRequestError(w, err)
+
 				return
-			}
-			if _, ok := err.(domain.ErrInvalidField); ok {
+			case domain.ErrInvalidField:
 				httprouter.UnprocessableEntityError(w, err)
+
 				return
-			}
-			if _, ok := err.(common.ErrResourceNotFound); ok {
+			case common.ErrResourceNotFound:
 				httprouter.NotFoundError(w, slug)
+
 				return
 			}
+
 			httprouter.InternalServerError(w, err, "UpdateToolUsecase")
+
 			return
 		}
 		httprouter.OK(w, updatedTool)
@@ -148,9 +161,11 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 		if err != nil {
 			if _, ok := err.(common.ErrResourceNotFound); ok {
 				httprouter.NotFoundError(w, slug)
+
 				return
 			}
 			httprouter.InternalServerError(w, err, "GetToolAlternativesUsecase")
+
 			return
 		}
 

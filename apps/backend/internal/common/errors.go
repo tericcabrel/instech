@@ -12,6 +12,7 @@ func (e ErrResourceNotFound) Error() string {
 	if e.Message != "" {
 		msg = e.Message
 	}
+
 	return fmt.Sprintf("%s: %s", msg, e.Id)
 }
 
@@ -25,5 +26,6 @@ func (e ErrResourceAlreadyExists) Error() string {
 	if e.Message != "" {
 		msg = e.Message
 	}
+
 	return fmt.Sprintf("%s: %s", msg, e.Id)
 }

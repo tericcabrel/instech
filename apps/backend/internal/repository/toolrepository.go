@@ -36,6 +36,7 @@ func (t *ToolRepository) GetToolByID(ctx context.Context, id int) (domain.Tool, 
 	if err != nil {
 		return domain.Tool{}, err
 	}
+
 	return tool, nil
 }
 
@@ -62,7 +63,7 @@ func (t *ToolRepository) CreateTool(ctx context.Context, tool domain.Tool) (doma
 		SubType:     sql.NullString{String: tool.SubType, Valid: true},
 		Prolang:     sql.NullString{String: tool.Prolang, Valid: true},
 		ReleaseYear: tool.ReleaseYear,
-		Devstatus:   sql.NullString{String: tool.Devstatus, Valid: true},
+		DevStatus:   sql.NullString{String: tool.DevStatus, Valid: true},
 		Details:     sql.NullString{String: tool.Details, Valid: true},
 		Website:     sql.NullString{String: tool.Website, Valid: true},
 		Github:      sql.NullString{String: tool.Github, Valid: true},
@@ -102,7 +103,7 @@ func (t *ToolRepository) UpdateTool(ctx context.Context, tool domain.Tool) (doma
 		SubType:     sql.NullString{String: tool.SubType, Valid: true},
 		Prolang:     sql.NullString{String: tool.Prolang, Valid: true},
 		ReleaseYear: tool.ReleaseYear,
-		Devstatus:   sql.NullString{String: tool.Devstatus, Valid: true},
+		DevStatus:   sql.NullString{String: tool.DevStatus, Valid: true},
 		Details:     sql.NullString{String: tool.Details, Valid: true},
 		Website:     sql.NullString{String: tool.Website, Valid: true},
 		Github:      sql.NullString{String: tool.Github, Valid: true},

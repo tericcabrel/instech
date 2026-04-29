@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"os"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -21,6 +22,13 @@ import (
 	"tericcabrel/instech/internal/repository"
 )
 
+const (
+	SERVER_READ_HEADER_TIMEOUT = 10 * time.Second
+	SERVER_READ_TIMEOUT        = 30 * time.Second
+	SERVER_WRITE_TIMEOUT       = 30 * time.Second
+	SERVER_IDLE_TIMEOUT        = 120 * time.Second
+)
+
 func main() {
 	debug := flag.Bool("debug", false, "sets log level to debug") //add -debug flag to enable debug mode
 
@@ -28,6 +36,7 @@ func main() {
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	//nolint:reassign // zerolog supports this assignment
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	if *debug {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
@@ -72,7 +81,15 @@ func main() {
 
 	log.Info().Msg("Starting server on 8800")
 
-	serverErr := http.ListenAndServe(":8800", handler)
+	srv := &http.Server{
+		Addr:              ":8800",
+		Handler:           handler,
+		ReadHeaderTimeout: SERVER_READ_HEADER_TIMEOUT,
+		ReadTimeout:       SERVER_READ_TIMEOUT,
+		WriteTimeout:      SERVER_WRITE_TIMEOUT,
+		IdleTimeout:       SERVER_IDLE_TIMEOUT,
+	}
+	serverErr := srv.ListenAndServe()
 	if serverErr != nil {
 		log.Error().Err(serverErr).Msg("Failed to start server")
 		os.Exit(1)

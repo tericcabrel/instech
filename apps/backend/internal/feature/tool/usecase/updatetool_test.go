@@ -140,20 +140,11 @@ func TestUpdateToolUseCase(t *testing.T) {
 			t.Errorf("Expected ErrInvalidField, got %v", err)
 		}
 		if e, ok := err.(domain.ErrInvalidField); ok {
-			if _, exist := e.Fields["Name"]; !exist {
-				t.Errorf("Expected the field \"Name\" to be present")
-			}
-			if _, exist := e.Fields["ReleaseYear"]; !exist {
-				t.Errorf("Expected the field \"ReleaseYear\" to be present")
-			}
-			if _, exist := e.Fields["Prolang"]; !exist {
-				t.Errorf("Expected the field \"Prolang\" to be present")
-			}
-			if _, exist := e.Fields["Website"]; !exist {
-				t.Errorf("Expected the field \"Website\" to be present")
-			}
-			if _, exist := e.Fields["Github"]; !exist {
-				t.Errorf("Expected the field \"Github\" to be present")
+			fields := []string{"Name", "ReleaseYear", "Prolang", "Website", "Github"}
+			for _, field := range fields {
+				if _, exist := e.Fields[field]; !exist {
+					t.Errorf("Expected the field \"%s\" to be present", field)
+				}
 			}
 		}
 		require.Equal(t, domain.Tool{}, returnedTool)
@@ -215,12 +206,13 @@ func TestUpdateToolUseCase(t *testing.T) {
 				tool.SubType = "backend"
 				tool.Prolang = "JavaScript"
 				tool.ReleaseYear = 2009
-				tool.Devstatus = "active"
+				tool.DevStatus = "active"
 				tool.Details = "JavaScript runtime built on Chrome's V8"
 				tool.UseCases = []string{"backend"}
 				tool.Tags = []string{"JavaScript"}
 				tool.Website = "https://nodejs.org"
 				tool.Github = "https://github.com/nodejs/node"
+
 				return tool, nil
 			})
 
@@ -248,7 +240,7 @@ func TestUpdateToolUseCase(t *testing.T) {
 		require.Equal(t, input.SubType, returnedTool.SubType)
 		require.Equal(t, input.Prolang, returnedTool.Prolang)
 		require.Equal(t, input.ReleaseYear, returnedTool.ReleaseYear)
-		require.Equal(t, input.DevStatus, returnedTool.Devstatus)
+		require.Equal(t, input.DevStatus, returnedTool.DevStatus)
 		require.Equal(t, input.Details, returnedTool.Details)
 		require.Equal(t, input.UseCases, returnedTool.UseCases)
 		require.Equal(t, input.Tags, returnedTool.Tags)

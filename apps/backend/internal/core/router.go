@@ -17,6 +17,8 @@ type HTTPRouter struct {
 	RelationshipRepository repository.RelationshipRepositoryInterface
 }
 
+const CORS_MAX_AGE = 300
+
 func (router *HTTPRouter) Initialize() http.Handler {
 	r := chi.NewRouter()
 
@@ -31,7 +33,7 @@ func (router *HTTPRouter) Initialize() http.Handler {
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
-		MaxAge:           300,
+		MaxAge:           CORS_MAX_AGE,
 	}))
 
 	r.Get("/", func(w http.ResponseWriter, _ *http.Request) {

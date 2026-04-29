@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
@@ -37,6 +36,7 @@ func MigrationsDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return filepath.Join(root, "db", "migrations"), nil
 }
 
@@ -54,12 +54,13 @@ func SetupTestDB(t *testing.T) *sql.DB {
 	require.NoError(t, err)
 
 	// run migrations (goose or raw SQL)
-	migrations, err := goose.NewProvider(goose.DialectSQLite3, db, fs.FS(os.DirFS(migrationsDir)))
+	migrations, err := goose.NewProvider(goose.DialectSQLite3, db, os.DirFS(migrationsDir))
 	require.NoError(t, err)
 
 	res, err := migrations.Up(context.Background())
 
 	require.NoError(t, err)
 	fmt.Printf("Migrations applied: %v", res)
+	
 	return db
 }

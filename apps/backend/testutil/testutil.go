@@ -3,17 +3,18 @@ package testutil
 import "tericcabrel/instech/internal/domain"
 
 func CreateTestTool() domain.Tool {
+	const ReleaseYear = 2020
 	tool, err := domain.CreateTool(domain.CreateToolInput{
 		Name:        "Golang",
 		Category:    "language",
 		SubType:     "backend",
-		Devstatus:   "active",
+		DevStatus:   "active",
 		Details:     "Test Details",
 		UseCases:    []string{"Test Use Case"},
 		Tags:        []string{"Test Tag"},
 		Website:     "https://test.com",
 		Github:      "https://github.com/test",
-		ReleaseYear: 2020,
+		ReleaseYear: ReleaseYear,
 		Prolang:     "Go",
 		Slug:        "golang",
 	})
@@ -39,9 +40,11 @@ func CreateTestDynamicTool(id int, input domain.CreateToolInput) domain.Tool {
 }
 
 func CreateTestRelationship() domain.Relationship {
+	const fromToolID = 1
+	const toToolID = 2
 	relationship, err := domain.CreateRelationship(domain.CreateRelationshipInput{
-		FromToolID: 1,
-		ToToolID:   2,
+		FromToolID: fromToolID,
+		ToToolID:   toToolID,
 		Kind:       "built_on",
 		Reason:     "This is a test relationship",
 	})

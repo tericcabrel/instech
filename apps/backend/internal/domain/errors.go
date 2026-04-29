@@ -32,13 +32,13 @@ func (e ErrInvalidToolSubType) Error() string {
 	return fmt.Sprintf("Invalid tool sub type: %s", e.SubType)
 }
 
-type ErrInvalidToolDevstatus struct {
-	Devstatus string
+type ErrInvalidToolDevStatus struct {
+	DevStatus string
 	Message   string
 }
 
-func (e ErrInvalidToolDevstatus) Error() string {
-	return fmt.Sprintf("Invalid tool dev status: %s", e.Devstatus)
+func (e ErrInvalidToolDevStatus) Error() string {
+	return fmt.Sprintf("Invalid tool development status: %s", e.DevStatus)
 }
 
 type ErrInvalidField struct {
@@ -46,9 +46,10 @@ type ErrInvalidField struct {
 }
 
 func (e ErrInvalidField) Error() string {
-	fields := []string{}
+	fields := make([]string, 0, len(e.Fields))
 	for field, message := range e.Fields {
 		fields = append(fields, fmt.Sprintf("%s: %s", field, message))
 	}
+
 	return fmt.Sprintf("Invalid fields: %s", strings.Join(fields, ", "))
 }

@@ -91,7 +91,7 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			Slug:        "nodejs",
 			Category:    "language",
 			SubType:     "backend",
-			Devstatus:   "active",
+			DevStatus:   "active",
 			Details:     "Test Details",
 			UseCases:    []string{"Test Use Case"},
 			Tags:        []string{"Test Tag"},
@@ -143,7 +143,7 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			Slug:        "nodejs",
 			Category:    "language",
 			SubType:     "backend",
-			Devstatus:   "active",
+			DevStatus:   "active",
 			Details:     "Test Details",
 			UseCases:    []string{"Test Use Case"},
 			Tags:        []string{"Test Tag"},
@@ -185,7 +185,7 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		require.Equal(t, relationship, expectedRelationship)
+		require.Equal(t, expectedRelationship, relationship)
 		relationshipRepository.AssertCalled(t, "CreateRelationship", mock.Anything, domain.Relationship{
 			FromToolID: tool1.Id,
 			ToToolID:   tool2.Id,

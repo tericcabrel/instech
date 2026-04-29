@@ -30,6 +30,7 @@ func (uc *CreateRelationshipUseCase) Execute(input CreateRelationshipInput) (dom
 		if errors.Is(err, sql.ErrNoRows) {
 			return domain.Relationship{}, common.ErrResourceNotFound{Id: input.FromToolID, Message: "The source tool was not found"}
 		}
+
 		return domain.Relationship{}, err
 	}
 
@@ -38,6 +39,7 @@ func (uc *CreateRelationshipUseCase) Execute(input CreateRelationshipInput) (dom
 		if errors.Is(err, sql.ErrNoRows) {
 			return domain.Relationship{}, common.ErrResourceNotFound{Id: input.ToToolID, Message: "The target tool was not found"}
 		}
+
 		return domain.Relationship{}, err
 	}
 

@@ -14,5 +14,6 @@ func (uc *DeleteToolUseCase) Execute(slug string) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }

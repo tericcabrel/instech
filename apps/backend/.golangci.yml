@@ -8,14 +8,30 @@ linters:
     - bodyclose
     - copyloopvar
     - errcheck
+    - gocyclo
+    - gosec
     - govet
     - ineffassign
+    - intrange
+    - makezero
     - misspell
+    - mnd
+    - modernize
+    - nestif
+    - nlreturn
     - noctx
+    - prealloc
+    - reassign
+    - recvcheck
     - revive
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
+    - testifylint
+    - testpackage
+    - thelper
+    - unconvert
+    - unparam
     - unused
   settings:
     govet:
@@ -27,3 +43,7 @@ linters:
   exclusions:
     paths:
       - db/queries
+    rules:
+      - path: _test\.go
+        linters:
+          - gocyclo

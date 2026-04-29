@@ -209,7 +209,7 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 			Slug:        "other",
 			Category:    "language",
 			SubType:     "backend",
-			Devstatus:   "active",
+			DevStatus:   "active",
 			Details:     "d",
 			UseCases:    []string{"u"},
 			Tags:        []string{"t"},

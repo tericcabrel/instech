@@ -27,6 +27,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 		err := json.NewDecoder(r.Body).Decode(&input)
 		if err != nil {
 			httprouter.BadRequestError(w, err.Error())
+
 			return
 		}
 		createRelationship := usecase.CreateRelationshipUseCase{
@@ -37,6 +38,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 		if err != nil {
 			if errToolNotFound, ok := err.(common.ErrResourceNotFound); ok {
 				httprouter.NotFoundError(w, errToolNotFound.Id)
+
 				return
 			}
 			if errInvalidRelationshipKind, ok := err.(domain.ErrInvalidRelationshipKind); ok {
@@ -44,13 +46,16 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 					"message": errInvalidRelationshipKind.Message,
 					"kind":    errInvalidRelationshipKind.Kind,
 				})
+
 				return
 			}
 			if errInvalidField, ok := err.(domain.ErrInvalidField); ok {
 				httprouter.BadRequestError(w, errInvalidField)
+
 				return
 			}
 			httprouter.InternalServerError(w, err, "CreateRelationshipUseCase")
+
 			return
 		}
 		httprouter.Created(w, relationship)
@@ -62,6 +67,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 			httprouter.BadRequestError(w, map[string]string{
 				"message": "Invalid relationship ID",
 			})
+
 			return
 		}
 
@@ -69,6 +75,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 		parseErr := json.NewDecoder(r.Body).Decode(&input)
 		if parseErr != nil {
 			httprouter.BadRequestError(w, parseErr.Error())
+
 			return
 		}
 
@@ -81,6 +88,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 		if err != nil {
 			if errToolNotFound, ok := err.(common.ErrResourceNotFound); ok {
 				httprouter.NotFoundError(w, errToolNotFound.Id)
+
 				return
 			}
 			if errInvalidRelationshipKind, ok := err.(domain.ErrInvalidRelationshipKind); ok {
@@ -88,13 +96,16 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 					"message": errInvalidRelationshipKind.Message,
 					"kind":    errInvalidRelationshipKind.Kind,
 				})
+
 				return
 			}
 			if errInvalidField, ok := err.(domain.ErrInvalidField); ok {
 				httprouter.BadRequestError(w, errInvalidField)
+
 				return
 			}
 			httprouter.InternalServerError(w, err, "UpdateRelationshipUseCase")
+
 			return
 		}
 		httprouter.OK(w, updatedRelationship)
@@ -106,6 +117,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 			httprouter.BadRequestError(w, map[string]string{
 				"message": "Invalid relationship Id",
 			})
+
 			return
 		}
 
@@ -119,6 +131,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 			} else {
 				httprouter.InternalServerError(w, err, "DeleteRelationshipUseCase")
 			}
+
 			return
 		}
 		httprouter.NoContent(w)
@@ -141,6 +154,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 				httprouter.BadRequestError(w, map[string]string{
 					"message": "Invalid tool Id",
 				})
+
 				return
 			}
 		}
@@ -152,6 +166,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 					"message": "Invalid kind",
 					"kind":    kind,
 				})
+
 				return
 			}
 		}
@@ -162,6 +177,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 				httprouter.BadRequestError(w, map[string]string{
 					"message": "Invalid cursor",
 				})
+
 				return
 			}
 		}
@@ -173,6 +189,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 				httprouter.BadRequestError(w, map[string]string{
 					"message": "Invalid limit",
 				})
+
 				return
 			}
 		}
@@ -191,9 +208,11 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 		if err != nil {
 			if errResourceNotFound, ok := err.(common.ErrResourceNotFound); ok {
 				httprouter.NotFoundError(w, errResourceNotFound.Id)
+
 				return
 			}
 			httprouter.InternalServerError(w, err, "GetRelationshipsUsecase")
+
 			return
 		}
 

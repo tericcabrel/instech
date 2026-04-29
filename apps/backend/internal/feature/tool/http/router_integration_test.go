@@ -41,7 +41,7 @@ func createTool(t *testing.T, db *sql.DB) int {
 		SubType:     "backend",
 		Prolang:     "Go",
 		ReleaseYear: 2009,
-		Devstatus:   "active",
+		DevStatus:   "active",
 		Details:     "Test Details",
 		UseCases:    []string{"api", "backend"},
 		Tags:        []string{"rest api", "server side", "cli"},
@@ -82,7 +82,7 @@ func populateAlternatives(t *testing.T, db *sql.DB) []string {
 		Slug:        "golang",
 		Category:    "language",
 		SubType:     "backend",
-		Devstatus:   "active",
+		DevStatus:   "active",
 		Prolang:     "Go",
 		ReleaseYear: 2009,
 		Details:     "Golang details",
@@ -100,7 +100,7 @@ func populateAlternatives(t *testing.T, db *sql.DB) []string {
 		Slug:        "nodejs",
 		Category:    "language",
 		SubType:     "fullstack",
-		Devstatus:   "active",
+		DevStatus:   "active",
 		Prolang:     "JavaScript",
 		Details:     "Node.js details",
 		UseCases:    []string{"api", "frontend", "fullstack"},
@@ -118,7 +118,7 @@ func populateAlternatives(t *testing.T, db *sql.DB) []string {
 		Slug:        "python",
 		Category:    "language",
 		SubType:     "backend",
-		Devstatus:   "active",
+		DevStatus:   "active",
 		Prolang:     "Python",
 		Details:     "Python details",
 		UseCases:    []string{"api", "backend"},
@@ -294,7 +294,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, "Bad Request", response["message"])
 			expectedDetails := map[string]interface{}{
-				"Devstatus": "invalid",
+				"DevStatus": "invalid",
 				"Message":   "The tool dev status is invalid. Valid dev statuses are: active, deprecated",
 			}
 			require.Equal(t, expectedDetails, response["details"])
@@ -374,7 +374,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			require.Equal(t, "golang", response["slug"])
 			require.Equal(t, "language", response["category"])
 			require.Equal(t, "backend", response["sub_type"])
-			require.Equal(t, "active", response["devstatus"])
+			require.Equal(t, "active", response["dev_status"])
 			require.Equal(t, "Go", response["prolang"])
 			require.Equal(t, float64(2009), response["release_year"])
 			require.Equal(t, "Test Details", response["details"])
@@ -632,7 +632,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			require.Equal(t, "golang", response["slug"]) // slug should not be updated
 			require.Equal(t, "language", response["category"])
 			require.Equal(t, "backend", response["sub_type"])
-			require.Equal(t, "deprecated", response["devstatus"])
+			require.Equal(t, "deprecated", response["dev_status"])
 			require.Equal(t, "Golang", response["prolang"])
 			require.Equal(t, float64(2009), response["release_year"])
 			require.Equal(t, "Golang details", response["details"])
@@ -701,7 +701,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			require.Equal(t, "backend", response["sub_type"])
 			require.Equal(t, "Go", response["prolang"])
 			require.Equal(t, float64(2009), response["release_year"])
-			require.Equal(t, "active", response["devstatus"])
+			require.Equal(t, "active", response["dev_status"])
 			require.Equal(t, "Test Details", response["details"])
 			require.Equal(t, []interface{}{"api", "backend"}, response["use_cases"])
 			require.Equal(t, []interface{}{"rest api", "server side", "cli"}, response["tags"])

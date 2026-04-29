@@ -15,6 +15,7 @@ func parseJSONArray[T any](jsonArray string) []T {
 	if err != nil {
 		return []T{}
 	}
+
 	return result
 }
 
@@ -24,6 +25,7 @@ func parseJSONObject[T any](jsonObject string) T {
 	if err != nil {
 		return *new(T)
 	}
+
 	return result
 }
 
@@ -53,8 +55,8 @@ func MapToolRecordToTool(tool queries.ToolRecord) (domain.Tool, error) {
 	if tool.Prolang.Valid {
 		mappedTool.Prolang = tool.Prolang.String
 	}
-	if tool.Devstatus.Valid {
-		mappedTool.Devstatus = tool.Devstatus.String
+	if tool.DevStatus.Valid {
+		mappedTool.DevStatus = tool.DevStatus.String
 	}
 	if tool.Details.Valid {
 		mappedTool.Details = tool.Details.String

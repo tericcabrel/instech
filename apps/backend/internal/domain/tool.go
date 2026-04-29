@@ -17,7 +17,7 @@ type Tool struct {
 	Category    string    `json:"category"`
 	SubType     string    `json:"sub_type"`
 	Prolang     string    `json:"prolang"`
-	Devstatus   string    `json:"devstatus"`
+	DevStatus   string    `json:"dev_status"`
 	Details     string    `json:"details"`
 	Github      string    `json:"github"`
 	UseCases    []string  `json:"use_cases"`
@@ -32,7 +32,7 @@ type CreateToolInput struct {
 	Category    string
 	SubType     string
 	Prolang     string
-	Devstatus   string
+	DevStatus   string
 	Details     string
 	Website     string
 	Github      string
@@ -47,7 +47,7 @@ type UpdateToolInput struct {
 	Category    string
 	SubType     string
 	Prolang     string
-	Devstatus   string
+	DevStatus   string
 	Details     string
 	Website     string
 	Github      string
@@ -83,8 +83,8 @@ func IsCategoryValid(category string) bool {
 func IsSubTypeValid(subType string) bool {
 	return slices.Contains(ToolSubtypes, subType)
 }
-func IsDevstatusValid(devstatus string) bool {
-	return slices.Contains(ToolDevStatuses, devstatus)
+func IsDevStatusValid(devStatus string) bool {
+	return slices.Contains(ToolDevStatuses, devStatus)
 }
 
 func areStringsEqual(a, b []string) bool {
@@ -94,6 +94,7 @@ func areStringsEqual(a, b []string) bool {
 func isValidURL(url string) bool {
 	const REGEX_URL = `^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$`
 	regex := regexp.MustCompile(REGEX_URL)
+
 	return regex.MatchString(url)
 }
 
@@ -105,7 +106,7 @@ func CreateTool(input CreateToolInput) (Tool, error) {
 		SubType:     input.SubType,
 		Prolang:     input.Prolang,
 		ReleaseYear: input.ReleaseYear,
-		Devstatus:   input.Devstatus,
+		DevStatus:   input.DevStatus,
 		Details:     input.Details,
 		UseCases:    input.UseCases,
 		Tags:        input.Tags,
@@ -118,8 +119,8 @@ func CreateTool(input CreateToolInput) (Tool, error) {
 	if !IsSubTypeValid(input.SubType) {
 		return Tool{}, ErrInvalidToolSubType{SubType: input.SubType, Message: ERROR_SUBTYPE_INVALID}
 	}
-	if !IsDevstatusValid(input.Devstatus) {
-		return Tool{}, ErrInvalidToolDevstatus{Devstatus: input.Devstatus, Message: ERROR_DEVSTATUS_INVALID}
+	if !IsDevStatusValid(input.DevStatus) {
+		return Tool{}, ErrInvalidToolDevStatus{DevStatus: input.DevStatus, Message: ERROR_DEVSTATUS_INVALID}
 	}
 
 	var errors = make(map[string]string)
@@ -159,8 +160,8 @@ func (tool *Tool) Update(input UpdateToolInput) error {
 	if !IsSubTypeValid(input.SubType) {
 		return ErrInvalidToolSubType{SubType: input.SubType, Message: ERROR_SUBTYPE_INVALID}
 	}
-	if !IsDevstatusValid(input.Devstatus) {
-		return ErrInvalidToolDevstatus{Devstatus: input.Devstatus, Message: ERROR_DEVSTATUS_INVALID}
+	if !IsDevStatusValid(input.DevStatus) {
+		return ErrInvalidToolDevStatus{DevStatus: input.DevStatus, Message: ERROR_DEVSTATUS_INVALID}
 	}
 
 	var errors = make(map[string]string)
@@ -199,8 +200,8 @@ func (tool *Tool) Update(input UpdateToolInput) error {
 			tool.ReleaseYear = input.ReleaseYear
 		}
 	}
-	if tool.Devstatus != input.Devstatus {
-		tool.Devstatus = input.Devstatus
+	if tool.DevStatus != input.DevStatus {
+		tool.DevStatus = input.DevStatus
 	}
 	if tool.Details != input.Details {
 		tool.Details = input.Details

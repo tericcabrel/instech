@@ -26,7 +26,7 @@ type ToolRecord struct {
 	SubType     sql.NullString
 	Prolang     sql.NullString
 	ReleaseYear int
-	Devstatus   sql.NullString
+	DevStatus   sql.NullString
 	Details     sql.NullString
 	UseCases    string
 	Tags        string

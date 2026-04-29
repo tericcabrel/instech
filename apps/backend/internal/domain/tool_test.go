@@ -39,13 +39,13 @@ func TestTool(t *testing.T) {
 			Name:      "Test Tool",
 			Category:  "language",
 			SubType:   "backend",
-			Devstatus: "invalid",
+			DevStatus: "invalid",
 		})
 		if err == nil {
 			t.Errorf("Expected error, got %v", err)
 		}
-		if _, ok := err.(domain.ErrInvalidToolDevstatus); !ok {
-			t.Errorf("Expected ErrInvalidToolDevstatus, got %v", err)
+		if _, ok := err.(domain.ErrInvalidToolDevStatus); !ok {
+			t.Errorf("Expected ErrInvalidToolDevStatus, got %v", err)
 		}
 	})
 
@@ -54,7 +54,7 @@ func TestTool(t *testing.T) {
 			Name:        "",
 			Category:    "language",
 			SubType:     "backend",
-			Devstatus:   "active",
+			DevStatus:   "active",
 			Details:     "",
 			UseCases:    []string{},
 			Tags:        []string{},
@@ -71,23 +71,11 @@ func TestTool(t *testing.T) {
 			t.Errorf("Expected ErrInvalidField, got %v", err)
 		}
 		if e, ok := err.(domain.ErrInvalidField); ok {
-			if _, exist := e.Fields["Name"]; !exist {
-				t.Errorf("Expected the field \"Name\" to be present")
-			}
-			if _, exist := e.Fields["Slug"]; !exist {
-				t.Errorf("Expected the field \"Slug\" to be present")
-			}
-			if _, exist := e.Fields["ReleaseYear"]; !exist {
-				t.Errorf("Expected the field \"ReleaseYear\" to be present")
-			}
-			if _, exist := e.Fields["Prolang"]; !exist {
-				t.Errorf("Expected the field \"Prolang\" to be present")
-			}
-			if _, exist := e.Fields["Website"]; !exist {
-				t.Errorf("Expected the field \"Website\" to be present")
-			}
-			if _, exist := e.Fields["Github"]; !exist {
-				t.Errorf("Expected the field \"Github\" to be present")
+			fields := []string{"Name", "Slug", "ReleaseYear", "Prolang", "Website", "Github"}
+			for _, field := range fields {
+				if _, exist := e.Fields[field]; !exist {
+					t.Errorf("Expected the field \"%s\" to be present", field)
+				}
 			}
 		}
 	})
@@ -97,7 +85,7 @@ func TestTool(t *testing.T) {
 			Name:        "Test Tool",
 			Category:    "language",
 			SubType:     "backend",
-			Devstatus:   "active",
+			DevStatus:   "active",
 			Details:     "Test Details",
 			UseCases:    []string{"Test Use Case"},
 			Tags:        []string{"Test Tag"},
@@ -119,8 +107,8 @@ func TestTool(t *testing.T) {
 		if tool.SubType != "backend" {
 			t.Errorf("Expected sub type to be 'backend', got %s", tool.SubType)
 		}
-		if tool.Devstatus != "active" {
-			t.Errorf("Expected dev status to be 'active', got %s", tool.Devstatus)
+		if tool.DevStatus != "active" {
+			t.Errorf("Expected dev status to be 'active', got %s", tool.DevStatus)
 		}
 		if tool.Details != "Test Details" {
 			t.Errorf("Expected details to be 'Test Details', got %s", tool.Details)
@@ -183,13 +171,13 @@ func TestTool(t *testing.T) {
 		err := tool.Update(domain.UpdateToolInput{
 			Category:  "language",
 			SubType:   "backend",
-			Devstatus: "invalid",
+			DevStatus: "invalid",
 		})
 		if err == nil {
 			t.Errorf("Expected error, got %v", err)
 		}
-		if _, ok := err.(domain.ErrInvalidToolDevstatus); !ok {
-			t.Errorf("Expected ErrInvalidToolDevstatus, got %v", err)
+		if _, ok := err.(domain.ErrInvalidToolDevStatus); !ok {
+			t.Errorf("Expected ErrInvalidToolDevStatus, got %v", err)
 		}
 	})
 
@@ -200,7 +188,7 @@ func TestTool(t *testing.T) {
 			Name:        "",
 			Category:    "language",
 			SubType:     "backend",
-			Devstatus:   "active",
+			DevStatus:   "active",
 			Details:     "",
 			UseCases:    []string{},
 			Tags:        []string{},
@@ -217,23 +205,11 @@ func TestTool(t *testing.T) {
 			t.Errorf("Expected ErrInvalidField, got %v", err)
 		}
 		if e, ok := err.(domain.ErrInvalidField); ok {
-			if _, exist := e.Fields["Name"]; !exist {
-				t.Errorf("Expected the field \"Name\" to be present")
-			}
-			if _, exist := e.Fields["Slug"]; !exist {
-				t.Errorf("Expected the field \"Slug\" to be present")
-			}
-			if _, exist := e.Fields["ReleaseYear"]; !exist {
-				t.Errorf("Expected the field \"ReleaseYear\" to be present")
-			}
-			if _, exist := e.Fields["Prolang"]; !exist {
-				t.Errorf("Expected the field \"Prolang\" to be present")
-			}
-			if _, exist := e.Fields["Website"]; !exist {
-				t.Errorf("Expected the field \"Website\" to be present")
-			}
-			if _, exist := e.Fields["Github"]; !exist {
-				t.Errorf("Expected the field \"Github\" to be present")
+			fields := []string{"Name", "Slug", "ReleaseYear", "Prolang", "Website", "Github"}
+			for _, field := range fields {
+				if _, exist := e.Fields[field]; !exist {
+					t.Errorf("Expected the field \"%s\" to be present", field)
+				}
 			}
 		}
 	})
@@ -244,7 +220,7 @@ func TestTool(t *testing.T) {
 			Name:        "Mootools",
 			Category:    "framework",
 			SubType:     "frontend",
-			Devstatus:   "deprecated",
+			DevStatus:   "deprecated",
 			Details:     "Mootools is a framework",
 			UseCases:    []string{"SPA", "SEO", "API", "Frontend"},
 			Tags:        []string{"component-based", "declarative", "functional", "object-oriented"},
@@ -268,8 +244,8 @@ func TestTool(t *testing.T) {
 		if tool.SubType != "frontend" {
 			t.Errorf("Expected sub type to be 'frontend', got %s", tool.SubType)
 		}
-		if tool.Devstatus != "deprecated" {
-			t.Errorf("Expected dev status to be 'deprecated', got %s", tool.Devstatus)
+		if tool.DevStatus != "deprecated" {
+			t.Errorf("Expected dev status to be 'deprecated', got %s", tool.DevStatus)
 		}
 		if tool.Details != "Mootools is a framework" {
 			t.Errorf("Expected details to be 'Mootools is a framework', got %s", tool.Details)

@@ -56,7 +56,7 @@ func TestToolRepositoryIntegration(t *testing.T) {
 		tool.SubType = "backend"
 		tool.Prolang = "JavaScript"
 		tool.ReleaseYear = 2009
-		tool.Devstatus = "active"
+		tool.DevStatus = "active"
 		tool.Details = "JavaScript runtime built on Chrome's V8"
 		tool.UseCases = []string{"backend"}
 		tool.Tags = []string{"JavaScript"}
@@ -97,7 +97,7 @@ func TestToolRepositoryIntegration(t *testing.T) {
 			SubType:     "backend",
 			Prolang:     "JavaScript",
 			ReleaseYear: 2009,
-			Devstatus:   "active",
+			DevStatus:   "active",
 			Details:     "JavaScript runtime built on Chrome's V8",
 			UseCases:    []string{"backend"},
 			Tags:        []string{"JavaScript"},
@@ -146,7 +146,7 @@ func TestToolRepositoryIntegration(t *testing.T) {
 			SubType:     "backend",
 			Prolang:     "JavaScript",
 			ReleaseYear: 2009,
-			Devstatus:   "active",
+			DevStatus:   "active",
 		})
 		secondToolCreated, err := toolRepository.CreateTool(context.Background(), secondTool)
 		require.NoError(t, err)
