@@ -47,3 +47,7 @@ linters:
       - path: _test\.go
         linters:
           - gocyclo
+formatters:
+  enable:
+    - gofmt
+    - goimports

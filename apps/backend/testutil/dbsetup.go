@@ -61,6 +61,6 @@ func SetupTestDB(t *testing.T) *sql.DB {
 
 	require.NoError(t, err)
 	fmt.Printf("Migrations applied: %v", res)
-	
+
 	return db
 }
