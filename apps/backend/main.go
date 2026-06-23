@@ -82,7 +82,7 @@ func main() {
 	log.Info().Msg("Starting server on 8800")
 
 	srv := &http.Server{
-		Addr:              ":8800",
+		Addr:              ":8801",
 		Handler:           handler,
 		ReadHeaderTimeout: SERVER_READ_HEADER_TIMEOUT,
 		ReadTimeout:       SERVER_READ_TIMEOUT,
