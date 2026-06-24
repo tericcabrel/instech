@@ -37,14 +37,14 @@ func TestAddToolUseCase(t *testing.T) {
 			Slug:        "nodejs",
 			Category:    "language",
 			SubType:     "backend",
-			Prolang:     "JavaScript",
+			Prolang:     new("JavaScript"),
 			ReleaseYear: 2009,
 			DevStatus:   "active",
-			Details:     "JavaScript runtime built on Chrome's V8",
+			Details:     new("JavaScript runtime built on Chrome's V8"),
 			UseCases:    []string{"Backend", "Frontend", "Fullstack"},
 			Tags:        []string{"JavaScript", "Node.js", "Backend", "Frontend", "Fullstack"},
-			Website:     "https://nodejs.org",
-			Github:      "https://github.com/nodejs/node",
+			Website:     new("https://nodejs.org"),
+			Github:      new("https://github.com/nodejs/node"),
 		}
 
 		tool, err := addTool.Execute(input)
@@ -81,14 +81,14 @@ func TestAddToolUseCase(t *testing.T) {
 			Slug:        "",
 			Category:    "language",
 			SubType:     "backend",
-			Prolang:     "",
+			Prolang:     new(""),
 			ReleaseYear: 1922,
 			DevStatus:   "active",
-			Details:     "8",
+			Details:     new("8"),
 			UseCases:    []string{""},
 			Tags:        []string{""},
-			Website:     "invalid",
-			Github:      "invalid",
+			Website:     new("invalid"),
+			Github:      new("invalid"),
 		}
 
 		tool, err := addTool.Execute(input)
@@ -125,14 +125,14 @@ func TestAddToolUseCase(t *testing.T) {
 			Slug:        "nodejs",
 			Category:    "language",
 			SubType:     "backend",
-			Prolang:     "JavaScript",
+			Prolang:     new("JavaScript"),
 			ReleaseYear: 2009,
 			DevStatus:   "active",
-			Details:     "JavaScript runtime built on Chrome's V8",
+			Details:     new("JavaScript runtime built on Chrome's V8"),
 			UseCases:    []string{"Backend", "Frontend", "Fullstack"},
 			Tags:        []string{"JavaScript", "Node.js", "Backend", "Frontend", "Fullstack"},
-			Website:     "https://nodejs.org",
-			Github:      "https://github.com/nodejs/node",
+			Website:     new("https://nodejs.org"),
+			Github:      new("https://github.com/nodejs/node"),
 		}
 
 		tool, err := addTool.Execute(input)

@@ -61,12 +61,12 @@ func (t *ToolRepository) CreateTool(ctx context.Context, tool domain.Tool) (doma
 		Slug:        tool.Slug,
 		Category:    tool.Category,
 		SubType:     sql.NullString{String: tool.SubType, Valid: true},
-		Prolang:     sql.NullString{String: tool.Prolang, Valid: true},
+		Prolang:     optionalStringToNull(tool.Prolang),
 		ReleaseYear: tool.ReleaseYear,
 		DevStatus:   sql.NullString{String: tool.DevStatus, Valid: true},
-		Details:     sql.NullString{String: tool.Details, Valid: true},
-		Website:     sql.NullString{String: tool.Website, Valid: true},
-		Github:      sql.NullString{String: tool.Github, Valid: true},
+		Details:     optionalStringToNull(tool.Details),
+		Website:     optionalStringToNull(tool.Website),
+		Github:      optionalStringToNull(tool.Github),
 	}
 
 	jsonUseCases, err := json.Marshal(tool.UseCases)
@@ -101,12 +101,12 @@ func (t *ToolRepository) UpdateTool(ctx context.Context, tool domain.Tool) (doma
 		Slug:        tool.Slug,
 		Category:    tool.Category,
 		SubType:     sql.NullString{String: tool.SubType, Valid: true},
-		Prolang:     sql.NullString{String: tool.Prolang, Valid: true},
+		Prolang:     optionalStringToNull(tool.Prolang),
 		ReleaseYear: tool.ReleaseYear,
 		DevStatus:   sql.NullString{String: tool.DevStatus, Valid: true},
-		Details:     sql.NullString{String: tool.Details, Valid: true},
-		Website:     sql.NullString{String: tool.Website, Valid: true},
-		Github:      sql.NullString{String: tool.Github, Valid: true},
+		Details:     optionalStringToNull(tool.Details),
+		Website:     optionalStringToNull(tool.Website),
+		Github:      optionalStringToNull(tool.Github),
 		Id:          tool.Id,
 	}
 

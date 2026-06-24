@@ -45,6 +45,35 @@ func TestToolRepositoryIntegration(t *testing.T) {
 		db.Exec("DELETE FROM tools WHERE id = ?", firstTool.Id)
 	})
 
+	t.Run("CreateTool persists omitted optional fields as NULL", func(t *testing.T) {
+		tool, err := domain.CreateTool(domain.CreateToolInput{
+			Name:        "React",
+			Slug:        "react",
+			Category:    "framework",
+			SubType:     "frontend",
+			DevStatus:   "active",
+			ReleaseYear: 2013,
+		})
+		require.NoError(t, err)
+
+		createdTool, err := toolRepository.CreateTool(context.Background(), tool)
+		require.NoError(t, err)
+		require.NotZero(t, createdTool.Id)
+		require.Nil(t, createdTool.Prolang)
+		require.Nil(t, createdTool.Details)
+		require.Nil(t, createdTool.Website)
+		require.Nil(t, createdTool.Github)
+
+		storedTool, err := toolRepository.GetToolByID(context.Background(), createdTool.Id)
+		require.NoError(t, err)
+		require.Nil(t, storedTool.Prolang)
+		require.Nil(t, storedTool.Details)
+		require.Nil(t, storedTool.Website)
+		require.Nil(t, storedTool.Github)
+
+		db.Exec("DELETE FROM tools WHERE id = ?", createdTool.Id)
+	})
+
 	t.Run("UpdateTool", func(t *testing.T) {
 		tool := testutil.CreateTestTool()
 		tool, err := toolRepository.CreateTool(context.Background(), tool)
@@ -54,14 +83,14 @@ func TestToolRepositoryIntegration(t *testing.T) {
 		tool.Name = "Node.js"
 		tool.Category = "language"
 		tool.SubType = "backend"
-		tool.Prolang = "JavaScript"
+		tool.Prolang = new("JavaScript")
 		tool.ReleaseYear = 2009
 		tool.DevStatus = "active"
-		tool.Details = "JavaScript runtime built on Chrome's V8"
+		tool.Details = new("JavaScript runtime built on Chrome's V8")
 		tool.UseCases = []string{"backend"}
 		tool.Tags = []string{"JavaScript"}
-		tool.Website = "https://nodejs.org"
-		tool.Github = "https://github.com/nodejs/node"
+		tool.Website = new("https://nodejs.org")
+		tool.Github = new("https://github.com/nodejs/node")
 		tool.Slug = "nodejs"
 
 		updatedTool, err := toolRepository.UpdateTool(context.Background(), tool)
@@ -95,14 +124,14 @@ func TestToolRepositoryIntegration(t *testing.T) {
 			Name:        "Node.js",
 			Category:    "language",
 			SubType:     "backend",
-			Prolang:     "JavaScript",
+			Prolang:     new("JavaScript"),
 			ReleaseYear: 2009,
 			DevStatus:   "active",
-			Details:     "JavaScript runtime built on Chrome's V8",
+			Details:     new("JavaScript runtime built on Chrome's V8"),
 			UseCases:    []string{"backend"},
 			Tags:        []string{"JavaScript"},
-			Website:     "https://nodejs.org",
-			Github:      "https://github.com/nodejs/node",
+			Website:     new("https://nodejs.org"),
+			Github:      new("https://github.com/nodejs/node"),
 		})
 
 		secondToolCreated, err := toolRepository.CreateTool(context.Background(), secondTool)
@@ -144,7 +173,7 @@ func TestToolRepositoryIntegration(t *testing.T) {
 			Name:        "Node.js",
 			Category:    "language",
 			SubType:     "backend",
-			Prolang:     "JavaScript",
+			Prolang:     new("JavaScript"),
 			ReleaseYear: 2009,
 			DevStatus:   "active",
 		})

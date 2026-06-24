@@ -92,13 +92,13 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			Category:    "language",
 			SubType:     "backend",
 			DevStatus:   "active",
-			Details:     "Test Details",
+			Details:     new("Test Details"),
 			UseCases:    []string{"Test Use Case"},
 			Tags:        []string{"Test Tag"},
-			Website:     "https://nodejs.org",
-			Github:      "https://github.com/nodejs/node",
+			Website:     new("https://nodejs.org"),
+			Github:      new("https://github.com/nodejs/node"),
 			ReleaseYear: 2009,
-			Prolang:     "JavaScript",
+			Prolang:     new("JavaScript"),
 		})
 
 		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
@@ -144,13 +144,13 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			Category:    "language",
 			SubType:     "backend",
 			DevStatus:   "active",
-			Details:     "Test Details",
+			Details:     new("Test Details"),
 			UseCases:    []string{"Test Use Case"},
 			Tags:        []string{"Test Tag"},
-			Website:     "https://nodejs.org",
-			Github:      "https://github.com/nodejs/node",
+			Website:     new("https://nodejs.org"),
+			Github:      new("https://github.com/nodejs/node"),
 			ReleaseYear: 2009,
-			Prolang:     "JavaScript",
+			Prolang:     new("JavaScript"),
 		})
 
 		expectedRelationship := testutil.CreateTestDynamicRelationship(1, domain.CreateRelationshipInput{

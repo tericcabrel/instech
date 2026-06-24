@@ -79,7 +79,7 @@ func main() {
 
 	handler := router.Initialize()
 
-	log.Info().Msg("Starting server on 8800")
+	log.Info().Msg("Starting server on 8801")
 
 	srv := &http.Server{
 		Addr:              ":8801",

@@ -37,7 +37,7 @@ func createTools(t *testing.T, db *sql.DB) (nodejsId int, golangId int, pythonId
 		Slug:        "nodejs",
 		Category:    "language",
 		SubType:     "backend",
-		Prolang:     "JavaScript",
+		Prolang:     new("JavaScript"),
 		ReleaseYear: 2009,
 		DevStatus:   "active",
 	})
@@ -48,7 +48,7 @@ func createTools(t *testing.T, db *sql.DB) (nodejsId int, golangId int, pythonId
 		Slug:        "golang",
 		Category:    "language",
 		SubType:     "backend",
-		Prolang:     "Go",
+		Prolang:     new("Go"),
 		ReleaseYear: 2009,
 		DevStatus:   "active",
 	})
@@ -59,7 +59,7 @@ func createTools(t *testing.T, db *sql.DB) (nodejsId int, golangId int, pythonId
 		Slug:        "python",
 		Category:    "language",
 		SubType:     "backend",
-		Prolang:     "Python",
+		Prolang:     new("Python"),
 		ReleaseYear: 1995,
 		DevStatus:   "active",
 	})

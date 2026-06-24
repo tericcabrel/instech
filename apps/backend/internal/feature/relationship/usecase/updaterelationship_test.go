@@ -210,13 +210,13 @@ func TestUpdateRelationshipUseCase(t *testing.T) {
 			Category:    "language",
 			SubType:     "backend",
 			DevStatus:   "active",
-			Details:     "d",
+			Details:     new("d"),
 			UseCases:    []string{"u"},
 			Tags:        []string{"t"},
-			Website:     "https://example.com",
-			Github:      "https://github.com/example",
+			Website:     new("https://example.com"),
+			Github:      new("https://github.com/example"),
 			ReleaseYear: 2020,
-			Prolang:     "Go",
+			Prolang:     new("Go"),
 		})
 
 		existing := testutil.CreateTestDynamicRelationship(5, domain.CreateRelationshipInput{

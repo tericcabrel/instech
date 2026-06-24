@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"strconv"
+
 	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/repository"
@@ -21,11 +21,11 @@ type ToolAlternativesResult struct {
 	Name        string                      `json:"name"`
 	Category    string                      `json:"category"`
 	SubType     string                      `json:"sub_type"`
-	Prolang     string                      `json:"prolang"`
+	Prolang     *string                     `json:"prolang,omitempty"`
 	Id          string                      `json:"id"`
-	Details     string                      `json:"details"`
-	Website     string                      `json:"website"`
-	Github      string                      `json:"github"`
+	Details     *string                     `json:"details,omitempty"`
+	Website     *string                     `json:"website,omitempty"`
+	Github      *string                     `json:"github,omitempty"`
 	Metadata    domain.RelationshipMetadata `json:"metadata"`
 	UseCases    []string                    `json:"use_cases"`
 	Tags        []string                    `json:"tags"`
@@ -47,8 +47,6 @@ func (uc *GetToolAlternativesUseCase) Execute(toolSlug string) ([]ToolAlternativ
 	if err != nil {
 		return []ToolAlternativesResult{}, err
 	}
-
-	fmt.Printf("Relationships: %+v", relationships)
 
 	var uniqueToolIds = domain.DedupeToolIdsFromRelationships(relationships)
 

@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  golangci:
+  lint:
     name: lint
     runs-on: ubuntu-latest
     steps:
@@ -21,6 +21,9 @@ jobs:
         with:
           version: v2.11.4
           working-directory: apps/backend
+
+      - name: Lint OpenAPI spec
+        run: npx --yes @redocly/cli@2.34.0 lint apps/backend/openapi.yaml
 
   test:
     name: test

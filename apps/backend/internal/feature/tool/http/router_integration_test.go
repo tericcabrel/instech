@@ -39,14 +39,14 @@ func createTool(t *testing.T, db *sql.DB) int {
 		Slug:        "golang",
 		Category:    "language",
 		SubType:     "backend",
-		Prolang:     "Go",
+		Prolang:     new("Go"),
 		ReleaseYear: 2009,
 		DevStatus:   "active",
-		Details:     "Test Details",
+		Details:     new("Test Details"),
 		UseCases:    []string{"api", "backend"},
 		Tags:        []string{"rest api", "server side", "cli"},
-		Website:     "https://go.dev",
-		Github:      "https://github.com/golang/go",
+		Website:     new("https://go.dev"),
+		Github:      new("https://github.com/golang/go"),
 	})
 	require.NoError(t, err)
 
@@ -83,13 +83,13 @@ func populateAlternatives(t *testing.T, db *sql.DB) []string {
 		Category:    "language",
 		SubType:     "backend",
 		DevStatus:   "active",
-		Prolang:     "Go",
+		Prolang:     new("Go"),
 		ReleaseYear: 2009,
-		Details:     "Golang details",
+		Details:     new("Golang details"),
 		UseCases:    []string{"api", "backend"},
 		Tags:        []string{"rest api", "server side", "cli"},
-		Website:     "https://golang.org",
-		Github:      "https://github.com/golang/go",
+		Website:     new("https://golang.org"),
+		Github:      new("https://github.com/golang/go"),
 	})
 	require.NoError(t, err)
 	createdGolangTool, err := toolRepository.CreateTool(context.Background(), golangTool)
@@ -101,12 +101,12 @@ func populateAlternatives(t *testing.T, db *sql.DB) []string {
 		Category:    "language",
 		SubType:     "fullstack",
 		DevStatus:   "active",
-		Prolang:     "JavaScript",
-		Details:     "Node.js details",
+		Prolang:     new("JavaScript"),
+		Details:     new("Node.js details"),
 		UseCases:    []string{"api", "frontend", "fullstack"},
 		Tags:        []string{"web", "api", "frontend"},
-		Website:     "https://nodejs.org",
-		Github:      "https://github.com/nodejs/node",
+		Website:     new("https://nodejs.org"),
+		Github:      new("https://github.com/nodejs/node"),
 		ReleaseYear: 2009,
 	})
 	require.NoError(t, err)
@@ -119,12 +119,12 @@ func populateAlternatives(t *testing.T, db *sql.DB) []string {
 		Category:    "language",
 		SubType:     "backend",
 		DevStatus:   "active",
-		Prolang:     "Python",
-		Details:     "Python details",
+		Prolang:     new("Python"),
+		Details:     new("Python details"),
 		UseCases:    []string{"api", "backend"},
 		Tags:        []string{"rest api", "server side", "cli"},
-		Website:     "https://python.org",
-		Github:      "https://github.com/python/python",
+		Website:     new("https://python.org"),
+		Github:      new("https://github.com/python/python"),
 		ReleaseYear: 1995,
 	})
 	require.NoError(t, err)
@@ -237,7 +237,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			require.Equal(t, "Bad Request", response["message"])
 			expectedDetails := map[string]interface{}{
 				"Category": "invalid",
-				"Message":  "The tool category is invalid. Valid categories are: language, framework, library",
+				"Message":  "The category is invalid. Valid categories are: language, framework, library",
 			}
 			require.Equal(t, expectedDetails, response["details"])
 		})
@@ -264,7 +264,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			require.Equal(t, "Bad Request", response["message"])
 			expectedDetails := map[string]interface{}{
 				"SubType": "invalid",
-				"Message": "The tool sub type is invalid. Valid sub types are: backend, frontend, fullstack, mobile, desktop, game, other",
+				"Message": "The sub type is invalid. Valid sub types are: backend, frontend, fullstack, mobile, desktop, game, other",
 			}
 			require.Equal(t, expectedDetails, response["details"])
 		})
@@ -295,7 +295,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			require.Equal(t, "Bad Request", response["message"])
 			expectedDetails := map[string]interface{}{
 				"DevStatus": "invalid",
-				"Message":   "The tool dev status is invalid. Valid dev statuses are: active, deprecated",
+				"Message":   "The dev status is invalid. Valid dev statuses are: active, deprecated",
 			}
 			require.Equal(t, expectedDetails, response["details"])
 		})
@@ -325,12 +325,12 @@ func TestToolRouter_CreateTool(t *testing.T) {
 
 			year := strconv.Itoa(time.Now().Year())
 			expectedInvalidFields := map[string]interface{}{
-				"Name":        "The tool name is required",
-				"Prolang":     "The tool programming language is required",
-				"Slug":        "The tool slug is required",
-				"ReleaseYear": "The tool release year is invalid. Valid release years are between 1940 and " + year,
-				"Website":     "The tool website is invalid. Valid websites must be a valid URL",
-				"Github":      "The tool github is invalid. Valid github must be a valid URL",
+				"Name":        "The name is required",
+				"Prolang":     "The programming language is required",
+				"Slug":        "The slug is required",
+				"ReleaseYear": "The release year is invalid. Valid release years are between 1940 and " + year,
+				"Website":     "The website is invalid. Valid websites must be a valid URL",
+				"Github":      "The github is invalid. Valid github must be a valid URL",
 			}
 			expectedDetails := map[string]interface{}{
 				"Fields": expectedInvalidFields,
@@ -505,7 +505,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			require.Equal(t, "Bad Request", response["message"])
 			expectedDetails := map[string]interface{}{
 				"Category": "invalid",
-				"Message":  "The tool category is invalid. Valid categories are: language, framework, library",
+				"Message":  "The category is invalid. Valid categories are: language, framework, library",
 			}
 			require.Equal(t, expectedDetails, response["details"])
 		})
@@ -535,7 +535,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			require.Equal(t, "Bad Request", response["message"])
 			expectedDetails := map[string]interface{}{
 				"SubType": "invalid",
-				"Message": "The tool sub type is invalid. Valid sub types are: backend, frontend, fullstack, mobile, desktop, game, other",
+				"Message": "The sub type is invalid. Valid sub types are: backend, frontend, fullstack, mobile, desktop, game, other",
 			}
 			require.Equal(t, expectedDetails, response["details"])
 		})
@@ -583,11 +583,11 @@ func TestToolRouter_CreateTool(t *testing.T) {
 
 			year := strconv.Itoa(time.Now().Year())
 			expectedInvalidFields := map[string]interface{}{
-				"Name":        "The tool name is required",
-				"Prolang":     "The tool programming language is required",
-				"ReleaseYear": "The tool release year is invalid. Valid release years are between 1940 and " + year,
-				"Website":     "The tool website is invalid. Valid websites must be a valid URL",
-				"Github":      "The tool github is invalid. Valid github must be a valid URL",
+				"Name":        "The name is required",
+				"Prolang":     "The programming language is required",
+				"ReleaseYear": "The release year is invalid. Valid release years are between 1940 and " + year,
+				"Website":     "The website is invalid. Valid websites must be a valid URL",
+				"Github":      "The github is invalid. Valid github must be a valid URL",
 			}
 			expectedDetails := map[string]interface{}{
 				"Fields": expectedInvalidFields,

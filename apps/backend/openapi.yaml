@@ -1,0 +1,741 @@
+openapi: 3.1.0
+info:
+  description: |
+      REST API for Instech tools and relationships.
+
+      Request bodies use snake_case JSON property names (authoritative after Phase 2 json tags).
+      Responses use snake_case. Error `details` shapes vary by endpoint — see HTTPError variants.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Instech API
+  version: 1.0.0
+
+servers:
+  - url: https://api.instech.com
+
+security: []
+
+tags:
+  - name: misc
+    description: Endpoint not tied to a specific feature
+  - name: tools
+    description: Tool CRUD and related reads
+  - name: relationships
+    description: Relationship CRUD and query
+
+paths:
+  /:
+    get:
+      operationId: getRoot
+      tags: [misc]
+      summary: API root
+      responses:
+        "200":
+          description: Welcome message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /search:
+    get:
+      operationId: getSearch
+      tags: [misc]
+      summary: Search stub
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search query string
+      responses:
+        "200":
+          description: Search results message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /tools:
+    post:
+      operationId: postTools
+      tags: [tools]
+      summary: Create a tool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateToolRequest"
+      responses:
+        "201":
+          description: Tool created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tool"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tools/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ToolSlugId"
+    get:
+      operationId: getToolsId
+      tags: [tools]
+      summary: Get a tool by slug
+      responses:
+        "200":
+          description: Tool found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tool"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    put:
+      operationId: putToolsId
+      tags: [tools]
+      summary: Update a tool by slug
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateToolRequest"
+      responses:
+        "200":
+          description: Tool updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tool"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      operationId: deleteToolsId
+      tags: [tools]
+      summary: Delete a tool by slug
+      description: |
+        Returns 204 even when the slug does not exist (idempotent delete).
+      responses:
+        "204":
+          description: Tool deleted or not found
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tools/{id}/alternatives:
+    parameters:
+      - $ref: "#/components/parameters/ToolSlugId"
+    get:
+      operationId: getToolsIdAlternatives
+      tags: [tools]
+      summary: List alternative tools for a tool
+      responses:
+        "200":
+          description: Alternative tools (may be empty array)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ToolAlternative"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tools/{id}/graph:
+    parameters:
+      - $ref: "#/components/parameters/ToolSlugId"
+    get:
+      operationId: getToolsIdGraph
+      tags: [tools]
+      summary: Tool graph stub
+      responses:
+        "200":
+          description: Placeholder graph response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToolGraphResponse"
+
+  /relationships:
+    post:
+      operationId: postRelationships
+      tags: [relationships]
+      summary: Create a relationship
+      description: |
+        `from_tool_id` and `to_tool_id` are tool slugs (strings), not numeric IDs.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRelationshipRequest"
+      responses:
+        "201":
+          description: Relationship created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Relationship"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /relationships/{id}:
+    parameters:
+      - $ref: "#/components/parameters/RelationshipNumericId"
+    put:
+      operationId: putRelationshipsId
+      tags: [relationships]
+      summary: Update a relationship
+      description: |
+        `from_tool_id` and `to_tool_id` are numeric tool IDs (integers).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRelationshipRequest"
+      responses:
+        "200":
+          description: Relationship updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Relationship"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      operationId: deleteRelationshipsId
+      tags: [relationships]
+      summary: Delete a relationship
+      responses:
+        "204":
+          description: Relationship deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /relationships/query:
+    get:
+      operationId: getRelationshipsQuery
+      tags: [relationships]
+      summary: Query relationships with pagination
+      description: |
+        All query parameters are optional. A non-existent `tool_id` returns 200 with an empty list.
+      parameters:
+        - name: tool_id
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Filter by tool numeric ID
+        - name: kind
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/RelationshipKind"
+          description: Filter by relationship kind
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: Pagination cursor
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Page size limit
+      responses:
+        "200":
+          description: Paginated relationship list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RelationshipListResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  parameters:
+    ToolSlugId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Tool slug (e.g. `golang`)
+
+    RelationshipNumericId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Relationship numeric ID
+
+  responses:
+    BadRequest:
+      description: Bad request (malformed JSON, invalid enum, duplicate slug, relationship field errors, invalid path/query params)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/HTTPError"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/HTTPError"
+
+    UnprocessableEntity:
+      description: Unprocessable entity — tool field validation errors only (422)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/HTTPError"
+
+    InternalServerError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/HTTPError"
+
+  schemas:
+    ToolCategory:
+      type: string
+      enum: [language, framework, library]
+
+    ToolSubtype:
+      type: string
+      enum: [backend, frontend, fullstack, mobile, desktop, game, other]
+
+    ToolDevStatus:
+      type: string
+      enum: [active, deprecated]
+
+    RelationshipKind:
+      type: string
+      enum: [built_on, inspired_by, alternative_to, replaced_by, used_with]
+
+    MessageResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+
+    ToolGraphResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: Tool graph for golang
+
+    Tool:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - category
+        - sub_type
+        - dev_status
+        - use_cases
+        - tags
+        - release_year
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        category:
+          $ref: "#/components/schemas/ToolCategory"
+        sub_type:
+          $ref: "#/components/schemas/ToolSubtype"
+        prolang:
+          type: string
+          description: Required when category is `language`. Omitted from responses when unset.
+        dev_status:
+          $ref: "#/components/schemas/ToolDevStatus"
+        details:
+          type: string
+        website:
+          type: string
+        github:
+          type: string
+        use_cases:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        release_year:
+          type: integer
+          minimum: 1940
+          description: Maximum valid year is the current calendar year (dynamic server-side check)
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateToolRequest:
+      type: object
+      required: [name, slug, category, sub_type, dev_status, release_year]
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        category:
+          $ref: "#/components/schemas/ToolCategory"
+        sub_type:
+          $ref: "#/components/schemas/ToolSubtype"
+        prolang:
+          type: string
+          description: Required when category is `language`. Omit or null when unset. Empty string is rejected.
+        dev_status:
+          $ref: "#/components/schemas/ToolDevStatus"
+        details:
+          type: string
+          description: Omit or null when unset. Empty string is rejected.
+        website:
+          type: string
+          description: Omit or null when unset. Empty string is rejected.
+        github:
+          type: string
+          description: Omit or null when unset. Empty string is rejected.
+        use_cases:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        release_year:
+          type: integer
+          minimum: 1940
+          description: Maximum valid year is the current calendar year (dynamic server-side check)
+
+    UpdateToolRequest:
+      type: object
+      description: Slug is path-only; not included in the request body.
+      properties:
+        name:
+          type: string
+        category:
+          $ref: "#/components/schemas/ToolCategory"
+        sub_type:
+          $ref: "#/components/schemas/ToolSubtype"
+        prolang:
+          type: string
+          description: Required when category is `language`. Omit or null when unset. Empty string is rejected.
+        dev_status:
+          $ref: "#/components/schemas/ToolDevStatus"
+        details:
+          type: string
+          description: Omit or null when unset. Empty string is rejected.
+        website:
+          type: string
+          description: Omit or null when unset. Empty string is rejected.
+        github:
+          type: string
+          description: Omit or null when unset. Empty string is rejected.
+        use_cases:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        release_year:
+          type: integer
+          minimum: 1940
+          description: Maximum valid year is the current calendar year (dynamic server-side check)
+
+    RelationshipMetadata:
+      type: object
+      properties:
+        reason:
+          type: string
+
+    Relationship:
+      type: object
+      required: [id, from_tool_id, to_tool_id, kind, metadata, created_at, updated_at]
+      properties:
+        id:
+          type: integer
+        from_tool_id:
+          type: integer
+        to_tool_id:
+          type: integer
+        kind:
+          $ref: "#/components/schemas/RelationshipKind"
+        metadata:
+          $ref: "#/components/schemas/RelationshipMetadata"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateRelationshipRequest:
+      type: object
+      required: [from_tool_id, to_tool_id, kind]
+      properties:
+        from_tool_id:
+          type: string
+          description: Source tool slug (not numeric ID)
+        to_tool_id:
+          type: string
+          description: Target tool slug (not numeric ID)
+        kind:
+          $ref: "#/components/schemas/RelationshipKind"
+        metadata:
+          $ref: "#/components/schemas/RelationshipMetadata"
+
+    UpdateRelationshipRequest:
+      type: object
+      properties:
+        from_tool_id:
+          type: integer
+          description: Source tool numeric ID
+        to_tool_id:
+          type: integer
+          description: Target tool numeric ID
+        kind:
+          $ref: "#/components/schemas/RelationshipKind"
+        metadata:
+          $ref: "#/components/schemas/RelationshipMetadata"
+
+    ToolAlternative:
+      type: object
+      required:
+        - id
+        - name
+        - category
+        - sub_type
+        - dev_status
+        - use_cases
+        - tags
+        - release_year
+        - metadata
+      properties:
+        id:
+          type: string
+          description: Tool slug — not the numeric database ID
+          example: nodejs
+        name:
+          type: string
+        category:
+          $ref: "#/components/schemas/ToolCategory"
+        sub_type:
+          $ref: "#/components/schemas/ToolSubtype"
+        prolang:
+          type: string
+        dev_status:
+          $ref: "#/components/schemas/ToolDevStatus"
+        details:
+          type: string
+        website:
+          type: string
+        github:
+          type: string
+        use_cases:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        release_year:
+          type: integer
+        metadata:
+          $ref: "#/components/schemas/RelationshipMetadata"
+
+    ClientRelationshipTool:
+      type: object
+      required: [id, name, slug]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+
+    ClientRelationship:
+      type: object
+      required: [id, kind, metadata, from_tool, to_tool, created_at, updated_at]
+      properties:
+        id:
+          type: integer
+        kind:
+          $ref: "#/components/schemas/RelationshipKind"
+        metadata:
+          $ref: "#/components/schemas/RelationshipMetadata"
+        from_tool:
+          $ref: "#/components/schemas/ClientRelationshipTool"
+        to_tool:
+          $ref: "#/components/schemas/ClientRelationshipTool"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    RelationshipPaginationMeta:
+      type: object
+      required: [total_count, next_cursor, items_count]
+      properties:
+        total_count:
+          type: integer
+          format: int64
+        next_cursor:
+          type: integer
+          format: int64
+          description: "-1 when there is no next page"
+        items_count:
+          type: integer
+          format: int64
+
+    RelationshipListResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClientRelationship"
+        meta:
+          $ref: "#/components/schemas/RelationshipPaginationMeta"
+
+    ErrorDetailsString:
+      type: string
+      description: Malformed JSON error message
+
+    ErrorDetailsNotFound:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+
+    ErrorDetailsInvalidFields:
+      type: object
+      required: [Fields]
+      properties:
+        Fields:
+          type: object
+          additionalProperties:
+            type: string
+          description: Field validation errors with PascalCase keys (e.g. Name, Slug, ReleaseYear)
+
+    ErrorDetailsDuplicateResource:
+      type: object
+      required: [Id, Message]
+      properties:
+        Id:
+          type: string
+        Message:
+          type: string
+
+    ErrorDetailsInvalidEnum:
+      type: object
+      required: [Message]
+      properties:
+        Category:
+          type: string
+        SubType:
+          type: string
+        DevStatus:
+          type: string
+        Message:
+          type: string
+
+    ErrorDetailsInvalidKind:
+      type: object
+      required: [kind, message]
+      properties:
+        kind:
+          type: string
+        message:
+          type: string
+
+    ErrorDetailsSimpleMessage:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+
+    HTTPErrorDetails:
+      oneOf:
+        - $ref: "#/components/schemas/ErrorDetailsString"
+        - $ref: "#/components/schemas/ErrorDetailsNotFound"
+        - $ref: "#/components/schemas/ErrorDetailsInvalidFields"
+        - $ref: "#/components/schemas/ErrorDetailsDuplicateResource"
+        - $ref: "#/components/schemas/ErrorDetailsInvalidEnum"
+        - $ref: "#/components/schemas/ErrorDetailsInvalidKind"
+        - $ref: "#/components/schemas/ErrorDetailsSimpleMessage"
+
+    HTTPError:
+      type: object
+      required: [code, message, details]
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        details:
+          $ref: "#/components/schemas/HTTPErrorDetails"

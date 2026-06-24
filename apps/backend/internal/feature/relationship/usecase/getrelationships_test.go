@@ -97,13 +97,13 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 			Category:    "language",
 			SubType:     "backend",
 			DevStatus:   "active",
-			Details:     "d",
+			Details:     new("d"),
 			UseCases:    []string{"u"},
 			Tags:        []string{"t"},
-			Website:     "https://example.com",
-			Github:      "https://github.com/example",
+			Website:     new("https://example.com"),
+			Github:      new("https://github.com/example"),
 			ReleaseYear: 2020,
-			Prolang:     "Go",
+			Prolang:     new("Go"),
 		})
 
 		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)
@@ -184,13 +184,13 @@ func TestGetRelationshipsUseCase(t *testing.T) {
 			Category:    "language",
 			SubType:     "backend",
 			DevStatus:   "active",
-			Details:     "Test Details",
+			Details:     new("Test Details"),
 			UseCases:    []string{"Test Use Case"},
 			Tags:        []string{"Test Tag"},
-			Website:     "https://nodejs.org",
-			Github:      "https://github.com/nodejs/node",
+			Website:     new("https://nodejs.org"),
+			Github:      new("https://github.com/nodejs/node"),
 			ReleaseYear: 2009,
-			Prolang:     "JavaScript",
+			Prolang:     new("JavaScript"),
 		})
 
 		relationshipRepository := testutil.NewMockRelationshipRepositoryInterface(t)

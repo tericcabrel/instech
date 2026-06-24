@@ -17,12 +17,12 @@ func writeJSON(w http.ResponseWriter, v any) {
 	enc := json.NewEncoder(w)
 	err := enc.Encode(v)
 	if err != nil {
-		log.Error().Stack().Err(err).Msg("")
+		log.Error().Err(err).Msg("")
 	}
 }
 
 func InternalServerError(w http.ResponseWriter, err error, source string) {
-	log.Error().Stack().Err(err).Str("source", source).Msg("")
+	log.Error().Err(err).Str("source", source).Msg("")
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusInternalServerError)

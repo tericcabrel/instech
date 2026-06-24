@@ -9,6 +9,7 @@ Instech is a tool for finding alternatives to popular tools.
 - SQLC
 - Air
 - Golangci-lint
+- OpenAPI spec ([`openapi.yaml`](openapi.yaml), linted with `@redocly/cli`)
 - Pre-commit hook
 - GitHub Actions
 
@@ -24,9 +25,16 @@ go mod download
 ### Create the database and run migrations:
 
 ```bash
-sqlite3 db/data/instech.db "VACUUM;"
+mkdir -p db/data
+
+sqlite3 db/data/instech.db "VACUUM;"                        
+sqlite3 db/data/instech.db "PRAGMA journal_mode=WAL;"          
+
+# Apply migrations
 goose up
 ```
+VACUUM is the process of compacting the database file to remove deleted rows and free up space.
+WAL is the Write-Ahead Logging mode, it allows readers to proceed without blocking writers.
 
 ### Set environment variables
 Create the `.env` file by copying the `.env.example` file
@@ -62,6 +70,16 @@ golangci-lint run ./... --fix
 ```
 
 Configuration lives in [`.golangci.yml`](.golangci.yml). CI runs the same check via [`.github/workflows/build.yml`](../../.github/workflows/build.yml) with `working-directory: apps/backend`.
+
+### OpenAPI spec
+
+The API contract lives in [`openapi.yaml`](openapi.yaml). Lint it with Redocly (via `npx` — nothing is added to `go.mod` or `package.json`):
+
+```bash
+npx --yes @redocly/cli@2.34.0 lint openapi.yaml
+```
+
+CI runs the same command in the `lint` job.
 
 ### Pre-commit hook
 

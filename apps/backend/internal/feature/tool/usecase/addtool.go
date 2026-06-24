@@ -18,11 +18,11 @@ type AddToolInput struct {
 	Slug        string
 	Category    string
 	SubType     string
-	Prolang     string
+	Prolang     *string
 	DevStatus   string
-	Details     string
-	Website     string
-	Github      string
+	Details     *string
+	Website     *string
+	Github      *string
 	UseCases    []string
 	Tags        []string
 	ReleaseYear int

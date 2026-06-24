@@ -9,13 +9,13 @@ func CreateTestTool() domain.Tool {
 		Category:    "language",
 		SubType:     "backend",
 		DevStatus:   "active",
-		Details:     "Test Details",
+		Details:     new("Test Details"),
 		UseCases:    []string{"Test Use Case"},
 		Tags:        []string{"Test Tag"},
-		Website:     "https://test.com",
-		Github:      "https://github.com/test",
+		Website:     new("https://test.com"),
+		Github:      new("https://github.com/test"),
 		ReleaseYear: ReleaseYear,
-		Prolang:     "Go",
+		Prolang:     new("Go"),
 		Slug:        "golang",
 	})
 

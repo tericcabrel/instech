@@ -86,13 +86,13 @@ func TestGetToolAlternativesUseCase(t *testing.T) {
 			Category:    "language",
 			SubType:     "backend",
 			DevStatus:   "active",
-			Details:     "Test Details for tool 1",
+			Details:     new("Test Details for tool 1"),
 			UseCases:    []string{"use-case-java"},
 			Tags:        []string{"tag-java"},
-			Website:     "https://test-tool-1.com",
-			Github:      "https://github.com/test-tool-1",
+			Website:     new("https://test-tool-1.com"),
+			Github:      new("https://github.com/test-tool-1"),
 			ReleaseYear: 1995,
-			Prolang:     "Java",
+			Prolang:     new("Java"),
 		})
 
 		tool2 := testutil.CreateTestDynamicTool(2, domain.CreateToolInput{
@@ -101,13 +101,13 @@ func TestGetToolAlternativesUseCase(t *testing.T) {
 			Category:    "language",
 			SubType:     "fullstack",
 			DevStatus:   "active",
-			Details:     "Test Details for tool 2",
+			Details:     new("Test Details for tool 2"),
 			UseCases:    []string{"use-case-javascript"},
 			Tags:        []string{"tag-javascript"},
-			Website:     "https://test-tool-2.com",
-			Github:      "https://github.com/test-tool-2",
+			Website:     new("https://test-tool-2.com"),
+			Github:      new("https://github.com/test-tool-2"),
 			ReleaseYear: 1995,
-			Prolang:     "JavaScript",
+			Prolang:     new("JavaScript"),
 		})
 
 		tool3 := testutil.CreateTestDynamicTool(3, domain.CreateToolInput{
@@ -116,13 +116,13 @@ func TestGetToolAlternativesUseCase(t *testing.T) {
 			Category:    "language",
 			SubType:     "backend",
 			DevStatus:   "active",
-			Details:     "Test Details for tool 3",
+			Details:     new("Test Details for tool 3"),
 			UseCases:    []string{"use-case-python"},
 			Tags:        []string{"tag-python"},
-			Website:     "https://test-tool-3.com",
-			Github:      "https://github.com/test-tool-3",
+			Website:     new("https://test-tool-3.com"),
+			Github:      new("https://github.com/test-tool-3"),
 			ReleaseYear: 1995,
-			Prolang:     "Python",
+			Prolang:     new("Python"),
 		})
 
 		relationship1 := testutil.CreateTestDynamicRelationship(1, domain.CreateRelationshipInput{
@@ -160,8 +160,22 @@ func TestGetToolAlternativesUseCase(t *testing.T) {
 		toolAlternatives, err := getToolAlternatives.Execute("test-tool-1")
 		require.NoError(t, err)
 		require.Equal(t, []usecase.ToolAlternativesResult{
-			{Id: "test-tool-2", Name: "Test Tool 2", Category: "language", SubType: "fullstack", DevStatus: "active", Details: "Test Details for tool 2", UseCases: []string{"use-case-javascript"}, Tags: []string{"tag-javascript"}, Website: "https://test-tool-2.com", Github: "https://github.com/test-tool-2", ReleaseYear: 1995, Prolang: "JavaScript", Metadata: domain.RelationshipMetadata{Reason: "This is a test relationship for tool 1 and tool 2"}},
-			{Id: "test-tool-3", Name: "Test Tool 3", Category: "language", SubType: "backend", DevStatus: "active", Details: "Test Details for tool 3", UseCases: []string{"use-case-python"}, Tags: []string{"tag-python"}, Website: "https://test-tool-3.com", Github: "https://github.com/test-tool-3", ReleaseYear: 1995, Prolang: "Python", Metadata: domain.RelationshipMetadata{Reason: "This is a test relationship for tool 3 and tool 1"}},
+			{
+				Id: "test-tool-2", Name: "Test Tool 2", Category: "language", SubType: "fullstack",
+				DevStatus: "active", Details: new("Test Details for tool 2"),
+				UseCases: []string{"use-case-javascript"}, Tags: []string{"tag-javascript"},
+				Website: new("https://test-tool-2.com"), Github: new("https://github.com/test-tool-2"),
+				ReleaseYear: 1995, Prolang: new("JavaScript"),
+				Metadata: domain.RelationshipMetadata{Reason: "This is a test relationship for tool 1 and tool 2"},
+			},
+			{
+				Id: "test-tool-3", Name: "Test Tool 3", Category: "language", SubType: "backend",
+				DevStatus: "active", Details: new("Test Details for tool 3"),
+				UseCases: []string{"use-case-python"}, Tags: []string{"tag-python"},
+				Website: new("https://test-tool-3.com"), Github: new("https://github.com/test-tool-3"),
+				ReleaseYear: 1995, Prolang: new("Python"),
+				Metadata: domain.RelationshipMetadata{Reason: "This is a test relationship for tool 3 and tool 1"},
+			},
 		}, toolAlternatives)
 
 		toolRepository.AssertCalled(t, "GetToolBySlug", mock.Anything, mock.AnythingOfType("string"))

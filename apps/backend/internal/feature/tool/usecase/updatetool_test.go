@@ -30,10 +30,10 @@ func TestUpdateToolUseCase(t *testing.T) {
 			Name:        "Node.js",
 			Category:    "language",
 			SubType:     "backend",
-			Prolang:     "JavaScript",
+			Prolang:     new("JavaScript"),
 			ReleaseYear: 2009,
 			DevStatus:   "active",
-			Details:     "JavaScript runtime built on Chrome's V8",
+			Details:     new("JavaScript runtime built on Chrome's V8"),
 		}
 
 		tool, err := updateTool.Execute("nodejs", input)
@@ -61,10 +61,10 @@ func TestUpdateToolUseCase(t *testing.T) {
 			Name:        "Node.js",
 			Category:    "language",
 			SubType:     "backend",
-			Prolang:     "JavaScript",
+			Prolang:     new("JavaScript"),
 			ReleaseYear: 2009,
 			DevStatus:   "active",
-			Details:     "JavaScript runtime built on Chrome's V8",
+			Details:     new("JavaScript runtime built on Chrome's V8"),
 		}
 
 		tool, err := updateTool.Execute("nodejs", input)
@@ -124,14 +124,14 @@ func TestUpdateToolUseCase(t *testing.T) {
 			Name:        "",
 			Category:    "language",
 			SubType:     "backend",
-			Prolang:     "",
+			Prolang:     new(""),
 			ReleaseYear: 1922,
 			DevStatus:   "active",
-			Details:     "",
+			Details:     new(""),
 			UseCases:    []string{""},
 			Tags:        []string{""},
-			Website:     "invalid",
-			Github:      "invalid",
+			Website:     new("invalid"),
+			Github:      new("invalid"),
 		}
 
 		returnedTool, err := updateTool.Execute("nodejs", input)
@@ -140,7 +140,7 @@ func TestUpdateToolUseCase(t *testing.T) {
 			t.Errorf("Expected ErrInvalidField, got %v", err)
 		}
 		if e, ok := err.(domain.ErrInvalidField); ok {
-			fields := []string{"Name", "ReleaseYear", "Prolang", "Website", "Github"}
+			fields := []string{"Name", "ReleaseYear", "Prolang", "Details", "Website", "Github"}
 			for _, field := range fields {
 				if _, exist := e.Fields[field]; !exist {
 					t.Errorf("Expected the field \"%s\" to be present", field)
@@ -173,10 +173,10 @@ func TestUpdateToolUseCase(t *testing.T) {
 			Name:        "Node.js",
 			Category:    "language",
 			SubType:     "backend",
-			Prolang:     "JavaScript",
+			Prolang:     new("JavaScript"),
 			ReleaseYear: 2009,
 			DevStatus:   "active",
-			Details:     "JavaScript runtime built on Chrome's V8",
+			Details:     new("JavaScript runtime built on Chrome's V8"),
 		}
 
 		returnedTool, err := updateTool.Execute("nodejs", input)
@@ -204,14 +204,14 @@ func TestUpdateToolUseCase(t *testing.T) {
 				tool.Name = "Node.js"
 				tool.Category = "language"
 				tool.SubType = "backend"
-				tool.Prolang = "JavaScript"
+				tool.Prolang = new("JavaScript")
 				tool.ReleaseYear = 2009
 				tool.DevStatus = "active"
-				tool.Details = "JavaScript runtime built on Chrome's V8"
+				tool.Details = new("JavaScript runtime built on Chrome's V8")
 				tool.UseCases = []string{"backend"}
 				tool.Tags = []string{"JavaScript"}
-				tool.Website = "https://nodejs.org"
-				tool.Github = "https://github.com/nodejs/node"
+				tool.Website = new("https://nodejs.org")
+				tool.Github = new("https://github.com/nodejs/node")
 
 				return tool, nil
 			})
@@ -224,14 +224,14 @@ func TestUpdateToolUseCase(t *testing.T) {
 			Name:        "Node.js",
 			Category:    "language",
 			SubType:     "backend",
-			Prolang:     "JavaScript",
+			Prolang:     new("JavaScript"),
 			ReleaseYear: 2009,
 			DevStatus:   "active",
-			Details:     "JavaScript runtime built on Chrome's V8",
+			Details:     new("JavaScript runtime built on Chrome's V8"),
 			UseCases:    []string{"backend"},
 			Tags:        []string{"JavaScript"},
-			Website:     "https://nodejs.org",
-			Github:      "https://github.com/nodejs/node",
+			Website:     new("https://nodejs.org"),
+			Github:      new("https://github.com/nodejs/node"),
 		}
 
 		returnedTool, err := updateTool.Execute("golang", input)

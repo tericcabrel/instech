@@ -11,15 +11,15 @@ import (
 type Tool struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 	CreatedAt   time.Time `json:"created_at"`
-	Website     string    `json:"website"`
 	Name        string    `json:"name"`
 	Slug        string    `json:"slug"`
 	Category    string    `json:"category"`
 	SubType     string    `json:"sub_type"`
-	Prolang     string    `json:"prolang"`
+	Prolang     *string   `json:"prolang,omitempty"`
 	DevStatus   string    `json:"dev_status"`
-	Details     string    `json:"details"`
-	Github      string    `json:"github"`
+	Details     *string   `json:"details,omitempty"`
+	Website     *string   `json:"website,omitempty"`
+	Github      *string   `json:"github,omitempty"`
 	UseCases    []string  `json:"use_cases"`
 	Tags        []string  `json:"tags"`
 	Id          int       `json:"id"`
@@ -31,11 +31,11 @@ type CreateToolInput struct {
 	Slug        string
 	Category    string
 	SubType     string
-	Prolang     string
+	Prolang     *string
 	DevStatus   string
-	Details     string
-	Website     string
-	Github      string
+	Details     *string
+	Website     *string
+	Github      *string
 	UseCases    []string
 	Tags        []string
 	ReleaseYear int
@@ -46,11 +46,11 @@ type UpdateToolInput struct {
 	Slug        string
 	Category    string
 	SubType     string
-	Prolang     string
+	Prolang     *string
 	DevStatus   string
-	Details     string
-	Website     string
-	Github      string
+	Details     *string
+	Website     *string
+	Github      *string
 	UseCases    []string
 	Tags        []string
 	ReleaseYear int
@@ -64,18 +64,22 @@ const MIN_RELEASE_YEAR = 1940
 
 var MAX_RELEASE_YEAR = time.Now().Year()
 
-const ERROR_NAME_REQUIRED = "The tool name is required"
-const ERROR_SLUG_REQUIRED = "The tool slug is required"
-const ERROR_PROLANG_REQUIRED = "The tool programming language is required"
-const ERROR_WEBSITE_INVALID = "The tool website is invalid. Valid websites must be a valid URL"
-const ERROR_GITHUB_INVALID = "The tool github is invalid. Valid github must be a valid URL"
-const ERROR_USE_CASES_INVALID = "The tool use cases are invalid. Valid use cases must be an array of strings"
-const ERROR_TAGS_INVALID = "The tool tags are invalid. Valid tags must be an array of strings"
+const ERROR_NAME_REQUIRED = "The name is required"
+const ERROR_SLUG_REQUIRED = "The slug is required"
+const ERROR_PROLANG_REQUIRED = "The programming language is required"
+const ERROR_PROLANG_EMPTY = "The programming language cannot be empty"
+const ERROR_DETAILS_EMPTY = "The details cannot be empty"
+const ERROR_WEBSITE_EMPTY = "The website cannot be empty"
+const ERROR_WEBSITE_INVALID = "The website is invalid. Valid websites must be a valid URL"
+const ERROR_GITHUB_EMPTY = "The github cannot be empty"
+const ERROR_GITHUB_INVALID = "The github is invalid. Valid github must be a valid URL"
+const ERROR_USE_CASES_INVALID = "The use cases are invalid. Valid use cases must be an array of strings"
+const ERROR_TAGS_INVALID = "The tags are invalid. Valid tags must be an array of strings"
 
-var ERROR_RELEASE_YEAR_INVALID = fmt.Sprintf("The tool release year is invalid. Valid release years are between %d and %d", MIN_RELEASE_YEAR, MAX_RELEASE_YEAR)
-var ERROR_CATEGORY_INVALID = fmt.Sprintf("The tool category is invalid. Valid categories are: %s", strings.Join(ToolCategories, ", "))
-var ERROR_SUBTYPE_INVALID = fmt.Sprintf("The tool sub type is invalid. Valid sub types are: %s", strings.Join(ToolSubtypes, ", "))
-var ERROR_DEVSTATUS_INVALID = fmt.Sprintf("The tool dev status is invalid. Valid dev statuses are: %s", strings.Join(ToolDevStatuses, ", "))
+var ERROR_RELEASE_YEAR_INVALID = fmt.Sprintf("The release year is invalid. Valid release years are between %d and %d", MIN_RELEASE_YEAR, MAX_RELEASE_YEAR)
+var ERROR_CATEGORY_INVALID = fmt.Sprintf("The category is invalid. Valid categories are: %s", strings.Join(ToolCategories, ", "))
+var ERROR_SUBTYPE_INVALID = fmt.Sprintf("The sub type is invalid. Valid sub types are: %s", strings.Join(ToolSubtypes, ", "))
+var ERROR_DEVSTATUS_INVALID = fmt.Sprintf("The dev status is invalid. Valid dev statuses are: %s", strings.Join(ToolDevStatuses, ", "))
 
 func IsCategoryValid(category string) bool {
 	return slices.Contains(ToolCategories, category)
@@ -89,6 +93,44 @@ func IsDevStatusValid(devStatus string) bool {
 
 func areStringsEqual(a, b []string) bool {
 	return slices.Equal(a, b)
+}
+
+func optionalStringEqual(a, b *string) bool {
+	if a == nil && b == nil {
+		return true
+	}
+	if a == nil || b == nil {
+		return false
+	}
+
+	return *a == *b
+}
+
+func validateOptionalStringNotEmpty(fieldKey string, value *string, errors map[string]string, emptyMessage string) {
+	if value != nil && *value == "" {
+		errors[fieldKey] = emptyMessage
+	}
+}
+
+func validateProlang(category string, prolang *string, errors map[string]string) {
+	validateOptionalStringNotEmpty("Prolang", prolang, errors, ERROR_PROLANG_EMPTY)
+	if category == "language" && prolang == nil {
+		errors["Prolang"] = ERROR_PROLANG_REQUIRED
+	}
+}
+
+func validateWebsite(website *string, errors map[string]string) {
+	validateOptionalStringNotEmpty("Website", website, errors, ERROR_WEBSITE_EMPTY)
+	if website != nil && *website != "" && !isValidURL(*website) {
+		errors["Website"] = ERROR_WEBSITE_INVALID
+	}
+}
+
+func validateGithub(github *string, errors map[string]string) {
+	validateOptionalStringNotEmpty("Github", github, errors, ERROR_GITHUB_EMPTY)
+	if github != nil && *github != "" && !isValidURL(*github) {
+		errors["Github"] = ERROR_GITHUB_INVALID
+	}
 }
 
 func isValidURL(url string) bool {
@@ -135,16 +177,10 @@ func CreateTool(input CreateToolInput) (Tool, error) {
 		errors["ReleaseYear"] = ERROR_RELEASE_YEAR_INVALID
 	}
 
-	if input.Category == "language" && input.Prolang == "" {
-		errors["Prolang"] = ERROR_PROLANG_REQUIRED
-	}
-
-	if input.Website != "" && !isValidURL(input.Website) {
-		errors["Website"] = ERROR_WEBSITE_INVALID
-	}
-	if input.Github != "" && !isValidURL(input.Github) {
-		errors["Github"] = ERROR_GITHUB_INVALID
-	}
+	validateProlang(input.Category, input.Prolang, errors)
+	validateOptionalStringNotEmpty("Details", input.Details, errors, ERROR_DETAILS_EMPTY)
+	validateWebsite(input.Website, errors)
+	validateGithub(input.Github, errors)
 
 	if len(errors) > 0 {
 		return Tool{}, ErrInvalidField{Fields: errors}
@@ -186,12 +222,13 @@ func (tool *Tool) Update(input UpdateToolInput) error {
 	if tool.SubType != input.SubType {
 		tool.SubType = input.SubType
 	}
-	if tool.Prolang != input.Prolang {
-		if input.Category == "language" && input.Prolang == "" {
-			errors["Prolang"] = ERROR_PROLANG_REQUIRED
-		} else {
+	if !optionalStringEqual(tool.Prolang, input.Prolang) {
+		validateProlang(input.Category, input.Prolang, errors)
+		if _, hasProlangError := errors["Prolang"]; !hasProlangError {
 			tool.Prolang = input.Prolang
 		}
+	} else if input.Category == "language" && input.Prolang == nil {
+		errors["Prolang"] = ERROR_PROLANG_REQUIRED
 	}
 	if tool.ReleaseYear != input.ReleaseYear {
 		if input.ReleaseYear < 1940 || input.ReleaseYear > time.Now().Year() {
@@ -203,8 +240,11 @@ func (tool *Tool) Update(input UpdateToolInput) error {
 	if tool.DevStatus != input.DevStatus {
 		tool.DevStatus = input.DevStatus
 	}
-	if tool.Details != input.Details {
-		tool.Details = input.Details
+	if !optionalStringEqual(tool.Details, input.Details) {
+		validateOptionalStringNotEmpty("Details", input.Details, errors, ERROR_DETAILS_EMPTY)
+		if _, hasDetailsError := errors["Details"]; !hasDetailsError {
+			tool.Details = input.Details
+		}
 	}
 	if !areStringsEqual(tool.UseCases, input.UseCases) {
 		tool.UseCases = input.UseCases
@@ -212,17 +252,15 @@ func (tool *Tool) Update(input UpdateToolInput) error {
 	if !areStringsEqual(tool.Tags, input.Tags) {
 		tool.Tags = input.Tags
 	}
-	if tool.Website != input.Website {
-		if input.Website != "" && !isValidURL(input.Website) {
-			errors["Website"] = ERROR_WEBSITE_INVALID
-		} else {
+	if !optionalStringEqual(tool.Website, input.Website) {
+		validateWebsite(input.Website, errors)
+		if _, hasWebsiteError := errors["Website"]; !hasWebsiteError {
 			tool.Website = input.Website
 		}
 	}
-	if tool.Github != input.Github {
-		if input.Github != "" && !isValidURL(input.Github) {
-			errors["Github"] = ERROR_GITHUB_INVALID
-		} else {
+	if !optionalStringEqual(tool.Github, input.Github) {
+		validateGithub(input.Github, errors)
+		if _, hasGithubError := errors["Github"]; !hasGithubError {
 			tool.Github = input.Github
 		}
 	}

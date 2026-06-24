@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"encoding/json"
 	"tericcabrel/instech/db/queries"
 	"tericcabrel/instech/internal/domain"
@@ -29,6 +30,24 @@ func parseJSONObject[T any](jsonObject string) T {
 	return result
 }
 
+func optionalStringToNull(value *string) sql.NullString {
+	if value == nil {
+		return sql.NullString{}
+	}
+
+	return sql.NullString{String: *value, Valid: true}
+}
+
+func nullStringToOptional(value sql.NullString) *string {
+	if !value.Valid {
+		return nil
+	}
+
+	s := value.String
+
+	return &s
+}
+
 func MapToolRecordToTool(tool queries.ToolRecord) (domain.Tool, error) {
 	createdAt, err := time.Parse(SQL_DATE_FORMAT, tool.CreatedAt)
 	if err != nil {
@@ -52,21 +71,13 @@ func MapToolRecordToTool(tool queries.ToolRecord) (domain.Tool, error) {
 	if tool.SubType.Valid {
 		mappedTool.SubType = tool.SubType.String
 	}
-	if tool.Prolang.Valid {
-		mappedTool.Prolang = tool.Prolang.String
-	}
+	mappedTool.Prolang = nullStringToOptional(tool.Prolang)
 	if tool.DevStatus.Valid {
 		mappedTool.DevStatus = tool.DevStatus.String
 	}
-	if tool.Details.Valid {
-		mappedTool.Details = tool.Details.String
-	}
-	if tool.Website.Valid {
-		mappedTool.Website = tool.Website.String
-	}
-	if tool.Github.Valid {
-		mappedTool.Github = tool.Github.String
-	}
+	mappedTool.Details = nullStringToOptional(tool.Details)
+	mappedTool.Website = nullStringToOptional(tool.Website)
+	mappedTool.Github = nullStringToOptional(tool.Github)
 
 	mappedTool.UseCases = parseJSONArray[string](tool.UseCases)
 	mappedTool.Tags = parseJSONArray[string](tool.Tags)

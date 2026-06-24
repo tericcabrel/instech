@@ -28,7 +28,7 @@ func (router *HTTPRouter) Initialize() http.Handler {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.AllowContentType("application/json"))
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://instech.com", "http://localhost:3000"},
+		AllowedOrigins:   []string{"https://instech.com", "http://localhost:8800"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
