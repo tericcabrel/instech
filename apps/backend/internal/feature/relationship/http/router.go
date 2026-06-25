@@ -138,7 +138,7 @@ func (deps *RelationshipRouter) Initialize() *chi.Mux {
 	})
 
 	router.Get("/query", func(w http.ResponseWriter, r *http.Request) {
-		toolIDParam := r.URL.Query().Get("tool_id")
+		toolIDParam := r.URL.Query().Get("toolId")
 		kindParam := r.URL.Query().Get("kind")
 		cursorParam := r.URL.Query().Get("cursor")
 		limitParam := r.URL.Query().Get("limit")

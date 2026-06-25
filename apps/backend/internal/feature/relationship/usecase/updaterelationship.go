@@ -16,10 +16,10 @@ type UpdateRelationshipUseCase struct {
 }
 
 type UpdateRelationshipInput struct {
-	Kind       string
-	Metadata   domain.RelationshipMetadata
-	FromToolID int
-	ToToolID   int
+	Kind       string                      `json:"kind"`
+	Metadata   domain.RelationshipMetadata `json:"metadata"`
+	FromToolID int                         `json:"fromToolId"`
+	ToToolID   int                         `json:"toToolId"`
 }
 
 func (uc *UpdateRelationshipUseCase) Execute(Id int, input UpdateRelationshipInput) (domain.Relationship, error) {

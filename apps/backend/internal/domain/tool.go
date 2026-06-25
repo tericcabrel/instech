@@ -9,21 +9,21 @@ import (
 )
 
 type Tool struct {
-	UpdatedAt   time.Time `json:"updated_at"`
-	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+	CreatedAt   time.Time `json:"createdAt"`
 	Name        string    `json:"name"`
 	Slug        string    `json:"slug"`
 	Category    string    `json:"category"`
-	SubType     string    `json:"sub_type"`
+	SubType     string    `json:"subType"`
 	Prolang     *string   `json:"prolang,omitempty"`
-	DevStatus   string    `json:"dev_status"`
+	DevStatus   string    `json:"devStatus"`
 	Details     *string   `json:"details,omitempty"`
 	Website     *string   `json:"website,omitempty"`
 	Github      *string   `json:"github,omitempty"`
-	UseCases    []string  `json:"use_cases"`
+	UseCases    []string  `json:"useCases"`
 	Tags        []string  `json:"tags"`
 	Id          int       `json:"id"`
-	ReleaseYear int       `json:"release_year"`
+	ReleaseYear int       `json:"releaseYear"`
 }
 
 type CreateToolInput struct {

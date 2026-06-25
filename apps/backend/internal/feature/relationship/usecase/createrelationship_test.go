@@ -27,7 +27,7 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			FromToolID: "invalid",
 			ToToolID:   "1",
 			Kind:       "built_on",
-			Metadata:   struct{ Reason string }{Reason: "This is a test relationship"},
+			Metadata:   usecase.CreateRelationshipInputMetadata{Reason: "This is a test relationship"},
 		})
 		if err == nil {
 			t.Errorf("Expected error, got %v", err)
@@ -66,7 +66,7 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			FromToolID: tool.Slug,
 			ToToolID:   "invalid",
 			Kind:       "built_on",
-			Metadata:   struct{ Reason string }{Reason: "This is a test relationship"},
+			Metadata:   usecase.CreateRelationshipInputMetadata{Reason: "This is a test relationship"},
 		})
 		if err == nil {
 			t.Errorf("Expected error, got %v", err)
@@ -119,7 +119,7 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			FromToolID: tool1.Slug,
 			ToToolID:   tool2.Slug,
 			Kind:       "invalid",
-			Metadata:   struct{ Reason string }{Reason: "This is a test relationship"},
+			Metadata:   usecase.CreateRelationshipInputMetadata{Reason: "This is a test relationship"},
 		})
 
 		require.Error(t, err)
@@ -181,7 +181,7 @@ func TestCreateRelationshipUseCase(t *testing.T) {
 			FromToolID: tool1.Slug,
 			ToToolID:   tool2.Slug,
 			Kind:       "built_on",
-			Metadata:   struct{ Reason string }{Reason: "This is a test relationship"},
+			Metadata:   usecase.CreateRelationshipInputMetadata{Reason: "This is a test relationship"},
 		})
 
 		require.NoError(t, err)

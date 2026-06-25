@@ -20,18 +20,18 @@ type ClientRelationshipDataTool struct {
 }
 
 type ClientRelationshipPaginationMetadata struct {
-	TotalCount int64 `json:"total_count"`
-	NextCursor int64 `json:"next_cursor"`
-	ItemsCount int64 `json:"items_count"`
+	TotalCount int64 `json:"totalCount"`
+	NextCursor int64 `json:"nextCursor"`
+	ItemsCount int64 `json:"itemsCount"`
 }
 
 type ClientRelationshipData struct {
-	CreatedAt time.Time                   `json:"created_at"`
-	UpdatedAt time.Time                   `json:"updated_at"`
+	CreatedAt time.Time                   `json:"createdAt"`
+	UpdatedAt time.Time                   `json:"updatedAt"`
 	Kind      string                      `json:"kind"`
 	Metadata  domain.RelationshipMetadata `json:"metadata"`
-	FromTool  ClientRelationshipDataTool  `json:"from_tool"`
-	ToTool    ClientRelationshipDataTool  `json:"to_tool"`
+	FromTool  ClientRelationshipDataTool  `json:"fromTool"`
+	ToTool    ClientRelationshipDataTool  `json:"toTool"`
 	ID        int                         `json:"id"`
 }
 
@@ -43,7 +43,7 @@ type ClientRelationshipResult struct {
 type GetRelationshipsUseCaseParams struct {
 	Kind   string `json:"kind"`
 	Cursor int64  `json:"cursor"`
-	ToolId int    `json:"tool_id"`
+	ToolId int    `json:"toolId"`
 	Limit  int    `json:"limit"`
 }
 

@@ -15,13 +15,15 @@ type CreateRelationshipUseCase struct {
 	ToolRepository         repository.ToolRepositoryInterface
 }
 
+type CreateRelationshipInputMetadata struct {
+	Reason string `json:"reason"`
+}
+
 type CreateRelationshipInput struct {
-	FromToolID string
-	ToToolID   string
-	Kind       string
-	Metadata   struct {
-		Reason string
-	}
+	FromToolID string                          `json:"fromToolId"`
+	ToToolID   string                          `json:"toToolId"`
+	Kind       string                          `json:"kind"`
+	Metadata   CreateRelationshipInputMetadata `json:"metadata"`
 }
 
 func (uc *CreateRelationshipUseCase) Execute(input CreateRelationshipInput) (domain.Relationship, error) {

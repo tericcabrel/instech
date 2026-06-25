@@ -11,13 +11,13 @@ type RelationshipMetadata struct {
 }
 
 type Relationship struct {
-	CreatedAt  time.Time            `json:"created_at"`
-	UpdatedAt  time.Time            `json:"updated_at"`
+	CreatedAt  time.Time            `json:"createdAt"`
+	UpdatedAt  time.Time            `json:"updatedAt"`
 	Kind       string               `json:"kind"`
 	Metadata   RelationshipMetadata `json:"metadata"`
 	ID         int                  `json:"id"`
-	FromToolID int                  `json:"from_tool_id"`
-	ToToolID   int                  `json:"to_tool_id"`
+	FromToolID int                  `json:"fromToolId"`
+	ToToolID   int                  `json:"toToolId"`
 }
 
 type CreateRelationshipInput struct {

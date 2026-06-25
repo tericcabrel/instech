@@ -17,19 +17,19 @@ type GetToolAlternativesUseCase struct {
 }
 
 type ToolAlternativesResult struct {
-	DevStatus   string                      `json:"dev_status"`
+	DevStatus   string                      `json:"devStatus"`
 	Name        string                      `json:"name"`
 	Category    string                      `json:"category"`
-	SubType     string                      `json:"sub_type"`
+	SubType     string                      `json:"subType"`
 	Prolang     *string                     `json:"prolang,omitempty"`
 	Id          string                      `json:"id"`
 	Details     *string                     `json:"details,omitempty"`
 	Website     *string                     `json:"website,omitempty"`
 	Github      *string                     `json:"github,omitempty"`
 	Metadata    domain.RelationshipMetadata `json:"metadata"`
-	UseCases    []string                    `json:"use_cases"`
+	UseCases    []string                    `json:"useCases"`
 	Tags        []string                    `json:"tags"`
-	ReleaseYear int                         `json:"release_year"`
+	ReleaseYear int                         `json:"releaseYear"`
 }
 
 func (uc *GetToolAlternativesUseCase) Execute(toolSlug string) ([]ToolAlternativesResult, error) {

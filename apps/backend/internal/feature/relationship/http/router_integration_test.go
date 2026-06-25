@@ -253,8 +253,8 @@ func TestRelationshipRouter_Integration(t *testing.T) {
 			require.NoError(t, err)
 
 			require.Equal(t, float64(1), response["id"])
-			require.Equal(t, float64(golangId), response["from_tool_id"])
-			require.Equal(t, float64(nodejsId), response["to_tool_id"])
+			require.Equal(t, float64(golangId), response["fromToolId"])
+			require.Equal(t, float64(nodejsId), response["toToolId"])
 			require.Equal(t, "used_with", response["kind"])
 			require.Equal(t, map[string]any{"reason": "same purpose"}, response["metadata"])
 
@@ -455,8 +455,8 @@ func TestRelationshipRouter_Integration(t *testing.T) {
 			require.NoError(t, err)
 
 			require.Equal(t, float64(createdRelationshipId), response["id"])
-			require.Equal(t, float64(pythonId), response["from_tool_id"])
-			require.Equal(t, float64(golangId), response["to_tool_id"])
+			require.Equal(t, float64(pythonId), response["fromToolId"])
+			require.Equal(t, float64(golangId), response["toToolId"])
 			require.Equal(t, "used_with", response["kind"])
 			require.Equal(t, map[string]any{"reason": "often combined"}, response["metadata"])
 		})
@@ -530,7 +530,7 @@ func TestRelationshipRouter_Integration(t *testing.T) {
 		})
 
 		t.Run("return error 400 when tool_id query param is invalid", func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodGet, "/relationships/query?tool_id=abc", nil)
+			req := httptest.NewRequest(http.MethodGet, "/relationships/query?toolId=abc", nil)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 			router.Initialize().ServeHTTP(rec, req)
@@ -618,7 +618,7 @@ func TestRelationshipRouter_Integration(t *testing.T) {
 		})
 
 		t.Run("return empty result when tool_id does not match any tool", func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodGet, "/relationships/query?tool_id=999", nil)
+			req := httptest.NewRequest(http.MethodGet, "/relationships/query?toolId=999", nil)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 			router.Initialize().ServeHTTP(rec, req)
@@ -647,13 +647,13 @@ func TestRelationshipRouter_Integration(t *testing.T) {
 
 			meta, ok := response["meta"].(map[string]any)
 			require.True(t, ok)
-			require.Equal(t, float64(2), meta["items_count"])
-			require.Equal(t, float64(2), meta["total_count"])
-			require.Equal(t, float64(-1), meta["next_cursor"])
+			require.Equal(t, float64(2), meta["itemsCount"])
+			require.Equal(t, float64(2), meta["totalCount"])
+			require.Equal(t, float64(-1), meta["nextCursor"])
 		})
 
 		t.Run("return relationships successfully with valid tool_id and kind query params", func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodGet, "/relationships/query?tool_id=1&kind=alternative_to", nil)
+			req := httptest.NewRequest(http.MethodGet, "/relationships/query?toolId=1&kind=alternative_to", nil)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 			router.Initialize().ServeHTTP(rec, req)
@@ -673,9 +673,9 @@ func TestRelationshipRouter_Integration(t *testing.T) {
 
 			meta, ok := response["meta"].(map[string]any)
 			require.True(t, ok)
-			require.Equal(t, float64(2), meta["items_count"])
-			require.Equal(t, float64(2), meta["total_count"])
-			require.Equal(t, float64(-1), meta["next_cursor"])
+			require.Equal(t, float64(2), meta["itemsCount"])
+			require.Equal(t, float64(2), meta["totalCount"])
+			require.Equal(t, float64(-1), meta["nextCursor"])
 		})
 
 		t.Run("return relationships successfully with a valid next cursor in the response", func(t *testing.T) {
@@ -699,9 +699,9 @@ func TestRelationshipRouter_Integration(t *testing.T) {
 
 			meta, ok := response["meta"].(map[string]any)
 			require.True(t, ok)
-			require.Equal(t, float64(2), meta["items_count"])
-			require.Equal(t, float64(3), meta["total_count"])
-			require.NotEqual(t, float64(-1), meta["next_cursor"])
+			require.Equal(t, float64(2), meta["itemsCount"])
+			require.Equal(t, float64(3), meta["totalCount"])
+			require.NotEqual(t, float64(-1), meta["nextCursor"])
 		})
 	})
 }

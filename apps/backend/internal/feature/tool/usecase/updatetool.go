@@ -13,17 +13,17 @@ type UpdateToolUseCase struct {
 	ToolRepository repository.ToolRepositoryInterface
 }
 type UpdateToolInput struct {
-	Name        string
-	Category    string
-	SubType     string
-	Prolang     *string
-	DevStatus   string
-	Details     *string
-	Website     *string
-	Github      *string
-	UseCases    []string
-	Tags        []string
-	ReleaseYear int
+	Name        string   `json:"name"`
+	Category    string   `json:"category"`
+	SubType     string   `json:"subType"`
+	Prolang     *string  `json:"prolang,omitempty"`
+	DevStatus   string   `json:"devStatus"`
+	Details     *string  `json:"details,omitempty"`
+	Website     *string  `json:"website,omitempty"`
+	Github      *string  `json:"github,omitempty"`
+	UseCases    []string `json:"useCases"`
+	Tags        []string `json:"tags"`
+	ReleaseYear int      `json:"releaseYear"`
 }
 
 func (uc *UpdateToolUseCase) Execute(slug string, input UpdateToolInput) (domain.Tool, error) {
