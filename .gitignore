@@ -5,4 +5,4 @@ tmp/
 .DS_Store
 cover.out
 cover.filtered.out
-.cursor/
+docs/bigplans/*.md
