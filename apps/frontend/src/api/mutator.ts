@@ -9,6 +9,10 @@ type RequestConfig = {
   signal?: AbortSignal
 }
 
+type OrvalRequestOptions = RequestInit & {
+  params?: Record<string, unknown>
+}
+
 export type HTTPError = {
   code: number
   message: string
@@ -73,9 +77,34 @@ export class ApiError extends Error {
   }
 }
 
-export const customInstance = async <T>(config: RequestConfig): Promise<T> => {
+const parseResponseBody = async (response: Response): Promise<unknown> => {
+  const text = await response.text()
+
+  if (!text) {
+    return undefined
+  }
+
+  try {
+    return JSON.parse(text) as unknown
+  } catch {
+    return text
+  }
+}
+
+const requestWithConfig = async <T>(
+  config: RequestConfig,
+): Promise<T> => {
   const headers = new Headers(config.headers)
   const hasBody = config.data !== undefined
+  const body =
+    typeof config.data === 'string' ||
+    config.data instanceof FormData ||
+    config.data instanceof Blob ||
+    config.data instanceof URLSearchParams
+      ? config.data
+      : hasBody
+        ? JSON.stringify(config.data)
+        : undefined
 
   if (hasBody && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
@@ -88,7 +117,7 @@ export const customInstance = async <T>(config: RequestConfig): Promise<T> => {
   const response = await fetch(buildUrl(config.url, config.params), {
     method: config.method,
     headers,
-    body: hasBody ? JSON.stringify(config.data) : undefined,
+    body,
     signal: config.signal,
   })
 
@@ -96,12 +125,31 @@ export const customInstance = async <T>(config: RequestConfig): Promise<T> => {
     return undefined as T
   }
 
-  const text = await response.text()
-  const parsed = text ? (JSON.parse(text) as unknown) : undefined
+  const parsed = await parseResponseBody(response)
 
   if (!response.ok) {
     throw new ApiError(response.status, toHttpError(response.status, parsed))
   }
 
   return parsed as T
+}
+
+export const customInstance = async <T>(
+  urlOrConfig: string | RequestConfig,
+  options?: OrvalRequestOptions,
+): Promise<T> => {
+  if (typeof urlOrConfig === 'string') {
+    const config: RequestConfig = {
+      url: urlOrConfig,
+      method: (options?.method as HttpMethod | undefined) ?? 'GET',
+      params: options?.params,
+      headers: options?.headers,
+      signal: options?.signal ?? undefined,
+      data: options?.body,
+    }
+
+    return requestWithConfig<T>(config)
+  }
+
+  return requestWithConfig<T>(urlOrConfig)
 }
