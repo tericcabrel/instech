@@ -3,4 +3,4 @@ set -e
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT/apps/backend"
 echo "Running golangci-lint..."
-exec golangci-lint run ./...
+exec golangci-lint run ./... --fix

@@ -4,12 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"testing"
+
 	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
 	"tericcabrel/instech/internal/feature/tool/usecase"
 	"tericcabrel/instech/testutil"
-
-	"testing"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -22,29 +22,13 @@ func TestUpdateToolUseCase(t *testing.T) {
 			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
 			Return(domain.Tool{}, sql.ErrNoRows)
 
-		updateTool := usecase.UpdateToolUseCase{
-			ToolRepository: toolRepository,
-		}
-
-		input := usecase.UpdateToolInput{
-			Name:        "Node.js",
-			Category:    "language",
-			SubType:     "backend",
-			Prolang:     new("JavaScript"),
-			ReleaseYear: 2009,
-			DevStatus:   "active",
-			Details:     new("JavaScript runtime built on Chrome's V8"),
-		}
-
-		tool, err := updateTool.Execute("nodejs", input)
+		patchTool := usecase.PatchToolUseCase{ToolRepository: toolRepository}
+		tool, err := patchTool.Execute("nodejs", usecase.PatchToolInput{})
 		require.Error(t, err)
 		if _, ok := err.(common.ErrResourceNotFound); !ok {
 			t.Errorf("Expected ErrResourceNotFound, got %v", err)
 		}
 		require.Equal(t, domain.Tool{}, tool)
-
-		toolRepository.AssertCalled(t, "GetToolBySlug", mock.Anything, mock.AnythingOfType("string"))
-		toolRepository.AssertNotCalled(t, "UpdateTool", mock.Anything, mock.AnythingOfType("domain.Tool"))
 	})
 
 	t.Run("Update tool fails when there is an error getting the tool", func(t *testing.T) {
@@ -53,32 +37,13 @@ func TestUpdateToolUseCase(t *testing.T) {
 			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
 			Return(domain.Tool{}, errors.New("error getting the tool"))
 
-		updateTool := usecase.UpdateToolUseCase{
-			ToolRepository: toolRepository,
-		}
-
-		input := usecase.UpdateToolInput{
-			Name:        "Node.js",
-			Category:    "language",
-			SubType:     "backend",
-			Prolang:     new("JavaScript"),
-			ReleaseYear: 2009,
-			DevStatus:   "active",
-			Details:     new("JavaScript runtime built on Chrome's V8"),
-		}
-
-		tool, err := updateTool.Execute("nodejs", input)
+		patchTool := usecase.PatchToolUseCase{ToolRepository: toolRepository}
+		tool, err := patchTool.Execute("nodejs", usecase.PatchToolInput{})
 		require.Error(t, err)
-		if _, ok := err.(common.ErrResourceNotFound); ok {
-			t.Errorf("Expected error not to be ErrResourceNotFound, got %v", err)
-		}
 		require.Equal(t, domain.Tool{}, tool)
-
-		toolRepository.AssertCalled(t, "GetToolBySlug", mock.Anything, mock.AnythingOfType("string"))
-		toolRepository.AssertNotCalled(t, "UpdateTool", mock.Anything, mock.AnythingOfType("domain.Tool"))
 	})
 
-	t.Run("Update tool fails when the subtype is invalid", func(t *testing.T) {
+	t.Run("Update tool fails when subtype is invalid", func(t *testing.T) {
 		tool := testutil.CreateTestTool()
 		tool.Id = 1
 
@@ -87,24 +52,15 @@ func TestUpdateToolUseCase(t *testing.T) {
 			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
 			Return(tool, nil)
 
-		updateTool := usecase.UpdateToolUseCase{
-			ToolRepository: toolRepository,
-		}
+		patchTool := usecase.PatchToolUseCase{ToolRepository: toolRepository}
+		input := usecase.PatchToolInput{SubType: common.PatchStringField{IsSet: true, Value: "invalid"}}
 
-		input := usecase.UpdateToolInput{
-			Category: "language",
-			SubType:  "invalid",
-		}
-
-		returnedTool, err := updateTool.Execute("nodejs", input)
+		returnedTool, err := patchTool.Execute("nodejs", input)
 		require.Error(t, err)
 		if _, ok := err.(domain.ErrInvalidToolSubType); !ok {
 			t.Errorf("Expected ErrInvalidToolSubType, got %v", err)
 		}
 		require.Equal(t, domain.Tool{}, returnedTool)
-
-		toolRepository.AssertCalled(t, "GetToolBySlug", mock.Anything, mock.AnythingOfType("string"))
-		toolRepository.AssertNotCalled(t, "UpdateTool", mock.Anything, mock.AnythingOfType("domain.Tool"))
 	})
 
 	t.Run("Update tool fails with invalid fields", func(t *testing.T) {
@@ -116,41 +72,22 @@ func TestUpdateToolUseCase(t *testing.T) {
 			GetToolBySlug(mock.Anything, mock.AnythingOfType("string")).
 			Return(tool, nil)
 
-		updateTool := usecase.UpdateToolUseCase{
-			ToolRepository: toolRepository,
+		patchTool := usecase.PatchToolUseCase{ToolRepository: toolRepository}
+		input := usecase.PatchToolInput{
+			Name:        common.PatchStringField{IsSet: true, Value: ""},
+			ReleaseYear: common.PatchIntField{IsSet: true, Value: 1922},
+			Prolang:     common.PatchNullableStringField{IsSet: true, Value: new(string)},
+			Details:     common.PatchNullableStringField{IsSet: true, Value: new(string)},
+			Website:     common.PatchNullableStringField{IsSet: true, Value: new(string)},
+			Github:      common.PatchNullableStringField{IsSet: true, Value: new(string)},
 		}
 
-		input := usecase.UpdateToolInput{
-			Name:        "",
-			Category:    "language",
-			SubType:     "backend",
-			Prolang:     new(""),
-			ReleaseYear: 1922,
-			DevStatus:   "active",
-			Details:     new(""),
-			UseCases:    []string{""},
-			Tags:        []string{""},
-			Website:     new("invalid"),
-			Github:      new("invalid"),
-		}
-
-		returnedTool, err := updateTool.Execute("nodejs", input)
+		returnedTool, err := patchTool.Execute("nodejs", input)
 		require.Error(t, err)
 		if _, ok := err.(domain.ErrInvalidField); !ok {
 			t.Errorf("Expected ErrInvalidField, got %v", err)
 		}
-		if e, ok := err.(domain.ErrInvalidField); ok {
-			fields := []string{"Name", "ReleaseYear", "Prolang", "Details", "Website", "Github"}
-			for _, field := range fields {
-				if _, exist := e.Fields[field]; !exist {
-					t.Errorf("Expected the field \"%s\" to be present", field)
-				}
-			}
-		}
 		require.Equal(t, domain.Tool{}, returnedTool)
-
-		toolRepository.AssertCalled(t, "GetToolBySlug", mock.Anything, mock.AnythingOfType("string"))
-		toolRepository.AssertNotCalled(t, "UpdateTool", mock.Anything, mock.AnythingOfType("domain.Tool"))
 	})
 
 	t.Run("Update tool fails when there is an error updating the tool", func(t *testing.T) {
@@ -165,25 +102,12 @@ func TestUpdateToolUseCase(t *testing.T) {
 			UpdateTool(mock.Anything, mock.AnythingOfType("domain.Tool")).
 			Return(domain.Tool{}, errors.New("error updating the tool"))
 
-		updateTool := usecase.UpdateToolUseCase{
-			ToolRepository: toolRepository,
-		}
+		patchTool := usecase.PatchToolUseCase{ToolRepository: toolRepository}
+		input := usecase.PatchToolInput{Name: common.PatchStringField{IsSet: true, Value: "Node.js"}}
 
-		input := usecase.UpdateToolInput{
-			Name:        "Node.js",
-			Category:    "language",
-			SubType:     "backend",
-			Prolang:     new("JavaScript"),
-			ReleaseYear: 2009,
-			DevStatus:   "active",
-			Details:     new("JavaScript runtime built on Chrome's V8"),
-		}
+		returnedTool, err := patchTool.Execute("nodejs", input)
 
-		returnedTool, err := updateTool.Execute("nodejs", input)
 		require.Error(t, err)
-		if _, ok := err.(common.ErrResourceNotFound); ok {
-			t.Errorf("Expected error not to be ErrResourceNotFound, got %v", err)
-		}
 		require.Equal(t, domain.Tool{}, returnedTool)
 
 		toolRepository.AssertCalled(t, "GetToolBySlug", mock.Anything, mock.AnythingOfType("string"))
@@ -200,54 +124,37 @@ func TestUpdateToolUseCase(t *testing.T) {
 			Return(tool, nil)
 		toolRepository.EXPECT().
 			UpdateTool(mock.Anything, mock.AnythingOfType("domain.Tool")).
-			RunAndReturn(func(_ context.Context, tool domain.Tool) (domain.Tool, error) {
-				tool.Name = "Node.js"
-				tool.Category = "language"
-				tool.SubType = "backend"
-				tool.Prolang = new("JavaScript")
-				tool.ReleaseYear = 2009
-				tool.DevStatus = "active"
-				tool.Details = new("JavaScript runtime built on Chrome's V8")
-				tool.UseCases = []string{"backend"}
-				tool.Tags = []string{"JavaScript"}
-				tool.Website = new("https://nodejs.org")
-				tool.Github = new("https://github.com/nodejs/node")
-
-				return tool, nil
+			RunAndReturn(func(_ context.Context, patched domain.Tool) (domain.Tool, error) {
+				return patched, nil
 			})
 
-		updateTool := usecase.UpdateToolUseCase{
-			ToolRepository: toolRepository,
+		patchTool := usecase.PatchToolUseCase{ToolRepository: toolRepository}
+		input := usecase.PatchToolInput{
+			Name:        common.PatchStringField{IsSet: true, Value: "Express.js"},
+			Category:    common.PatchStringField{IsSet: true, Value: "framework"},
+			SubType:     common.PatchStringField{IsSet: true, Value: "backend"},
+			Prolang:     common.PatchNullableStringField{IsSet: true, Value: new("JavaScript")},
+			ReleaseYear: common.PatchIntField{IsSet: true, Value: 2012},
+			Details:     common.PatchNullableStringField{IsSet: true, Value: nil},
+			Github:      common.PatchNullableStringField{IsSet: false, Value: nil},
+			UseCases:    common.PatchStringSliceField{IsSet: true, Value: []string{"backend"}},
+			Website:     common.PatchNullableStringField{IsSet: true, Value: new("https://expressjs.com")},
+			Tags:        common.PatchStringSliceField{IsSet: true, Value: []string{"web", "api", "framework"}},
+			DevStatus:   common.PatchStringField{IsSet: true, Value: "deprecated"},
 		}
 
-		input := usecase.UpdateToolInput{
-			Name:        "Node.js",
-			Category:    "language",
-			SubType:     "backend",
-			Prolang:     new("JavaScript"),
-			ReleaseYear: 2009,
-			DevStatus:   "active",
-			Details:     new("JavaScript runtime built on Chrome's V8"),
-			UseCases:    []string{"backend"},
-			Tags:        []string{"JavaScript"},
-			Website:     new("https://nodejs.org"),
-			Github:      new("https://github.com/nodejs/node"),
-		}
-
-		returnedTool, err := updateTool.Execute("golang", input)
+		returnedTool, err := patchTool.Execute("golang", input)
 		require.NoError(t, err)
-		require.Equal(t, input.Category, returnedTool.Category)
-		require.Equal(t, input.SubType, returnedTool.SubType)
-		require.Equal(t, input.Prolang, returnedTool.Prolang)
-		require.Equal(t, input.ReleaseYear, returnedTool.ReleaseYear)
-		require.Equal(t, input.DevStatus, returnedTool.DevStatus)
-		require.Equal(t, input.Details, returnedTool.Details)
-		require.Equal(t, input.UseCases, returnedTool.UseCases)
-		require.Equal(t, input.Tags, returnedTool.Tags)
-		require.Equal(t, input.Website, returnedTool.Website)
-		require.Equal(t, input.Github, returnedTool.Github)
-
-		toolRepository.AssertCalled(t, "GetToolBySlug", mock.Anything, mock.AnythingOfType("string"))
-		toolRepository.AssertCalled(t, "UpdateTool", mock.Anything, mock.AnythingOfType("domain.Tool"))
+		require.Equal(t, "Express.js", returnedTool.Name)
+		require.Equal(t, "framework", returnedTool.Category)
+		require.Equal(t, "backend", returnedTool.SubType)
+		require.Equal(t, new("JavaScript"), returnedTool.Prolang)
+		require.Equal(t, 2012, returnedTool.ReleaseYear)
+		require.Nil(t, returnedTool.Details)
+		require.Equal(t, tool.Github, returnedTool.Github)
+		require.Equal(t, []string{"backend"}, returnedTool.UseCases)
+		require.Equal(t, "https://expressjs.com", *returnedTool.Website)
+		require.Equal(t, []string{"web", "api", "framework"}, returnedTool.Tags)
+		require.Equal(t, "deprecated", returnedTool.DevStatus)
 	})
 }

@@ -103,10 +103,10 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 		httprouter.NoContent(w)
 	})
 
-	router.Put("/{id}", func(w http.ResponseWriter, r *http.Request) {
+	router.Patch("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		slug := chi.URLParam(r, "id")
 
-		var tool usecase.UpdateToolInput
+		var tool usecase.PatchToolInput
 		err := json.NewDecoder(r.Body).Decode(&tool)
 		if err != nil {
 			httprouter.BadRequestError(w, err.Error())
@@ -114,7 +114,7 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 			return
 		}
 
-		updateTool := usecase.UpdateToolUseCase{
+		updateTool := usecase.PatchToolUseCase{
 			ToolRepository: deps.ToolRepository,
 		}
 		updatedTool, err := updateTool.Execute(slug, tool)
@@ -142,7 +142,7 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 				return
 			}
 
-			httprouter.InternalServerError(w, err, "UpdateToolUsecase")
+			httprouter.InternalServerError(w, err, "PatchToolUsecase")
 
 			return
 		}

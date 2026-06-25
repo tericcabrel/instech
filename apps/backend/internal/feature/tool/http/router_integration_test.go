@@ -184,7 +184,7 @@ func cleanAlternatives(t *testing.T, db *sql.DB, toolSlugs []string) {
 	}
 }
 
-func TestToolRouter_CreateTool(t *testing.T) {
+func TestToolRouter_AllToolEndpoints(t *testing.T) {
 	t.Run("[POST] /tools", func(t *testing.T) {
 		db := testutil.SetupTestDB(t)
 		t.Cleanup(func() {
@@ -450,7 +450,7 @@ func TestToolRouter_CreateTool(t *testing.T) {
 		})
 	})
 
-	t.Run("[PUT] /tools/{id}", func(t *testing.T) {
+	t.Run("[PATCH] /tools/{id}", func(t *testing.T) {
 		db := testutil.SetupTestDB(t)
 		router := buildRouter(t, db)
 		createdToolId := createTool(t, db)
@@ -458,15 +458,13 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			deleteTools(t, db, createdToolId)
 			db.Close()
 		})
+
 		t.Run("return error 400 when the request body is an invalid JSON", func(t *testing.T) {
 			body := bytes.NewBufferString(`{
 				"name": "Golang",
-				"slug": "golang",
-				"category": "language",
-				"subType": "backend",
 				"devStatus": "activ
 			}`)
-			req := httptest.NewRequest(http.MethodPut, "/tools/golang", body)
+			req := httptest.NewRequest(http.MethodPatch, "/tools/golang", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 			router.Initialize().ServeHTTP(rec, req)
@@ -482,166 +480,144 @@ func TestToolRouter_CreateTool(t *testing.T) {
 			require.Equal(t, "invalid character '\\n' in string literal", response["details"])
 		})
 
-		t.Run("return error 400 when the category is invalid", func(t *testing.T) {
-			body := bytes.NewBufferString(`{
-				"name": "Golang",
-				"slug": "golang",
-				"category": "invalid"
-			}`)
-			req := httptest.NewRequest(http.MethodPut, "/tools/golang", body)
+		t.Run("return error 404 when tool is not found", func(t *testing.T) {
+			body := bytes.NewBufferString(`{"name":"GoLang"}`)
+			req := httptest.NewRequest(http.MethodPatch, "/tools/not-found", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 			router.Initialize().ServeHTTP(rec, req)
-			require.Equal(t, http.StatusBadRequest, rec.Code)
-
-			responseBody, err := io.ReadAll(rec.Body)
-
-			require.NoError(t, err)
-
-			var response map[string]any
-			err = json.Unmarshal(responseBody, &response)
-
-			require.NoError(t, err)
-			require.Equal(t, "Bad Request", response["message"])
-			expectedDetails := map[string]interface{}{
-				"Category": "invalid",
-				"Message":  "The category is invalid. Valid categories are: language, framework, library",
-			}
-			require.Equal(t, expectedDetails, response["details"])
+			require.Equal(t, http.StatusNotFound, rec.Code)
 		})
 
-		t.Run("return error 400 when the sub type is invalid", func(t *testing.T) {
+		t.Run("patch tool with valid full payload", func(t *testing.T) {
 			body := bytes.NewBufferString(`{
-				"name": "Golang",
-				"slug": "golang",
-				"category": "language",
-				"subType": "invalid"
-			}`)
-			req := httptest.NewRequest(http.MethodPut, "/tools/golang", body)
-			req.Header.Set("Content-Type", "application/json")
-			rec := httptest.NewRecorder()
-			router.Initialize().ServeHTTP(rec, req)
-
-			require.Equal(t, http.StatusBadRequest, rec.Code)
-
-			responseBody, err := io.ReadAll(rec.Body)
-
-			require.NoError(t, err)
-
-			var response map[string]any
-			err = json.Unmarshal(responseBody, &response)
-
-			require.NoError(t, err)
-			require.Equal(t, "Bad Request", response["message"])
-			expectedDetails := map[string]interface{}{
-				"SubType": "invalid",
-				"Message": "The sub type is invalid. Valid sub types are: backend, frontend, fullstack, mobile, desktop, game, other",
-			}
-			require.Equal(t, expectedDetails, response["details"])
-		})
-
-		t.Run("return error 400 when the dev status is invalid", func(t *testing.T) {
-			body := bytes.NewBufferString(`{
-				"name": "Golang",
-				"slug": "golang",
-				"category": "language",
-				"subType": "backend",
-				"devStatus": "invalid"
-			}`)
-			req := httptest.NewRequest(http.MethodPut, "/tools/golang", body)
-			req.Header.Set("Content-Type", "application/json")
-			rec := httptest.NewRecorder()
-			router.Initialize().ServeHTTP(rec, req)
-
-			require.Equal(t, http.StatusBadRequest, rec.Code)
-		})
-
-		t.Run("return error 422 when the fields are invalid", func(t *testing.T) {
-			body := bytes.NewBufferString(`{
-				"category": "language",
-				"subType": "backend",
-				"devStatus": "active",
-				"website": "invalid",
-				"github": "invalid"
-			}`)
-			req := httptest.NewRequest(http.MethodPut, "/tools/golang", body)
-			req.Header.Set("Content-Type", "application/json")
-			rec := httptest.NewRecorder()
-			router.Initialize().ServeHTTP(rec, req)
-
-			require.Equal(t, http.StatusUnprocessableEntity, rec.Code)
-
-			responseBody, err := io.ReadAll(rec.Body)
-
-			require.NoError(t, err)
-
-			var response map[string]any
-			err = json.Unmarshal(responseBody, &response)
-
-			require.NoError(t, err)
-			require.Equal(t, "Unprocessable Entity", response["message"])
-
-			year := strconv.Itoa(time.Now().Year())
-			expectedInvalidFields := map[string]interface{}{
-				"Name":        "The name is required",
-				"Prolang":     "The programming language is required",
-				"ReleaseYear": "The release year is invalid. Valid release years are between 1940 and " + year,
-				"Website":     "The website is invalid. Valid websites must be a valid URL",
-				"Github":      "The github is invalid. Valid github must be a valid URL",
-			}
-			expectedDetails := map[string]interface{}{
-				"Fields": expectedInvalidFields,
-			}
-			require.Equal(t, expectedDetails, response["details"])
-		})
-
-		t.Run("Update tool with valid input", func(t *testing.T) {
-			updateBody := bytes.NewBufferString(`{
 				"name": "GoLang",
-				"slug": "nodejs",
 				"category": "language",
 				"subType": "backend",
-				"prolang": "Golang",
+				"prolang": "Go",
 				"releaseYear": 2009,
 				"devStatus": "deprecated",
 				"details": "Golang details",
-				"usecases": ["api", "backend"],
+				"useCases": ["api", "backend"],
 				"tags": ["web", "api", "cli"],
 				"website": "https://golang-updated.org",
 				"github": "https://github.com/golang/go-updated"
 			}`)
 
-			req := httptest.NewRequest(http.MethodPut, "/tools/golang", updateBody)
+			req := httptest.NewRequest(http.MethodPatch, "/tools/golang", body)
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
 			router.Initialize().ServeHTTP(rec, req)
-
 			require.Equal(t, http.StatusOK, rec.Code)
 
 			responseBody, err := io.ReadAll(rec.Body)
-
 			require.NoError(t, err)
 
 			var response map[string]any
 			err = json.Unmarshal(responseBody, &response)
-
 			require.NoError(t, err)
 
 			require.Equal(t, float64(createdToolId), response["id"])
 			require.Equal(t, "GoLang", response["name"])
-			require.Equal(t, "golang", response["slug"]) // slug should not be updated
-			require.Equal(t, "language", response["category"])
-			require.Equal(t, "backend", response["subType"])
+			require.Equal(t, "golang", response["slug"])
 			require.Equal(t, "deprecated", response["devStatus"])
-			require.Equal(t, "Golang", response["prolang"])
-			require.Equal(t, float64(2009), response["releaseYear"])
 			require.Equal(t, "Golang details", response["details"])
-			require.Equal(t, []interface{}{"api", "backend"}, response["useCases"])
-			require.Equal(t, []interface{}{"web", "api", "cli"}, response["tags"])
 			require.Equal(t, "https://golang-updated.org", response["website"])
-			require.Equal(t, "https://github.com/golang/go-updated", response["github"])
-			require.Contains(t, response, "createdAt")
-			require.Contains(t, response, "updatedAt")
+		})
+
+		t.Run("updates enum fields when valid", func(t *testing.T) {
+			body := bytes.NewBufferString(`{
+				"category": "framework",
+				"subType": "frontend",
+				"devStatus": "deprecated"
+			}`)
+			req := httptest.NewRequest(http.MethodPatch, "/tools/golang", body)
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
+			router.Initialize().ServeHTTP(rec, req)
+			require.Equal(t, http.StatusOK, rec.Code)
+
+			responseBody, err := io.ReadAll(rec.Body)
+			require.NoError(t, err)
+			var response map[string]any
+			err = json.Unmarshal(responseBody, &response)
+			require.NoError(t, err)
+			require.Equal(t, "framework", response["category"])
+			require.Equal(t, "frontend", response["subType"])
+			require.Equal(t, "deprecated", response["devStatus"])
+		})
+
+		t.Run("updates only one scalar field and preserves others", func(t *testing.T) {
+			body := bytes.NewBufferString(`{"name":"Go patched"}`)
+			req := httptest.NewRequest(http.MethodPatch, "/tools/golang", body)
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
+			router.Initialize().ServeHTTP(rec, req)
+			require.Equal(t, http.StatusOK, rec.Code)
+
+			responseBody, err := io.ReadAll(rec.Body)
+			require.NoError(t, err)
+			var response map[string]any
+			err = json.Unmarshal(responseBody, &response)
+			require.NoError(t, err)
+			require.Equal(t, "Go patched", response["name"])
+			require.Equal(t, "framework", response["category"])
+			require.Equal(t, "frontend", response["subType"])
+			require.Equal(t, "https://golang-updated.org", response["website"])
+		})
+
+		t.Run("return error 400 when enum value is invalid", func(t *testing.T) {
+			body := bytes.NewBufferString(`{"category":"invalid"}`)
+			req := httptest.NewRequest(http.MethodPatch, "/tools/golang", body)
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
+			router.Initialize().ServeHTTP(rec, req)
+			require.Equal(t, http.StatusBadRequest, rec.Code)
+		})
+
+		t.Run("return error 422 when fields are invalid", func(t *testing.T) {
+			body := bytes.NewBufferString(`{
+				"name": "",
+				"website": "invalid"
+			}`)
+			req := httptest.NewRequest(http.MethodPatch, "/tools/golang", body)
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
+			router.Initialize().ServeHTTP(rec, req)
+			require.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+		})
+
+		t.Run("clear details and website explicitly with null", func(t *testing.T) {
+			body := bytes.NewBufferString(`{"details":null, "website":null}`)
+			req := httptest.NewRequest(http.MethodPatch, "/tools/golang", body)
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
+			router.Initialize().ServeHTTP(rec, req)
+			require.Equal(t, http.StatusOK, rec.Code)
+			responseBody, err := io.ReadAll(rec.Body)
+			require.NoError(t, err)
+			var response map[string]any
+			err = json.Unmarshal(responseBody, &response)
+			require.NoError(t, err)
+			require.NotContains(t, response, "details")
+			require.NotContains(t, response, "website")
+		})
+
+		t.Run("omitted optional fields are preserved", func(t *testing.T) {
+			body := bytes.NewBufferString(`{"name":"Go final"}`)
+			req := httptest.NewRequest(http.MethodPatch, "/tools/golang", body)
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
+			router.Initialize().ServeHTTP(rec, req)
+			require.Equal(t, http.StatusOK, rec.Code)
+			responseBody, err := io.ReadAll(rec.Body)
+			require.NoError(t, err)
+			var response map[string]any
+			err = json.Unmarshal(responseBody, &response)
+			require.NoError(t, err)
+			require.Equal(t, "Go final", response["name"])
+			require.NotContains(t, response, "website")
+			require.NotContains(t, response, "details")
 		})
 	})
 

@@ -101,16 +101,40 @@ paths:
           $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalServerError"
-    put:
-      operationId: putToolsId
+    patch:
+      operationId: patchToolsId
       tags: [tools]
-      summary: Update a tool by slug
+      summary: Patch a tool by slug
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/UpdateToolRequest"
+            examples:
+              fullPayload:
+                summary: Patch with full payload
+                value:
+                  name: Go
+                  category: language
+                  subType: backend
+                  prolang: Go
+                  devStatus: active
+                  details: Compiled language
+                  website: https://go.dev
+                  github: https://github.com/golang/go
+                  useCases: [api, backend]
+                  tags: [cli, server]
+                  releaseYear: 2009
+              clearOptionalField:
+                summary: Clear optional fields explicitly with null
+                value:
+                  details: null
+                  website: null
+              partialPayload:
+                summary: Omitted fields are preserved
+                value:
+                  name: GoLang
       responses:
         "200":
           description: Tool updated
@@ -118,6 +142,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tool"
+              examples:
+                updatedTool:
+                  value:
+                    id: 1
+                    name: GoLang
+                    slug: golang
+                    category: language
+                    subType: backend
+                    prolang: Go
+                    devStatus: active
+                    details: Compiled language
+                    website: https://go.dev
+                    github: https://github.com/golang/go
+                    useCases: [api, backend]
+                    tags: [cli, server]
+                    releaseYear: 2009
+                    createdAt: "2026-01-01T10:00:00Z"
+                    updatedAt: "2026-01-02T10:00:00Z"
         "400":
           $ref: "#/components/responses/BadRequest"
         "404":
@@ -474,18 +516,18 @@ components:
         subType:
           $ref: "#/components/schemas/ToolSubtype"
         prolang:
-          type: string
+          type: [string, "null"]
           description: Required when category is `language`. Omit or null when unset. Empty string is rejected.
         devStatus:
           $ref: "#/components/schemas/ToolDevStatus"
         details:
-          type: string
+          type: [string, "null"]
           description: Omit or null when unset. Empty string is rejected.
         website:
-          type: string
+          type: [string, "null"]
           description: Omit or null when unset. Empty string is rejected.
         github:
-          type: string
+          type: [string, "null"]
           description: Omit or null when unset. Empty string is rejected.
         useCases:
           type: array
