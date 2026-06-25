@@ -1,10 +1,8 @@
 openapi: 3.1.0
 info:
   description: |
-      REST API for Instech tools and relationships.
-
-      Request bodies use snake_case JSON property names (authoritative after Phase 2 json tags).
-      Responses use snake_case. Error `details` shapes vary by endpoint — see HTTPError variants.
+      REST API for Instech.
+      This API is used to manage tools and their relationships.
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT

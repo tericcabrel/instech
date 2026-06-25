@@ -8,6 +8,15 @@ import tailwindcss from '@tailwindcss/vite'
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8801',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
   plugins: [devtools(), tailwindcss(), tanstackStart(), viteReact()],
 })
 
