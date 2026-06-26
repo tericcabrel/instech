@@ -6,3 +6,4 @@ tmp/
 cover.out
 cover.filtered.out
 docs/bigplans/*.md
+apps/frontend/src/api/generated/

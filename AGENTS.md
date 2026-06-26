@@ -7,7 +7,7 @@ All rules are defined in [`docs/references/`](docs/references/) and apply to any
 - [General Coding Conventions](docs/general-coding-conventions.md)
 - [Backend Coding Conventions](docs/backend-coding-conventions.md)
 
-## When working on TypeScript or TSX files
+## When working on .ts and .tsx files
 
 - [TypeScript Standards](docs/references/typescript.md)
 

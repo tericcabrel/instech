@@ -51,6 +51,12 @@ npx @tanstack/cli@latest create my-tanstack-app --agent --package-manager yarn -
 - Use `VITE_*` for client-exposed variables.
 - Keep secrets server-side only.
 
+## API contract workflow
+
+Backend API contract changes must follow the documented OpenAPI/Orval flow:
+
+- [OpenAPI + Orval contract workflow](../../docs/tech/openapi-orval-contract-workflow.md)
+
 ## Testing
 
 This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:

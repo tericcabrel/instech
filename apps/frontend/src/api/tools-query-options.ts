@@ -4,16 +4,15 @@ import {
   getToolsIdAlternatives,
   getToolsIdGraph,
 } from './generated/instech'
+import { Tool, type ToolOutput } from './generated/model/tool.zod.ts'
 import {
-  Tool as ToolSchema,
-  ToolAlternative as ToolAlternativeSchema,
-  ToolGraphResponse as ToolGraphResponseSchema,
-} from './generated/model'
-import type {
-  ToolAlternativeOutput,
-  ToolGraphResponseOutput,
-  ToolOutput,
-} from './generated/model'
+  ToolAlternative,
+  type ToolAlternativeOutput,
+} from './generated/model/toolAlternative.zod.ts'
+import {
+  ToolGraphResponse,
+  type ToolGraphResponseOutput,
+} from './generated/model/toolGraphResponse.zod.ts'
 
 export const toolKeys = {
   all: ['tools'] as const,
@@ -29,7 +28,7 @@ export const toolDetailQueryOptions = (slug: string) =>
     queryFn: async (): Promise<ToolOutput> => {
       const response = await getToolsId(slug)
 
-      return ToolSchema.parse(response)
+      return Tool.parse(response)
     },
     retry: false,
   })
@@ -41,7 +40,7 @@ export const toolAlternativesQueryOptions = (slug: string) =>
     queryFn: async (): Promise<ToolAlternativeOutput[]> => {
       const response = await getToolsIdAlternatives(slug)
 
-      return ToolAlternativeSchema.array().parse(response)
+      return ToolAlternative.array().parse(response)
     },
     retry: false,
   })
@@ -53,7 +52,7 @@ export const toolGraphQueryOptions = (slug: string) =>
     queryFn: async (): Promise<ToolGraphResponseOutput> => {
       const response = await getToolsIdGraph(slug)
 
-      return ToolGraphResponseSchema.parse(response)
+      return ToolGraphResponse.parse(response)
     },
     retry: false,
   })

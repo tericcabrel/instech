@@ -81,6 +81,12 @@ npx --yes @redocly/cli@2.34.0 lint openapi.yaml
 
 CI runs the same command in the `lint` job.
 
+### API contract workflow
+
+For backend API changes that affect request/response/route contracts, follow:
+
+- [`docs/tech/openapi-orval-contract-workflow.md`](../../docs/tech/openapi-orval-contract-workflow.md)
+
 ### Pre-commit hook
 
 From the **repository root** (not `apps/backend`), enable the shared hooks so commits run lint:
