@@ -424,28 +424,28 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/HTTPError"
+            $ref: "#/components/schemas/BadRequestResponse"
 
     NotFound:
       description: Resource not found
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/HTTPError"
+            $ref: "#/components/schemas/NotFoundResponse"
 
     UnprocessableEntity:
       description: Unprocessable entity — tool field validation errors only (422)
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/HTTPError"
+            $ref: "#/components/schemas/UnprocessableEntityResponse"
 
     InternalServerError:
       description: Unexpected server error
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/HTTPError"
+            $ref: "#/components/schemas/InternalServerErrorResponse"
 
   schemas:
     ToolCategory:
@@ -940,3 +940,19 @@ components:
           type: string
         details:
           $ref: "#/components/schemas/HTTPErrorDetails"
+
+    BadRequestResponse:
+      allOf:
+        - $ref: "#/components/schemas/HTTPError"
+
+    NotFoundResponse:
+      allOf:
+        - $ref: "#/components/schemas/HTTPError"
+
+    UnprocessableEntityResponse:
+      allOf:
+        - $ref: "#/components/schemas/HTTPError"
+
+    InternalServerErrorResponse:
+      allOf:
+        - $ref: "#/components/schemas/HTTPError"

@@ -6,7 +6,11 @@ export default defineConfig({
     output: {
       mode: 'split',
       target: './src/api/generated/instech.ts',
-      schemas: './src/api/generated/model',
+      namingConvention: 'PascalCase',
+      schemas: {
+        path: './src/api/generated/model',
+        type: 'zod',
+      },
       client: 'fetch',
       mock: false,
       override: {

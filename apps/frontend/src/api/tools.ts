@@ -5,6 +5,7 @@ import { toolKeys, toolsQueryOptions } from "./tools-query-options"
 
 export const useCreateTool = () => {
   const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: (body: CreateToolRequest) => postTools(body),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: toolKeys.all }),
