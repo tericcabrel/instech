@@ -832,4 +832,157 @@ func TestToolRouter_AllToolEndpoints(t *testing.T) {
 			require.Equal(t, http.StatusNotFound, rec.Code)
 		})
 	})
+
+	t.Run("[GET] /tools/{id}/graph", func(t *testing.T) {
+		db := testutil.SetupTestDB(t)
+		router := buildRouter(t, db)
+
+		toolRepository := repository.NewToolRepository(db)
+		relationshipRepository := repository.NewRelationshipRepository(db)
+		createTestTool := func(t *testing.T, input domain.CreateToolInput) domain.Tool {
+			t.Helper()
+			tool, err := domain.CreateTool(input)
+			require.NoError(t, err)
+			createdTool, err := toolRepository.CreateTool(context.Background(), tool)
+			require.NoError(t, err)
+
+			return createdTool
+		}
+		createTestRelationship := func(t *testing.T, input domain.CreateRelationshipInput) {
+			t.Helper()
+			relationship, err := domain.CreateRelationship(input)
+			require.NoError(t, err)
+			_, err = relationshipRepository.CreateRelationship(context.Background(), relationship)
+			require.NoError(t, err)
+		}
+
+		golang := createTestTool(t, domain.CreateToolInput{
+			Name:        "Golang",
+			Slug:        "golang",
+			Category:    "language",
+			SubType:     "backend",
+			DevStatus:   "active",
+			Prolang:     new("Go"),
+			ReleaseYear: 2009,
+			UseCases:    []string{"api"},
+			Tags:        []string{"server"},
+		})
+		nodejs := createTestTool(t, domain.CreateToolInput{
+			Name:        "Node.js",
+			Slug:        "nodejs",
+			Category:    "language",
+			SubType:     "fullstack",
+			DevStatus:   "active",
+			Prolang:     new("JavaScript"),
+			ReleaseYear: 2009,
+			UseCases:    []string{"api"},
+			Tags:        []string{"web"},
+		})
+		python := createTestTool(t, domain.CreateToolInput{
+			Name:        "Python",
+			Slug:        "python",
+			Category:    "language",
+			SubType:     "backend",
+			DevStatus:   "active",
+			Prolang:     new("Python"),
+			ReleaseYear: 1995,
+			UseCases:    []string{"api"},
+			Tags:        []string{"script"},
+		})
+		rust := createTestTool(t, domain.CreateToolInput{
+			Name:        "Rust",
+			Slug:        "rust",
+			Category:    "language",
+			SubType:     "backend",
+			DevStatus:   "active",
+			Prolang:     new("Rust"),
+			ReleaseYear: 2010,
+			UseCases:    []string{"systems"},
+			Tags:        []string{"performance"},
+		})
+
+		createTestRelationship(t, domain.CreateRelationshipInput{
+			FromToolID: golang.Id,
+			ToToolID:   nodejs.Id,
+			Kind:       "alternative_to",
+			Reason:     "rel 1",
+		})
+		createTestRelationship(t, domain.CreateRelationshipInput{
+			FromToolID: golang.Id,
+			ToToolID:   python.Id,
+			Kind:       "used_with",
+			Reason:     "rel 2",
+		})
+		createTestRelationship(t, domain.CreateRelationshipInput{
+			FromToolID: nodejs.Id,
+			ToToolID:   rust.Id,
+			Kind:       "alternative_to",
+			Reason:     "rel 3",
+		})
+
+		t.Cleanup(func() {
+			cleanAlternatives(t, db, []string{"golang", "nodejs", "python", "rust"})
+			db.Close()
+		})
+
+		t.Run("returns graph with default params", func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "/tools/golang/graph", nil)
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
+			router.Initialize().ServeHTTP(rec, req)
+			require.Equal(t, http.StatusOK, rec.Code)
+
+			responseBody, err := io.ReadAll(rec.Body)
+			require.NoError(t, err)
+
+			var response map[string]any
+			err = json.Unmarshal(responseBody, &response)
+			require.NoError(t, err)
+
+			require.Equal(t, "golang", response["focusNodeId"])
+			require.Equal(t, map[string]any{
+				"depth":      float64(1),
+				"layoutMode": "chronological",
+				"totalLinks": float64(2),
+				"totalNodes": float64(3),
+				"kindsApplied": []any{
+					"built_on",
+					"inspired_by",
+					"alternative_to",
+					"replaced_by",
+					"used_with",
+				},
+			}, response["meta"])
+		})
+
+		t.Run("returns graph with depth and repeated kinds filters", func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "/tools/golang/graph?depth=2&kinds=alternative_to&kinds=used_with&layoutMode=force", nil)
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
+			router.Initialize().ServeHTTP(rec, req)
+			require.Equal(t, http.StatusOK, rec.Code)
+
+			responseBody, err := io.ReadAll(rec.Body)
+			require.NoError(t, err)
+
+			var response map[string]any
+			err = json.Unmarshal(responseBody, &response)
+			require.NoError(t, err)
+
+			meta := response["meta"].(map[string]any)
+
+			require.Equal(t, float64(2), meta["depth"])
+			require.Equal(t, "force", meta["layoutMode"])
+			require.Equal(t, float64(4), meta["totalNodes"])
+			require.Equal(t, float64(3), meta["totalLinks"])
+		})
+
+		t.Run("returns error 404 when tool is not found", func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "/tools/unknown/graph", nil)
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
+			router.Initialize().ServeHTTP(rec, req)
+			require.Equal(t, http.StatusNotFound, rec.Code)
+		})
+	})
 }

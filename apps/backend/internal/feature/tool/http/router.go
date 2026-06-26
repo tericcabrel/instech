@@ -2,7 +2,9 @@ package http
 
 import (
 	"encoding/json"
+	"math"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"tericcabrel/instech/internal/common"
@@ -190,10 +192,51 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 	})
 
 	router.Get("/{id}/graph", func(w http.ResponseWriter, r *http.Request) {
-		var result = map[string]any{
-			"message": "Tool graph for " + chi.URLParam(r, "id"),
+		slug := chi.URLParam(r, "id")
+		depth := 1
+		depthParam := strings.TrimSpace(r.URL.Query().Get("depth"))
+		if depthParam != "" {
+			parsedDepth, err := strconv.Atoi(depthParam)
+			if err == nil && parsedDepth > 0 {
+				depth = int(math.Min(float64(parsedDepth), float64(usecase.MAX_GRAPH_DEPTH)))
+			}
 		}
-		httprouter.OK(w, result)
+
+		layoutMode := strings.TrimSpace(r.URL.Query().Get("layoutMode"))
+		if layoutMode == "" || !usecase.IsLayoutModeValid(layoutMode) {
+			layoutMode = usecase.GRAPH_LAYOUT_MODE_CHRONOLOGICAL
+		}
+
+		kinds := r.URL.Query()["kinds"]
+		validKinds := make([]string, 0, len(kinds))
+		for _, kind := range kinds {
+			if domain.IsKindValid(kind) {
+				validKinds = append(validKinds, kind)
+			}
+		}
+
+		getToolGraph := usecase.GetToolGraphUseCase{
+			ToolRepository:         deps.ToolRepository,
+			RelationshipRepository: deps.RelationshipRepository,
+		}
+		graph, err := getToolGraph.Execute(slug, usecase.GetToolGraphInput{
+			Depth:      depth,
+			Kinds:      validKinds,
+			LayoutMode: layoutMode,
+		})
+
+		if err != nil {
+			if _, ok := err.(common.ErrResourceNotFound); ok {
+				httprouter.NotFoundError(w, slug)
+
+				return
+			}
+			httprouter.InternalServerError(w, err, "GetToolGraphUsecase")
+
+			return
+		}
+
+		httprouter.OK(w, graph)
 	})
 
 	return router

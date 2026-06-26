@@ -1,10 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 import { getRelationshipsQuery } from './generated/instech'
-import type { GetRelationshipsQueryParams } from './generated/model'
-import {
-  RelationshipListResponse,
-  type RelationshipListResponseOutput,
-} from './generated/model/relationshipListResponse.zod.ts'
+import type { GetRelationshipsQueryParams, RelationshipListResponse } from './generated/model'
 
 const normalizeRelationshipParams = (params?: GetRelationshipsQueryParams) => ({
   toolId: params?.toolId,
@@ -22,10 +18,7 @@ export const relationshipKeys = {
 export const relationshipsQueryOptions = (params?: GetRelationshipsQueryParams) =>
   queryOptions({
     queryKey: relationshipKeys.query(params),
-    queryFn: async (): Promise<RelationshipListResponseOutput> => {
-      const response = await getRelationshipsQuery(params)
-
-      return RelationshipListResponse.parse(response)
-    },
+    queryFn: async (): Promise<RelationshipListResponse> =>
+      (await getRelationshipsQuery(params)) as unknown as RelationshipListResponse,
     retry: false,
   })

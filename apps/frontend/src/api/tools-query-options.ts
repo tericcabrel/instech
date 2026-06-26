@@ -5,34 +5,35 @@ import {
   getToolsIdAlternatives,
   getToolsIdGraph,
 } from './generated/instech'
-import { Tool, type ToolOutput } from './generated/model/Tool.zod.ts'
-import {
+import type {
+  GetToolsIdGraphParams,
+  Tool,
   ToolAlternative,
-  type ToolAlternativeOutput,
-} from './generated/model/ToolAlternative.zod.ts'
-import {
   ToolGraphResponse,
-  type ToolGraphResponseOutput,
-} from './generated/model/ToolGraphResponse.zod.ts'
-import { ToolSearchResultItem } from './generated/model/ToolSearchResultItem.zod.ts'
+  ToolSearchResultItem,
+} from './generated/model'
 
 export const toolKeys = {
   all: ['tools'] as const,
   search: (keyword: string) => [...toolKeys.all, 'search', keyword.trim()] as const,
   detail: (slug: string) => [...toolKeys.all, 'detail', slug] as const,
   alternatives: (slug: string) => [...toolKeys.detail(slug), 'alternatives'] as const,
-  graph: (slug: string) => [...toolKeys.detail(slug), 'graph'] as const,
+  graph: (
+    slug: string,
+    params?: {
+      depth?: 1 | 2
+      kinds?: string[]
+      layoutMode?: 'chronological' | 'force'
+    }
+  ) => [...toolKeys.detail(slug), 'graph', params ?? {}] as const,
 }
 
 export const toolsQueryOptions = (keyword: string) =>
   queryOptions({
     queryKey: toolKeys.search(keyword),
     enabled: keyword.trim().length > 0,
-    queryFn: async (): Promise<ToolSearchResultItem[]> => {
-      const response = await getToolsSearch({ q: keyword.trim() })
-
-      return ToolSearchResultItem.array().parse(response)
-    },
+    queryFn: async (): Promise<ToolSearchResultItem[]> =>
+      (await getToolsSearch({ q: keyword.trim() })) as unknown as ToolSearchResultItem[],
     retry: false,
   })
 
@@ -40,11 +41,7 @@ export const toolDetailQueryOptions = (slug: string) =>
   queryOptions({
     queryKey: toolKeys.detail(slug),
     enabled: Boolean(slug),
-    queryFn: async (): Promise<ToolOutput> => {
-      const response = await getToolsId(slug)
-
-      return Tool.parse(response)
-    },
+    queryFn: async (): Promise<Tool> => (await getToolsId(slug)) as unknown as Tool,
     retry: false,
   })
 
@@ -52,22 +49,19 @@ export const toolAlternativesQueryOptions = (slug: string) =>
   queryOptions({
     queryKey: toolKeys.alternatives(slug),
     enabled: Boolean(slug),
-    queryFn: async (): Promise<ToolAlternativeOutput[]> => {
-      const response = await getToolsIdAlternatives(slug)
-
-      return ToolAlternative.array().parse(response)
-    },
+    queryFn: async (): Promise<ToolAlternative[]> =>
+      (await getToolsIdAlternatives(slug)) as unknown as ToolAlternative[],
     retry: false,
   })
 
-export const toolGraphQueryOptions = (slug: string) =>
+export const toolGraphQueryOptions = (
+  slug: string,
+  params?: GetToolsIdGraphParams
+) =>
   queryOptions({
-    queryKey: toolKeys.graph(slug),
+    queryKey: toolKeys.graph(slug, params),
     enabled: Boolean(slug),
-    queryFn: async (): Promise<ToolGraphResponseOutput> => {
-      const response = await getToolsIdGraph(slug)
-
-      return ToolGraphResponse.parse(response)
-    },
+    queryFn: async (): Promise<ToolGraphResponse> =>
+      (await getToolsIdGraph(slug, params)) as unknown as ToolGraphResponse,
     retry: false,
   })

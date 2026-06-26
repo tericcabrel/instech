@@ -244,14 +244,45 @@ paths:
     get:
       operationId: getToolsIdGraph
       tags: [tools]
-      summary: Tool graph stub
+      summary: Get graph data for a tool
+      parameters:
+        - name: depth
+          in: query
+          required: false
+          schema:
+            type: integer
+            enum: [1, 2]
+            default: 1
+          description: Graph traversal depth from the focus tool
+        - name: kinds
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/RelationshipKind"
+          style: form
+          explode: true
+          description: Repeated relationship kind filters. Omit to include all kinds.
+        - name: layoutMode
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/ToolGraphLayoutMode"
+          description: Preferred graph layout mode
       responses:
         "200":
-          description: Placeholder graph response
+          description: Tool graph response
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ToolGraphResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
 
   /relationships:
     post:
@@ -433,6 +464,10 @@ components:
       type: string
       enum: [built_on, inspired_by, alternative_to, replaced_by, used_with]
 
+    ToolGraphLayoutMode:
+      type: string
+      enum: [chronological, force]
+
     MessageResponse:
       type: object
       required: [message]
@@ -442,11 +477,83 @@ components:
 
     ToolGraphResponse:
       type: object
-      required: [message]
+      required: [focusNodeId, nodes, links, meta]
       properties:
-        message:
+        focusNodeId:
           type: string
-          example: Tool graph for golang
+          example: golang
+        nodes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ToolGraphNode"
+        links:
+          type: array
+          items:
+            $ref: "#/components/schemas/ToolGraphLink"
+        meta:
+          $ref: "#/components/schemas/ToolGraphMeta"
+
+    ToolGraphNode:
+      type: object
+      required: [id, slug, name, category, subType, devStatus, releaseYear, degree, isFocus]
+      properties:
+        id:
+          type: string
+          description: Graph node id (tool slug)
+        slug:
+          type: string
+        name:
+          type: string
+        category:
+          $ref: "#/components/schemas/ToolCategory"
+        subType:
+          $ref: "#/components/schemas/ToolSubtype"
+        devStatus:
+          $ref: "#/components/schemas/ToolDevStatus"
+        releaseYear:
+          type: integer
+        degree:
+          type: integer
+          minimum: 0
+        isFocus:
+          type: boolean
+
+    ToolGraphLink:
+      type: object
+      required: [id, source, target, kind]
+      properties:
+        id:
+          type: integer
+        source:
+          type: string
+          description: Source node id (tool slug)
+        target:
+          type: string
+          description: Target node id (tool slug)
+        kind:
+          $ref: "#/components/schemas/RelationshipKind"
+        reason:
+          type: string
+
+    ToolGraphMeta:
+      type: object
+      required: [depth, totalNodes, totalLinks, kindsApplied, layoutMode]
+      properties:
+        depth:
+          type: integer
+          enum: [1, 2]
+        totalNodes:
+          type: integer
+          minimum: 0
+        totalLinks:
+          type: integer
+          minimum: 0
+        kindsApplied:
+          type: array
+          items:
+            $ref: "#/components/schemas/RelationshipKind"
+        layoutMode:
+          $ref: "#/components/schemas/ToolGraphLayoutMode"
 
     Tool:
       type: object
