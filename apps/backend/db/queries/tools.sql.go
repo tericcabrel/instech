@@ -182,6 +182,54 @@ func (q *Queries) GetToolsByIDs(ctx context.Context, ids []int) ([]ToolRecord, e
 	return items, nil
 }
 
+const searchTools = `-- name: SearchTools :many
+SELECT id, name, slug, category, sub_type, prolang, release_year, dev_status, details, use_cases, tags, website, github, created_at, updated_at
+FROM tools
+WHERE name LIKE '%' || ?1 || '%' COLLATE NOCASE
+   OR slug LIKE '%' || ?1 || '%' COLLATE NOCASE
+ORDER BY name ASC
+LIMIT 10
+`
+
+func (q *Queries) SearchTools(ctx context.Context, keyword sql.NullString) ([]ToolRecord, error) {
+	rows, err := q.db.QueryContext(ctx, searchTools, keyword)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ToolRecord{}
+	for rows.Next() {
+		var i ToolRecord
+		if err := rows.Scan(
+			&i.Id,
+			&i.Name,
+			&i.Slug,
+			&i.Category,
+			&i.SubType,
+			&i.Prolang,
+			&i.ReleaseYear,
+			&i.DevStatus,
+			&i.Details,
+			&i.UseCases,
+			&i.Tags,
+			&i.Website,
+			&i.Github,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateTool = `-- name: UpdateTool :one
 UPDATE tools SET name = ?, slug = ?, category = ?, sub_type = ?, prolang = ?, release_year = ?, dev_status = ?, details = ?, use_cases = ?, tags = ?, website = ?, github = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? RETURNING id, name, slug, category, sub_type, prolang, release_year, dev_status, details, use_cases, tags, website, github, created_at, updated_at
 `

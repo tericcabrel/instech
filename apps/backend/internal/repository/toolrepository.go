@@ -16,11 +16,20 @@ type ToolRepositoryInterface interface {
 	GetToolByID(ctx context.Context, id int) (domain.Tool, error)
 	GetToolByIDs(ctx context.Context, ids []int) ([]domain.Tool, error)
 	GetToolBySlug(ctx context.Context, slug string) (domain.Tool, error)
+	SearchTools(ctx context.Context, keyword string) ([]ToolSearchResult, error)
 	UpdateTool(ctx context.Context, tool domain.Tool) (domain.Tool, error)
 }
 
 type ToolRepository struct {
 	db *sql.DB
+}
+
+type ToolSearchResult struct {
+	Slug     string `json:"slug"`
+	Name     string `json:"name"`
+	Category string `json:"category"`
+	SubType  string `json:"subType"`
+	Id       int    `json:"id"`
 }
 
 func NewToolRepository(db *sql.DB) *ToolRepository {
@@ -155,6 +164,31 @@ func (t *ToolRepository) GetToolByIDs(ctx context.Context, ids []int) ([]domain.
 		} else {
 			result = append(result, tool)
 		}
+	}
+
+	return result, nil
+}
+
+func (t *ToolRepository) SearchTools(ctx context.Context, keyword string) ([]ToolSearchResult, error) {
+	records, err := queries.New(t.db).SearchTools(ctx, sql.NullString{String: keyword, Valid: true})
+	if err != nil {
+		return []ToolSearchResult{}, err
+	}
+
+	var result = make([]ToolSearchResult, 0, len(records))
+	for _, record := range records {
+		searchResult := ToolSearchResult{
+			Id:       record.Id,
+			Slug:     record.Slug,
+			Name:     record.Name,
+			Category: record.Category,
+		}
+
+		if record.SubType.Valid {
+			searchResult.SubType = record.SubType.String
+		}
+
+		result = append(result, searchResult)
 	}
 
 	return result, nil

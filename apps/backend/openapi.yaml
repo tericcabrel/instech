@@ -81,6 +81,45 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
 
+  /tools/query:
+    get:
+      operationId: getToolsSearch
+      tags: [tools]
+      summary: Search tools
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search keyword for tool name or slug
+      responses:
+        "200":
+          description: List of tools matching the search keyword
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ToolSearchResultItem"
+                  examples:
+                    toolSearchResultItem:
+                      value:
+                        id: 1
+                        slug: "golang"
+                        name: "Golang"
+                        category: "language"
+                        subType: "backend"
+                    toolSearchResultItem2:
+                      value:
+                        id: 2
+                        slug: "react"
+                        name: "React"
+                        category: "framework"
+                        subType: "frontend"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
   /tools/{id}:
     parameters:
       - $ref: "#/components/parameters/ToolSlugId"
@@ -463,6 +502,21 @@ components:
         updatedAt:
           type: string
           format: date-time
+
+    ToolSearchResultItem:
+      type: object
+      required: [id, slug, name, category, subType]
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        name:
+          type: string
+        category:
+          $ref: "#/components/schemas/ToolCategory"
+        subType:
+          $ref: "#/components/schemas/ToolSubtype"
 
     CreateToolRequest:
       type: object

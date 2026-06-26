@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "vite dev --port 8800",
     "generate-routes": "tsr generate",
-    "api:generate": "orval --config orval.config.ts",
+    "api:generate": "rm -rf src/api/generated && orval --config orval.config.ts",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",

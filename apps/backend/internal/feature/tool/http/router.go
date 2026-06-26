@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"tericcabrel/instech/internal/common"
 	"tericcabrel/instech/internal/domain"
@@ -66,6 +67,22 @@ func (deps *ToolRouter) Initialize() *chi.Mux {
 		}
 
 		httprouter.Created(w, createdTool)
+	})
+
+	router.Get("/query", func(w http.ResponseWriter, r *http.Request) {
+		keyword := strings.TrimSpace(r.URL.Query().Get("q"))
+
+		searchTools := usecase.SearchToolsUseCase{
+			ToolRepository: deps.ToolRepository,
+		}
+		results, err := searchTools.Execute(keyword)
+		if err != nil {
+			httprouter.InternalServerError(w, err, "SearchToolsUsecase")
+
+			return
+		}
+
+		httprouter.OK(w, results)
 	})
 
 	router.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {

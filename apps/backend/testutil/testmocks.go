@@ -846,6 +846,74 @@ func (_c *MockToolRepositoryInterface_GetToolBySlug_Call) RunAndReturn(run func(
 	return _c
 }
 
+// SearchTools provides a mock function for the type MockToolRepositoryInterface
+func (_mock *MockToolRepositoryInterface) SearchTools(ctx context.Context, keyword string) ([]repository.ToolSearchResult, error) {
+	ret := _mock.Called(ctx, keyword)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SearchTools")
+	}
+
+	var r0 []repository.ToolSearchResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) ([]repository.ToolSearchResult, error)); ok {
+		return returnFunc(ctx, keyword)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) []repository.ToolSearchResult); ok {
+		r0 = returnFunc(ctx, keyword)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]repository.ToolSearchResult)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, keyword)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockToolRepositoryInterface_SearchTools_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SearchTools'
+type MockToolRepositoryInterface_SearchTools_Call struct {
+	*mock.Call
+}
+
+// SearchTools is a helper method to define mock.On call
+//   - ctx context.Context
+//   - keyword string
+func (_e *MockToolRepositoryInterface_Expecter) SearchTools(ctx interface{}, keyword interface{}) *MockToolRepositoryInterface_SearchTools_Call {
+	return &MockToolRepositoryInterface_SearchTools_Call{Call: _e.mock.On("SearchTools", ctx, keyword)}
+}
+
+func (_c *MockToolRepositoryInterface_SearchTools_Call) Run(run func(ctx context.Context, keyword string)) *MockToolRepositoryInterface_SearchTools_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockToolRepositoryInterface_SearchTools_Call) Return(results []repository.ToolSearchResult, err error) *MockToolRepositoryInterface_SearchTools_Call {
+	_c.Call.Return(results, err)
+	return _c
+}
+
+func (_c *MockToolRepositoryInterface_SearchTools_Call) RunAndReturn(run func(ctx context.Context, keyword string) ([]repository.ToolSearchResult, error)) *MockToolRepositoryInterface_SearchTools_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateTool provides a mock function for the type MockToolRepositoryInterface
 func (_mock *MockToolRepositoryInterface) UpdateTool(ctx context.Context, tool domain.Tool) (domain.Tool, error) {
 	ret := _mock.Called(ctx, tool)

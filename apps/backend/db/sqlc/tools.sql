@@ -15,3 +15,11 @@ DELETE FROM tools WHERE slug = ?;
 
 -- name: GetToolsByIDs :many
 SELECT * FROM tools WHERE id IN (sqlc.slice('ids')) ORDER BY name ASC;
+
+-- name: SearchTools :many
+SELECT *
+FROM tools
+WHERE name LIKE '%' || sqlc.arg(keyword) || '%' COLLATE NOCASE
+   OR slug LIKE '%' || sqlc.arg(keyword) || '%' COLLATE NOCASE
+ORDER BY name ASC
+LIMIT 10;

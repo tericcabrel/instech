@@ -649,6 +649,78 @@ func TestToolRouter_AllToolEndpoints(t *testing.T) {
 		})
 	})
 
+	t.Run("[GET] /tools/query", func(t *testing.T) {
+		db := testutil.SetupTestDB(t)
+		router := buildRouter(t, db)
+		toolSlugs := populateAlternatives(t, db)
+
+		t.Cleanup(func() {
+			cleanAlternatives(t, db, toolSlugs)
+			db.Close()
+		})
+
+		readSearchResponse := func(t *testing.T, query string) []map[string]any {
+			t.Helper()
+
+			req := httptest.NewRequest(http.MethodGet, "/tools/query"+query, nil)
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
+			router.Initialize().ServeHTTP(rec, req)
+			require.Equal(t, http.StatusOK, rec.Code)
+
+			responseBody, err := io.ReadAll(rec.Body)
+			require.NoError(t, err)
+
+			var response []map[string]any
+			err = json.Unmarshal(responseBody, &response)
+			require.NoError(t, err)
+
+			return response
+		}
+
+		t.Run("missing q returns 200 with empty array", func(t *testing.T) {
+			response := readSearchResponse(t, "")
+			require.Empty(t, response)
+		})
+
+		t.Run("empty q returns 200 with empty array", func(t *testing.T) {
+			response := readSearchResponse(t, "?q=")
+			require.Empty(t, response)
+		})
+
+		t.Run("whitespace q returns 200 with empty array", func(t *testing.T) {
+			response := readSearchResponse(t, "?q=%20%20")
+			require.Empty(t, response)
+		})
+
+		t.Run("search success covers substring, case-insensitive, trimmed input, ordered ascending, and payload shape", func(t *testing.T) {
+			response := readSearchResponse(t, "?q=%20O%20")
+
+			require.Len(t, response, 3)
+
+			require.Equal(t, "Golang", response[0]["name"])
+			require.Equal(t, "Node.js", response[1]["name"])
+			require.Equal(t, "Python", response[2]["name"])
+
+			require.Equal(t, "golang", response[0]["slug"])
+			require.Equal(t, "nodejs", response[1]["slug"])
+			require.Equal(t, "python", response[2]["slug"])
+
+			require.Equal(t, "language", response[0]["category"])
+			require.Equal(t, "language", response[1]["category"])
+			require.Equal(t, "language", response[2]["category"])
+
+			require.Equal(t, "backend", response[0]["subType"])
+			require.Equal(t, "fullstack", response[1]["subType"])
+			require.Equal(t, "backend", response[2]["subType"])
+		})
+
+		t.Run("no match returns empty array", func(t *testing.T) {
+			response := readSearchResponse(t, "?q=nonexistent-value")
+			require.Empty(t, response)
+		})
+	})
+
 	t.Run("[GET] /tools/{id}", func(t *testing.T) {
 		db := testutil.SetupTestDB(t)
 		router := buildRouter(t, db)
