@@ -244,13 +244,121 @@ body::after {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
-  button:not(:disabled), [role="button"]:not(:disabled) {
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+
   html {
     @apply font-sans;
+  }
+}
+
+.feature-page-shell {
+  margin: 0 auto;
+  max-width: 1320px;
+  padding: 1.25rem;
+}
+
+.feature-page-header {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.feature-page-grid {
+  display: grid;
+  grid-template-columns: minmax(250px, 320px) 1fr minmax(260px, 320px);
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.feature-panel {
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  box-shadow: inset 0 1px 0 var(--inset-glint);
+  padding: 0.9rem;
+}
+
+.feature-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  position: sticky;
+  top: 1rem;
+}
+
+.feature-suggestion-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.feature-graph-shell {
+  min-height: 540px;
+}
+
+.feature-graph-canvas {
+  min-height: 440px;
+  border: 1px solid var(--line);
+  background: color-mix(in oklab, var(--foam) 78%, white);
+}
+
+.feature-graph-canvas svg {
+  display: block;
+  width: 100%;
+  height: 440px;
+}
+
+.feature-side-panel {
+  min-height: 540px;
+}
+
+.feature-side-connection {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 0.45rem;
+}
+
+.feature-empty-state {
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.feature-status-strip {
+  margin-top: 0.75rem;
+  border: 1px solid var(--line);
+  background: var(--header-bg);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 1160px) {
+  .feature-page-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-toolbar,
+  .feature-side-panel {
+    position: static;
+    min-height: auto;
   }
 }

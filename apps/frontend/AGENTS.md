@@ -1,8 +1,9 @@
 <!-- intent-skills:start -->
 ## Skill Loading
+If there is network permission issues, request the network permission from the user.
 
 Before editing files for a substantial task:
-- Run `yarn dlx @tanstack/intent@latest list` from the workspace root to see available local skills.
+- Run `yarn dlx @tanstack/intent@latest list` from the workspace root to see available local skills. 
 - If a listed skill matches the task, run `yarn dlx @tanstack/intent@latest load <package>#<skill>` before changing files.
 - Use the loaded `SKILL.md` guidance while making the change.
 - Monorepos: when working across packages, run the skill check from the workspace root and prefer the local skill for the package being changed.
@@ -49,12 +50,35 @@ Before editing files for a substantial task:
 - Keep `src/router.tsx` SSR query wiring (`setupRouterSsrQueryIntegration`) intact.
 - Keep TanStack Devtools wiring in root layout for local debugging.
 
+## Feature Folder Conventions
+
+- Keep route files thin; each route component should import and render one or more feature-level container components.
+- Place feature modules under `src/features/<feature-name>`.
+- Keep all container components at feature root using `*.container.tsx` naming.
+- Place container-local subcomponents in dedicated subfolders inside the same feature folder.
+- If a component is reused by multiple containers in one feature, move it to `src/features/<feature-name>/shared`.
+- If a component is reused across multiple features, move it to `src/components`.
+- A feature can contain multiple containers. Example:
+  - `src/features/tool-graph/tool-graph-home.container.tsx`
+  - `src/features/tool-graph/tool-graph-detail.container.tsx`
+  - `src/features/tool-graph/tool-graph-home/`
+  - `src/features/tool-graph/tool-graph-detail/`
+  - `src/features/tool-graph/shared/`
+
 ## Dependency Guidelines
 
 - Keep all direct `dependencies` and `devDependencies` pinned to exact versions (no `^`, `~`, `latest`, or ranges).
 - Add or update packages with Yarn, then commit the synchronized pair: `package.json` and `yarn.lock`.
 - Prefer updating TanStack packages as a coordinated set to avoid cross-version mismatches.
 - After dependency changes, run `yarn install` and `yarn build` to verify lockfile and compile health.
+
+## How to Use Shadcn Components
+
+- [Shadcn Components](docs/shadcn-components.md)
+
+## Styling Guidelines
+
+- Do not create custom CSS classes in styles.css or inline styles. Use Tailwind CSS classes instead.
 
 ## Known Gotchas
 
