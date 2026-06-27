@@ -5,6 +5,7 @@ import {
   getToolsIdAlternatives,
   getToolsIdGraph,
 } from './generated/instech'
+import type { GetToolsIdGraphParamsOutput } from './generated/model/GetToolsIdGraphParams.zod.ts'
 import { Tool, type ToolOutput } from './generated/model/Tool.zod.ts'
 import {
   ToolAlternative,
@@ -21,22 +22,42 @@ export const toolKeys = {
   search: (keyword: string) => [...toolKeys.all, 'search', keyword.trim()] as const,
   detail: (slug: string) => [...toolKeys.all, 'detail', slug] as const,
   alternatives: (slug: string) => [...toolKeys.detail(slug), 'alternatives'] as const,
-  graph: (slug: string) => [...toolKeys.detail(slug), 'graph'] as const,
+  graph: (
+    slug: string,
+    params: Pick<GetToolsIdGraphParamsOutput, 'depth' | 'kinds' | 'layoutMode'>,
+  ) => [...toolKeys.detail(slug), 'graph', params] as const,
 }
 
-export const toolsQueryOptions = (keyword: string) =>
+type ToolGraphQueryInput = {
+  slug: string
+  depth?: GetToolsIdGraphParamsOutput['depth']
+  kinds?: GetToolsIdGraphParamsOutput['kinds']
+  layoutMode?: GetToolsIdGraphParamsOutput['layoutMode']
+}
+
+const normalizeGraphParams = ({
+  depth,
+  kinds,
+  layoutMode,
+}: Omit<ToolGraphQueryInput, 'slug'>): GetToolsIdGraphParamsOutput => ({
+  depth: depth ?? 1,
+  kinds: kinds?.length ? [...kinds].sort() : undefined,
+  layoutMode,
+})
+
+export const toolSearchQueryOptions = (q: string) =>
   queryOptions({
-    queryKey: toolKeys.search(keyword),
-    enabled: keyword.trim().length > 0,
+    queryKey: toolKeys.search(q),
+    enabled: q.trim().length > 0,
     queryFn: async (): Promise<ToolSearchResultItem[]> => {
-      const response = await getToolsSearch({ q: keyword.trim() })
+      const response = await getToolsSearch({ q: q.trim() })
 
       return ToolSearchResultItem.array().parse(response)
     },
     retry: false,
   })
 
-export const toolDetailQueryOptions = (slug: string) =>
+export const toolQueryOptions = (slug: string) =>
   queryOptions({
     queryKey: toolKeys.detail(slug),
     enabled: Boolean(slug),
@@ -60,14 +81,22 @@ export const toolAlternativesQueryOptions = (slug: string) =>
     retry: false,
   })
 
-export const toolGraphQueryOptions = (slug: string) =>
-  queryOptions({
-    queryKey: toolKeys.graph(slug),
+export const toolGraphQueryOptions = ({
+  slug,
+  depth,
+  kinds,
+  layoutMode,
+}: ToolGraphQueryInput) => {
+  const graphParams = normalizeGraphParams({ depth, kinds, layoutMode })
+
+  return queryOptions({
+    queryKey: toolKeys.graph(slug, graphParams),
     enabled: Boolean(slug),
     queryFn: async (): Promise<ToolGraphResponseOutput> => {
-      const response = await getToolsIdGraph(slug)
+      const response = await getToolsIdGraph(slug, graphParams)
 
       return ToolGraphResponse.parse(response)
     },
     retry: false,
   })
+}

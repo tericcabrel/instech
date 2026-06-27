@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { postTools } from "./generated/instech"
 import type { CreateToolRequest } from "./generated/model"
-import { toolKeys, toolsQueryOptions } from "./tools-query-options"
+import { toolKeys, toolSearchQueryOptions } from "./tools-query-options"
 
 export const useCreateTool = () => {
   const queryClient = useQueryClient()
@@ -13,9 +13,9 @@ export const useCreateTool = () => {
 }
 
 export const useGetTools = () => {
-  return useQuery(toolsQueryOptions('javascript'))
+  return useQuery(toolSearchQueryOptions('javascript'))
 }
 
 export const useSearchTools = (keyword: string) => {
-  return useQuery(toolsQueryOptions(keyword))
+  return useQuery(toolSearchQueryOptions(keyword))
 }

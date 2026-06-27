@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useGetTools } from '#/api/tools'
+import { useGetTools } from '@/api/tools'
 
 export const Route = createFileRoute('/demo/tanstack-query')({
   component: TanStackQueryDemo,
