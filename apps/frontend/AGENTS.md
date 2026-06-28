@@ -74,7 +74,7 @@ Before editing files for a substantial task:
 
 ## How to Use Shadcn Components
 
-- [Shadcn Components](docs/shadcn-components.md)
+- [Shadcn Components](docs/guidelines/shadcn-components.md)
 
 ## Styling Guidelines
 

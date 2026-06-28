@@ -1,15 +1,15 @@
 # Project Guidelines
 
-All rules are defined in [`docs/references/`](docs/references/) and apply to any AI agent or IDE.
+All rules are defined in [`docs/guidelines/`](docs/guidelines/) and apply to any AI agent or IDE.
 
 ## Always read before making changes
 
-- [General Coding Conventions](docs/general-coding-conventions.md)
-- [Backend Coding Conventions](docs/backend-coding-conventions.md)
+- [General Coding Conventions](docs/guidelines/general-coding-conventions.md)
+- [Backend Coding Conventions](docs/guidelines/backend-coding-conventions.md)
 
 ## When working on .ts and .tsx files
 
-- [TypeScript Standards](docs/references/typescript.md)
+- [TypeScript Standards](docs/guidelines/typescript.md)
 
 
 ## Plan Mode
