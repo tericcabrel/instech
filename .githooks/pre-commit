@@ -1,6 +1,29 @@
 #!/bin/sh
 set -e
 ROOT="$(git rev-parse --show-toplevel)"
-cd "$ROOT/apps/backend"
-echo "Running golangci-lint..."
-exec golangci-lint run ./... --fix
+
+backend_changed=0
+frontend_changed=0
+
+while IFS= read -r file_path; do
+  case "$file_path" in
+    apps/backend/*) backend_changed=1 ;;
+    apps/frontend/*) frontend_changed=1 ;;
+  esac
+done <<EOF
+$(git diff --cached --name-only --diff-filter=ACMR)
+EOF
+
+if [ "$backend_changed" -eq 1 ]; then
+  echo "Running golangci-lint..."
+  (cd "$ROOT/apps/backend" && golangci-lint run ./... --fix)
+else
+  echo "Skipping golangci-lint (no backend changes)."
+fi
+
+if [ "$frontend_changed" -eq 1 ]; then
+  echo "Running frontend staged lint..."
+  yarn --cwd "$ROOT/apps/frontend" lint:staged
+else
+  echo "Skipping frontend lint (no frontend changes)."
+fi

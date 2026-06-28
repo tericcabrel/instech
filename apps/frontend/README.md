@@ -1,34 +1,24 @@
-Welcome to your new TanStack Start app!
-
-This app is scaffolded from TanStack CLI with React + TanStack Start, and includes TanStack Router, TanStack Query, TanStack Form, TanStack CLI, and TanStack Intent.
-
-# Getting Started
+# Instech Web
 
 To run this application:
 
 ```bash
 yarn install
-yarn run dev
+yarn dev
 ```
-
-Then open:
-
-- `/` for the minimal starter page
-- `/demo/tanstack-query` for TanStack Query demo
-- `/demo/form/simple` and `/demo/form/address` for TanStack Form demos
 
 # Building For Production
 
 To build this application for production:
 
 ```bash
-yarn run build
+yarn build
 ```
 
 To preview production output:
 
 ```bash
-yarn run preview
+yarn preview
 ```
 
 ## TanStack CLI and Intent
@@ -62,22 +52,22 @@ Backend API contract changes must follow the documented OpenAPI/Orval flow:
 This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
 
 ```bash
-yarn run test
+yarn test
 ```
 
-## Styling
+## Linting
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+This project uses [Biome](https://biomejs.dev/) and [ESLint](https://eslint.org/) for linting. You can run the linting with:
 
-### Removing Tailwind CSS
+```bash
+yarn lint
+```
 
-If you prefer not to use Tailwind CSS:
+To fix the auto-fixable linting errors, run:
 
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `yarn add @tailwindcss/vite tailwindcss --dev`
-
+```bash
+yarn lint:fix
+```
 
 
 ## Routing
@@ -222,9 +212,6 @@ function PeopleComponent() {
 
 Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
 
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
 
 # Learn More
 

@@ -10,18 +10,6 @@ Before editing files for a substantial task:
 - Multiple matches: prefer the most specific local skill for the package or concern you are changing; load additional skills only when the task spans multiple packages or concerns.
 <!-- intent-skills:end -->
 
-## Frontend Project Context
-
-- Scaffold source command:
-  - `npx @tanstack/cli@latest create my-tanstack-app --agent --package-manager yarn --tailwind --add-ons tanstack-query,form`
-- Follow-up TanStack Intent commands executed:
-  - `npx @tanstack/intent@latest install`
-  - `npx @tanstack/intent@latest list`
-  - Loaded guidance before library-structure edits:
-    - `npx @tanstack/intent@latest load @tanstack/cli#create-app-scaffold`
-    - `npx @tanstack/intent@latest load @tanstack/start-client-core#start-core`
-    - `npx @tanstack/intent@latest load @tanstack/router-core#router-core`
-
 ## Chosen Stack And Integrations
 
 - Framework: React + TanStack Start
@@ -37,11 +25,6 @@ Before editing files for a substantial task:
 - If adding client-side env vars, use `VITE_*` prefix (for example `VITE_API_BASE_URL`).
 - Keep secrets server-only and access them through server-side code paths.
 
-## Deployment Notes
-
-- Build command: `yarn build`
-- Preview production build: `yarn preview`
-- Generated output follows TanStack Start defaults for Vite-based deployments.
 
 ## Architecture Decisions
 
@@ -70,7 +53,7 @@ Before editing files for a substantial task:
 - Keep all direct `dependencies` and `devDependencies` pinned to exact versions (no `^`, `~`, `latest`, or ranges).
 - Add or update packages with Yarn, then commit the synchronized pair: `package.json` and `yarn.lock`.
 - Prefer updating TanStack packages as a coordinated set to avoid cross-version mismatches.
-- After dependency changes, run `yarn install` and `yarn build` to verify lockfile and compile health.
+- After dependency changes, run `yarn install`, `yarn build`, and `yarn lint` to verify lockfile and compile health.
 
 ## How to Use Shadcn Components
 
@@ -86,10 +69,9 @@ Before editing files for a substantial task:
 - If Intent list initially returns no skills, ensure `@tanstack/intent` is installed in the project and rerun `npx @tanstack/intent@latest list`.
 - Do not edit route path strings in `createFileRoute(...)` manually; they must match route file paths.
 
-## Next Steps
-
-- Run `yarn dev` and verify:
-  - `/` renders the minimal home page
-  - `/demo/tanstack-query` shows query data
-  - `/demo/form/simple` and `/demo/form/address` render form demos
-- Add app-specific routes and server functions as needed.
+## Execution and Verification Guidelines
+1. After you have executed a plan, run: `yarn build` and `yarn lint` to verify the project is working.
+2. If there are any linting errors that can be fixed safely, run `yarn lint:fix` to fix them.
+3. To run tests: `yarn test`
+4. To run test on specific file, append the filename after the command. For example: `yarn test -- <filename>`; example: `yarn test -- tool-graph.test.ts`
+5. Never try to start a dev server or curl a local endpoint.

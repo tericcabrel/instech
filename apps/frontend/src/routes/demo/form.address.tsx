@@ -1,44 +1,44 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router';
 
-import { useAppForm } from '#/hooks/demo.form'
+import { useAppForm } from '@/hooks/demo.form';
 
-export const Route = createFileRoute('/demo/form/address')({
-  component: AddressForm,
-})
+const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+const zipCodeRegex = /^\d{5}(-\d{4})?$/;
+const phoneRegex = /^(\+\d{1,3})?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 
-function AddressForm() {
+const AddressForm = () => {
   const form = useAppForm({
     defaultValues: {
-      fullName: '',
-      email: '',
       address: {
-        street: '',
         city: '',
-        state: '',
-        zipCode: '',
         country: '',
+        state: '',
+        street: '',
+        zipCode: '',
       },
+      email: '',
+      fullName: '',
       phone: '',
+    },
+    onSubmit: ({ value }) => {
+      console.info('Form submitted successfully!', value);
     },
     validators: {
       onBlur: ({ value }) => {
         const errors = {
           fields: {},
         } as {
-          fields: Record<string, string>
-        }
+          fields: Record<string, string>;
+        };
+
         if (value.fullName.trim().length === 0) {
-          errors.fields.fullName = 'Full name is required'
+          errors.fields.fullName = 'Full name is required';
         }
-        return errors
+
+        return errors;
       },
     },
-    onSubmit: ({ value }) => {
-      console.log(value)
-      // Show success message
-      alert('Form submitted successfully!')
-    },
-  })
+  });
 
   return (
     <main className="demo-page demo-center">
@@ -46,36 +46,31 @@ function AddressForm() {
         <div className="mb-6">
           <p className="island-kicker mb-2">TanStack Form</p>
           <h1 className="demo-title">Address Form</h1>
-          <p className="demo-muted mt-2">
-            Nested fields, field-level validation, and a select input.
-          </p>
+          <p className="demo-muted mt-2">Nested fields, field-level validation, and a select input.</p>
         </div>
         <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            form.handleSubmit()
-          }}
           className="space-y-6"
-        >
-          <form.AppField name="fullName">
-            {(field) => <field.TextField label="Full Name" />}
-          </form.AppField>
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}>
+          <form.AppField name="fullName">{(field) => <field.TextField label="Full Name" />}</form.AppField>
 
           <form.AppField
             name="email"
             validators={{
               onBlur: ({ value }) => {
                 if (!value || value.trim().length === 0) {
-                  return 'Email is required'
+                  return 'Email is required';
                 }
-                if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
-                  return 'Invalid email address'
+                if (!emailRegex.test(value)) {
+                  return 'Invalid email address';
                 }
-                return undefined
+
+                return;
               },
-            }}
-          >
+            }}>
             {(field) => <field.TextField label="Email" />}
           </form.AppField>
 
@@ -84,12 +79,12 @@ function AddressForm() {
             validators={{
               onBlur: ({ value }) => {
                 if (!value || value.trim().length === 0) {
-                  return 'Street address is required'
+                  return 'Street address is required';
                 }
-                return undefined
+
+                return;
               },
-            }}
-          >
+            }}>
             {(field) => <field.TextField label="Street Address" />}
           </form.AppField>
 
@@ -99,12 +94,12 @@ function AddressForm() {
               validators={{
                 onBlur: ({ value }) => {
                   if (!value || value.trim().length === 0) {
-                    return 'City is required'
+                    return 'City is required';
                   }
-                  return undefined
+
+                  return;
                 },
-              }}
-            >
+              }}>
               {(field) => <field.TextField label="City" />}
             </form.AppField>
             <form.AppField
@@ -112,12 +107,12 @@ function AddressForm() {
               validators={{
                 onBlur: ({ value }) => {
                   if (!value || value.trim().length === 0) {
-                    return 'State is required'
+                    return 'State is required';
                   }
-                  return undefined
+
+                  return;
                 },
-              }}
-            >
+              }}>
               {(field) => <field.TextField label="State" />}
             </form.AppField>
             <form.AppField
@@ -125,15 +120,15 @@ function AddressForm() {
               validators={{
                 onBlur: ({ value }) => {
                   if (!value || value.trim().length === 0) {
-                    return 'Zip code is required'
+                    return 'Zip code is required';
                   }
-                  if (!/^\d{5}(-\d{4})?$/.test(value)) {
-                    return 'Invalid zip code format'
+                  if (!zipCodeRegex.test(value)) {
+                    return 'Invalid zip code format';
                   }
-                  return undefined
+
+                  return;
                 },
-              }}
-            >
+              }}>
               {(field) => <field.TextField label="Zip Code" />}
             </form.AppField>
           </div>
@@ -143,15 +138,16 @@ function AddressForm() {
             validators={{
               onBlur: ({ value }) => {
                 if (!value || value.trim().length === 0) {
-                  return 'Country is required'
+                  return 'Country is required';
                 }
-                return undefined
+
+                return;
               },
-            }}
-          >
+            }}>
             {(field) => (
               <field.Select
                 label="Country"
+                placeholder="Select a country"
                 values={[
                   { label: 'United States', value: 'US' },
                   { label: 'Canada', value: 'CA' },
@@ -161,7 +157,6 @@ function AddressForm() {
                   { label: 'France', value: 'FR' },
                   { label: 'Japan', value: 'JP' },
                 ]}
-                placeholder="Select a country"
               />
             )}
           </form.AppField>
@@ -171,22 +166,16 @@ function AddressForm() {
             validators={{
               onBlur: ({ value }) => {
                 if (!value || value.trim().length === 0) {
-                  return 'Phone number is required'
+                  return 'Phone number is required';
                 }
-                if (
-                  !/^(\+\d{1,3})?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(
-                    value,
-                  )
-                ) {
-                  return 'Invalid phone number format'
+                if (!phoneRegex.test(value)) {
+                  return 'Invalid phone number format';
                 }
-                return undefined
+
+                return;
               },
-            }}
-          >
-            {(field) => (
-              <field.TextField label="Phone" placeholder="123-456-7890" />
-            )}
+            }}>
+            {(field) => <field.TextField label="Phone" placeholder="123-456-7890" />}
           </form.AppField>
 
           <div className="flex justify-end">
@@ -197,5 +186,9 @@ function AddressForm() {
         </form>
       </section>
     </main>
-  )
-}
+  );
+};
+
+export const Route = createFileRoute('/demo/form/address')({
+  component: AddressForm,
+});

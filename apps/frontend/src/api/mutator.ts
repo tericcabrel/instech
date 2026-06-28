@@ -1,53 +1,54 @@
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD'
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD';
 
 type RequestConfig = {
-  url: string
-  method: HttpMethod
-  params?: Record<string, unknown>
-  data?: unknown
-  headers?: HeadersInit
-  signal?: AbortSignal
-}
+  data?: unknown;
+  headers?: HeadersInit;
+  method: HttpMethod;
+  params?: Record<string, unknown>;
+  signal?: AbortSignal;
+  url: string;
+};
 
 type OrvalRequestOptions = RequestInit & {
-  params?: Record<string, unknown>
-}
+  params?: Record<string, unknown>;
+};
 
-export type HTTPError = {
-  code: number
-  message: string
-  details: unknown
-}
+type HttpError = {
+  code: number;
+  details: unknown;
+  message: string;
+};
 
-const defaultBaseUrl = '/api'
+const DEFAULT_BASE_URL = '/api';
+const HTTP_NO_CONTENT_STATUS = 204;
 
-const resolveBaseUrl = () => import.meta.env.VITE_API_BASE_URL ?? defaultBaseUrl
+const resolveBaseUrl = () => import.meta.env.VITE_API_BASE_URL ?? DEFAULT_BASE_URL;
 
 const buildUrl = (url: string, params?: Record<string, unknown>) => {
-  const normalizedPath = url.startsWith('/') ? url : `/${url}`
-  const requestUrl = new URL(`${resolveBaseUrl()}${normalizedPath}`, window.location.origin)
+  const normalizedPath = url.startsWith('/') ? url : `/${url}`;
+  const requestUrl = new URL(`${resolveBaseUrl()}${normalizedPath}`, window.location.origin);
 
   if (params) {
     for (const [key, value] of Object.entries(params)) {
       if (value === undefined || value === null) {
-        continue
+        continue;
       }
 
       if (Array.isArray(value)) {
         for (const item of value) {
-          requestUrl.searchParams.append(key, String(item))
+          requestUrl.searchParams.append(key, String(item));
         }
-        continue
+        continue;
       }
 
-      requestUrl.searchParams.set(key, String(value))
+      requestUrl.searchParams.set(key, String(value));
     }
   }
 
-  return requestUrl.toString()
-}
+  return requestUrl.toString();
+};
 
-const toHttpError = (status: number, payload: unknown): HTTPError => {
+const toHttpError = (status: number, payload: unknown): HttpError => {
   if (
     typeof payload === 'object' &&
     payload !== null &&
@@ -55,101 +56,100 @@ const toHttpError = (status: number, payload: unknown): HTTPError => {
     'message' in payload &&
     'details' in payload
   ) {
-    return payload as HTTPError
+    return payload as HttpError;
   }
 
   return {
     code: status,
-    message: `Request failed with status ${status}`,
     details: payload,
-  }
-}
+    message: `Request failed with status ${status}`,
+  };
+};
 
-export class ApiError extends Error {
-  public readonly status: number
-  public readonly body: HTTPError
+class ApiError extends Error {
+  readonly status: number;
+  readonly body: HttpError;
 
-  constructor(status: number, body: HTTPError) {
-    super(body.message)
-    this.name = 'ApiError'
-    this.status = status
-    this.body = body
+  constructor(status: number, body: HttpError) {
+    super(body.message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.body = body;
   }
 }
 
 const parseResponseBody = async (response: Response): Promise<unknown> => {
-  const text = await response.text()
+  const text = await response.text();
 
   if (!text) {
-    return undefined
+    return;
   }
 
   try {
-    return JSON.parse(text) as unknown
+    return JSON.parse(text) as unknown;
   } catch {
-    return text
+    return text;
   }
-}
+};
 
-const requestWithConfig = async <T>(
-  config: RequestConfig,
-): Promise<T> => {
-  const headers = new Headers(config.headers)
-  const hasBody = config.data !== undefined
-  const body =
-    typeof config.data === 'string' ||
-    config.data instanceof FormData ||
-    config.data instanceof Blob ||
-    config.data instanceof URLSearchParams
-      ? config.data
-      : hasBody
-        ? JSON.stringify(config.data)
-        : undefined
+const buildBody = (data?: unknown) => {
+  if (!data) {
+    return;
+  }
+
+  if (typeof data === 'string' || data instanceof FormData || data instanceof Blob || data instanceof URLSearchParams) {
+    return data;
+  }
+
+  return JSON.stringify(data);
+};
+
+const requestWithConfig = async <T>(config: RequestConfig): Promise<T> => {
+  const headers = new Headers(config.headers);
+  const hasBody = config.data !== undefined;
+  const body = buildBody(config.data);
 
   if (hasBody && !headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json')
+    headers.set('Content-Type', 'application/json');
   }
 
   if (!headers.has('Accept')) {
-    headers.set('Accept', 'application/json')
+    headers.set('Accept', 'application/json');
   }
 
   const response = await fetch(buildUrl(config.url, config.params), {
-    method: config.method,
-    headers,
     body,
+    headers,
+    method: config.method,
     signal: config.signal,
-  })
+  });
 
-  if (response.status === 204) {
-    return undefined as T
+  if (response.status === HTTP_NO_CONTENT_STATUS) {
+    return undefined as T;
   }
 
-  const parsed = await parseResponseBody(response)
+  const parsed = await parseResponseBody(response);
 
   if (!response.ok) {
-    throw new ApiError(response.status, toHttpError(response.status, parsed))
+    throw new ApiError(response.status, toHttpError(response.status, parsed));
   }
 
-  return parsed as T
-}
+  return parsed as T;
+};
 
-export const customInstance = async <T>(
-  urlOrConfig: string | RequestConfig,
-  options?: OrvalRequestOptions,
-): Promise<T> => {
+export const customInstance = <T>(urlOrConfig: string | RequestConfig, options?: OrvalRequestOptions): Promise<T> => {
   if (typeof urlOrConfig === 'string') {
     const config: RequestConfig = {
-      url: urlOrConfig,
+      data: options?.body,
+      headers: options?.headers,
       method: (options?.method as HttpMethod | undefined) ?? 'GET',
       params: options?.params,
-      headers: options?.headers,
       signal: options?.signal ?? undefined,
-      data: options?.body,
-    }
+      url: urlOrConfig,
+    };
 
-    return requestWithConfig<T>(config)
+    return requestWithConfig<T>(config);
   }
 
-  return requestWithConfig<T>(urlOrConfig)
-}
+  return requestWithConfig<T>(urlOrConfig);
+};

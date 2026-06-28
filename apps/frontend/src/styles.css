@@ -123,49 +123,49 @@ body,
 
 body {
   margin: 0;
-  color: var(--sea-ink);
+  overflow-x: hidden;
   font-family: var(--font-sans);
-  background-color: var(--bg-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--sea-ink);
+  /* background-color: var(--bg-base); */
   background:
     radial-gradient(1100px 620px at -8% -10%, var(--hero-a), transparent 58%),
     radial-gradient(1050px 620px at 112% -12%, var(--hero-b), transparent 62%),
     radial-gradient(720px 380px at 50% 115%, rgba(79, 184, 178, 0.1), transparent 68%),
     linear-gradient(180deg, color-mix(in oklab, var(--sand) 68%, white) 0%, var(--foam) 44%, var(--bg-base) 100%);
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body::before {
-  content: "";
   position: fixed;
   inset: 0;
-  pointer-events: none;
   z-index: -1;
-  opacity: 0.28;
+  pointer-events: none;
+  content: "";
   background:
     radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.8), transparent 34%),
     radial-gradient(circle at 78% 26%, rgba(79, 184, 178, 0.2), transparent 42%),
     radial-gradient(circle at 42% 82%, rgba(47, 106, 74, 0.14), transparent 36%);
+  opacity: 0.28;
 }
 
 body::after {
-  content: "";
   position: fixed;
   inset: 0;
-  pointer-events: none;
   z-index: -1;
-  opacity: 0.14;
+  pointer-events: none;
+  content: "";
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
   background-size: 28px 28px;
+  opacity: 0.14;
   mask-image: radial-gradient(circle at 50% 30%, black, transparent 78%);
 }
 
 @theme inline {
   --font-heading: var(--font-sans);
-  --font-sans: 'Manrope Variable', sans-serif;
+  --font-sans: "Manrope Variable", sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -260,17 +260,17 @@ body::after {
 }
 
 .feature-page-shell {
-  margin: 0 auto;
   max-width: 1320px;
   padding: 1.25rem;
+  margin: 0 auto;
 }
 
 .feature-page-header {
-  margin-bottom: 1rem;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
   gap: 0.75rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
 }
 
 .feature-page-grid {
@@ -281,29 +281,29 @@ body::after {
 }
 
 .feature-panel {
-  border: 1px solid var(--line);
-  background: var(--surface-strong);
-  box-shadow: inset 0 1px 0 var(--inset-glint);
   padding: 0.9rem;
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 var(--inset-glint);
 }
 
 .feature-toolbar {
+  position: sticky;
+  top: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
-  position: sticky;
-  top: 1rem;
 }
 
 .feature-suggestion-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   max-height: 220px;
+  padding: 0;
+  margin: 0;
   overflow: auto;
+  list-style: none;
 }
 
 .feature-graph-shell {
@@ -312,8 +312,8 @@ body::after {
 
 .feature-graph-canvas {
   min-height: 440px;
-  border: 1px solid var(--line);
   background: color-mix(in oklab, var(--foam) 78%, white);
+  border: 1px solid var(--line);
 }
 
 .feature-graph-canvas svg {
@@ -327,28 +327,28 @@ body::after {
 }
 
 .feature-side-connection {
-  border: 1px solid var(--line);
-  background: var(--surface);
   padding: 0.45rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
 }
 
 .feature-empty-state {
-  min-height: 320px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: flex-start;
+  justify-content: center;
+  min-height: 320px;
 }
 
 .feature-status-strip {
-  margin-top: 0.75rem;
-  border: 1px solid var(--line);
-  background: var(--header-bg);
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
   padding: 0.6rem 0.9rem;
+  margin-top: 0.75rem;
   font-size: 0.75rem;
+  background: var(--header-bg);
+  border: 1px solid var(--line);
 }
 
 @media (max-width: 1160px) {

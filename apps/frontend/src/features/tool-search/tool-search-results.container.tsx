@@ -1,52 +1,52 @@
-import { useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
-import { toolSearchQueryOptions } from '@/api/tools-query-options'
-import { Alert } from '@/components/ui/alert'
-import { Input } from '@/components/ui/input'
+import { toolSearchQueryOptions } from '@/api/tools-query-options';
+import { Alert } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
 
-import { ToolSearchResultCard } from './tool-search-results/tool-search-result-card'
+import { ToolSearchResultCard } from './tool-search-results/tool-search-result-card';
 
 type ToolSearchResultsContainerProps = {
-  q: string
-  onQueryChange: (q: string) => void
-}
+  onQueryChange: (q: string) => void;
+  q: string;
+};
 
-const DEBOUNCE_MS = 300
+const DEBOUNCE_MS = 300;
 
 const useDebouncedValue = (value: string, delayMs: number): string => {
-  const [debouncedValue, setDebouncedValue] = useState(value)
+  const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
-      setDebouncedValue(value)
-    }, delayMs)
+      setDebouncedValue(value);
+    }, delayMs);
 
-    return () => window.clearTimeout(timeout)
-  }, [delayMs, value])
+    return () => window.clearTimeout(timeout);
+  }, [delayMs, value]);
 
-  return debouncedValue
-}
+  return debouncedValue;
+};
 
-export function ToolSearchResultsContainer({ q, onQueryChange }: ToolSearchResultsContainerProps) {
-  const [draft, setDraft] = useState(q)
-  const debouncedDraft = useDebouncedValue(draft, DEBOUNCE_MS)
-  const normalizedDebouncedDraft = debouncedDraft.trim()
-  const normalizedQuery = q.trim()
+export const ToolSearchResultsContainer = ({ onQueryChange, q }: ToolSearchResultsContainerProps) => {
+  const [draft, setDraft] = useState(q);
+  const debouncedDraft = useDebouncedValue(draft, DEBOUNCE_MS);
+  const normalizedDebouncedDraft = debouncedDraft.trim();
+  const normalizedQuery = q.trim();
 
-  const resultsQuery = useQuery(toolSearchQueryOptions(normalizedQuery))
+  const resultsQuery = useQuery(toolSearchQueryOptions(normalizedQuery));
 
   useEffect(() => {
-    setDraft(q)
-  }, [q])
+    setDraft(q);
+  }, [q]);
 
   useEffect(() => {
     if (normalizedDebouncedDraft === normalizedQuery) {
-      return
+      return;
     }
 
-    onQueryChange(normalizedDebouncedDraft)
-  }, [normalizedDebouncedDraft, normalizedQuery, onQueryChange])
+    onQueryChange(normalizedDebouncedDraft);
+  }, [normalizedDebouncedDraft, normalizedQuery, onQueryChange]);
 
   return (
     <main className="feature-page-shell">
@@ -63,13 +63,11 @@ export function ToolSearchResultsContainer({ q, onQueryChange }: ToolSearchResul
         </label>
         <Input
           id="tool-search-input"
+          onChange={(event) => setDraft(event.target.value)}
           placeholder="Type a keyword..."
           value={draft}
-          onChange={(event) => setDraft(event.target.value)}
         />
-        <p className="text-muted-foreground text-xs">
-          Search updates after {DEBOUNCE_MS}ms to avoid request churn.
-        </p>
+        <p className="text-muted-foreground text-xs">Search updates after {DEBOUNCE_MS}ms to avoid request churn.</p>
       </section>
 
       {normalizedQuery.length === 0 ? (
@@ -107,9 +105,11 @@ export function ToolSearchResultsContainer({ q, onQueryChange }: ToolSearchResul
 
       {(resultsQuery.data?.length ?? 0) > 0 ? (
         <section className="mt-3 grid gap-3">
-          {resultsQuery.data?.map((item) => <ToolSearchResultCard key={item.id} item={item} />)}
+          {resultsQuery.data?.map((item) => (
+            <ToolSearchResultCard item={item} key={item.id} />
+          ))}
         </section>
       ) : null}
     </main>
-  )
-}
+  );
+};

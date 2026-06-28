@@ -6,6 +6,8 @@ All rules are defined in [`docs/guidelines/`](docs/guidelines/) and apply to any
 
 - [General Coding Conventions](docs/guidelines/general-coding-conventions.md)
 - [Backend Coding Conventions](docs/guidelines/backend-coding-conventions.md)
+- [Backend Testing Guidelines](docs/guidelines/backend-testing-guidelines.md)
+- [Frontend Coding Conventions](docs/guidelines/frontend-coding-conventions.md)
 
 ## When working on .ts and .tsx files
 
@@ -26,3 +28,8 @@ Before finalising any plan, audit for bypass / integrity flaws and call them out
 2. Identify which checks are authoritative (server) versus UX-only (client).
 3. If a check requires data only the server can fetch (third-party probe, secret, signed token), express it as router orchestration of use cases on the backend, not as a client round-trip the user is expected to make.
 4. Flag remaining trade-offs in the plan's "Risks / flaws" section so the user can confirm.
+
+## Execution and Verification Guidelines
+
+Use the commands defined in the project README to build, lint and test. Don't try new commands when the execution fails.
+If there is an error you cannot fix, show me the errors so we fix it together.

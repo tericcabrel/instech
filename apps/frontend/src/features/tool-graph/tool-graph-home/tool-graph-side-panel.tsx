@@ -1,24 +1,22 @@
-import type { ToolGraphResponseOutput } from '@/api/generated/model/ToolGraphResponse.zod'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import type { ToolGraphResponseOutput } from '@/api/generated/model/ToolGraphResponse.zod';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
-import { kindLabel } from '../shared/tool-graph-layout'
+import { kindLabel } from '../shared/tool-graph-layout';
 
 type ToolGraphSidePanelProps = {
-  graph: ToolGraphResponseOutput
-  selectedNodeId: string
-}
+  graph: ToolGraphResponseOutput;
+  selectedNodeId: string;
+};
 
-export function ToolGraphSidePanel({ graph, selectedNodeId }: ToolGraphSidePanelProps) {
-  const node = graph.nodes.find((item) => item.id === selectedNodeId) ?? graph.nodes[0]
+export const ToolGraphSidePanel = ({ graph, selectedNodeId }: ToolGraphSidePanelProps) => {
+  const node = graph.nodes.find((item) => item.id === selectedNodeId) ?? graph.nodes[0];
 
   if (!node) {
-    return null
+    return null;
   }
 
-  const linkedEdges = graph.links.filter(
-    (link) => link.source === node.id || link.target === node.id,
-  )
+  const linkedEdges = graph.links.filter((link) => link.source === node.id || link.target === node.id);
 
   return (
     <aside className="feature-panel feature-side-panel">
@@ -48,20 +46,20 @@ export function ToolGraphSidePanel({ graph, selectedNodeId }: ToolGraphSidePanel
         ) : (
           <ul className="space-y-2">
             {linkedEdges.map((edge) => {
-              const counterpartId = edge.source === node.id ? edge.target : edge.source
-              const counterpart = graph.nodes.find((item) => item.id === counterpartId)
+              const counterpartId = edge.source === node.id ? edge.target : edge.source;
+              const counterpart = graph.nodes.find((item) => item.id === counterpartId);
 
               return (
-                <li key={edge.id} className="feature-side-connection">
+                <li className="feature-side-connection" key={edge.id}>
                   <p className="text-sm font-medium">{counterpart?.name ?? counterpartId}</p>
                   <p className="text-muted-foreground text-xs">{kindLabel(edge.kind)}</p>
                   {edge.reason ? <p className="text-xs">{edge.reason}</p> : null}
                 </li>
-              )
+              );
             })}
           </ul>
         )}
       </div>
     </aside>
-  )
-}
+  );
+};

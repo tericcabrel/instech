@@ -1,32 +1,32 @@
-import { defineConfig } from 'orval'
+import { defineConfig } from 'orval';
 
 export default defineConfig({
   instech: {
     input: '../backend/openapi.yaml',
     output: {
-      mode: 'split',
-      target: './src/api/generated/instech.ts',
-      namingConvention: 'PascalCase',
-      schemas: {
-        path: './src/api/generated/model',
-        type: 'zod',
-      },
       client: 'fetch',
       mock: false,
+      mode: 'split',
+      namingConvention: 'PascalCase',
       override: {
         mutator: {
-          path: './src/api/mutator.ts',
           name: 'customInstance',
+          path: './src/api/mutator.ts',
         },
         zod: {
           generate: {
             body: true,
-            response: true,
-            query: true,
             param: true,
+            query: true,
+            response: true,
           },
         },
       },
+      schemas: {
+        path: './src/api/generated/model',
+        type: 'zod',
+      },
+      target: './src/api/generated/instech.ts',
     },
   },
-})
+});
