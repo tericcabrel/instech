@@ -3,7 +3,7 @@
 If there is network permission issues, request the network permission from the user.
 
 Before editing files for a substantial task:
-- Run `yarn dlx @tanstack/intent@latest list` from the workspace root to see available local skills. 
+- Run `just web intent-list` from the repository root to see available local skills.
 - If a listed skill matches the task, run `yarn dlx @tanstack/intent@latest load <package>#<skill>` before changing files.
 - Use the loaded `SKILL.md` guidance while making the change.
 - Monorepos: when working across packages, run the skill check from the workspace root and prefer the local skill for the package being changed.
@@ -53,7 +53,7 @@ Before editing files for a substantial task:
 - Keep all direct `dependencies` and `devDependencies` pinned to exact versions (no `^`, `~`, `latest`, or ranges).
 - Add or update packages with Yarn, then commit the synchronized pair: `package.json` and `yarn.lock`.
 - Prefer updating TanStack packages as a coordinated set to avoid cross-version mismatches.
-- After dependency changes, run `yarn install`, `yarn build`, and `yarn lint` to verify lockfile and compile health.
+- After dependency changes, run `yarn install` in `apps/frontend`, then `just web build` and `just web lint` to verify lockfile and compile health.
 
 ## How to Use Shadcn Components
 
@@ -70,8 +70,8 @@ Before editing files for a substantial task:
 - Do not edit route path strings in `createFileRoute(...)` manually; they must match route file paths.
 
 ## Execution and Verification Guidelines
-1. After you have executed a plan, run: `yarn build` and `yarn lint` to verify the project is working.
-2. If there are any linting errors that can be fixed safely, run `yarn lint:fix` to fix them.
-3. To run tests: `yarn test`
-4. To run test on specific file, append the filename after the command. For example: `yarn test -- <filename>`; example: `yarn test -- tool-graph.test.ts`
+1. After you have executed a plan, run: `just web build` and `just web lint` to verify the project is working.
+2. If there are any linting errors that can be fixed safely, run `just web lint-fix` to fix them.
+3. To run tests: `just web test`
+4. To run test on specific file, append the filename after the command. For example: `just web test -- tool-graph.test.ts`
 5. Never try to start a dev server or curl a local endpoint.

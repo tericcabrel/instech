@@ -54,7 +54,9 @@ With watch mode (using [air](https://github.com/air-verse/air)):
 air
 ```
 
-The server listens on `:8800`.
+The server listens on `:8801`.
+
+From the repository root, use `just api dev` instead of changing into this directory.
 
 ## Lint
 

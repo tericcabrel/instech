@@ -17,13 +17,13 @@ When changing backend API behavior (new endpoint, request body shape, response f
 2. Regenerate frontend API artifacts:
 
 ```bash
-yarn --cwd apps/frontend api:generate
+just web api-generate
 ```
 
 3. Verify frontend compiles with the new contract:
 
 ```bash
-yarn --cwd apps/frontend tsc --noEmit
+cd apps/frontend && yarn tsc --noEmit
 ```
 
 4. If TypeScript errors appear in frontend usage, fix those call sites to match the new contract.

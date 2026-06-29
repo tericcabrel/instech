@@ -31,5 +31,5 @@ Before finalising any plan, audit for bypass / integrity flaws and call them out
 
 ## Execution and Verification Guidelines
 
-Use the commands defined in the project README to build, lint and test. Don't try new commands when the execution fails.
+Run build, lint, and test from the repository root with Just (`just web build`, `just api lint`, `just ci`, etc.). See the root [README.md](README.md). Don't try new commands when the execution fails.
 If there is an error you cannot fix, show me the errors so we fix it together.
