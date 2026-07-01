@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ToolsSlugRouteImport } from './routes/tools/$slug'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
+import { Route as AlternativesSlugRouteImport } from './routes/alternatives/$slug'
 import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
 import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
 
@@ -42,6 +43,11 @@ const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
   path: '/demo/tanstack-query',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlternativesSlugRoute = AlternativesSlugRouteImport.update({
+  id: '/alternatives/$slug',
+  path: '/alternatives/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
   id: '/demo/form/simple',
   path: '/demo/form/simple',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/search': typeof SearchRoute
+  '/alternatives/$slug': typeof AlternativesSlugRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tools/$slug': typeof ToolsSlugRoute
   '/demo/form/address': typeof DemoFormAddressRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/search': typeof SearchRoute
+  '/alternatives/$slug': typeof AlternativesSlugRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tools/$slug': typeof ToolsSlugRoute
   '/demo/form/address': typeof DemoFormAddressRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/search': typeof SearchRoute
+  '/alternatives/$slug': typeof AlternativesSlugRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tools/$slug': typeof ToolsSlugRoute
   '/demo/form/address': typeof DemoFormAddressRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/search'
+    | '/alternatives/$slug'
     | '/demo/tanstack-query'
     | '/tools/$slug'
     | '/demo/form/address'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/search'
+    | '/alternatives/$slug'
     | '/demo/tanstack-query'
     | '/tools/$slug'
     | '/demo/form/address'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/search'
+    | '/alternatives/$slug'
     | '/demo/tanstack-query'
     | '/tools/$slug'
     | '/demo/form/address'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   SearchRoute: typeof SearchRoute
+  AlternativesSlugRoute: typeof AlternativesSlugRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   ToolsSlugRoute: typeof ToolsSlugRoute
   DemoFormAddressRoute: typeof DemoFormAddressRoute
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoTanstackQueryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/alternatives/$slug': {
+      id: '/alternatives/$slug'
+      path: '/alternatives/$slug'
+      fullPath: '/alternatives/$slug'
+      preLoaderRoute: typeof AlternativesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/form/simple': {
       id: '/demo/form/simple'
       path: '/demo/form/simple'
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   SearchRoute: SearchRoute,
+  AlternativesSlugRoute: AlternativesSlugRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   ToolsSlugRoute: ToolsSlugRoute,
   DemoFormAddressRoute: DemoFormAddressRoute,

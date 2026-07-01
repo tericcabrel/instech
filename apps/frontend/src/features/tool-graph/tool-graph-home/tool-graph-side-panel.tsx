@@ -1,5 +1,8 @@
+import { Link } from '@tanstack/react-router';
+
 import type { ToolGraphResponseOutput } from '@/api/generated/model/ToolGraphResponse.zod';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
 import { kindLabel } from '../shared/tool-graph-layout';
@@ -36,6 +39,12 @@ export const ToolGraphSidePanel = ({ graph, selectedNodeId }: ToolGraphSidePanel
         <dt className="text-muted-foreground">Degree</dt>
         <dd className="font-medium">{node.degree}</dd>
       </dl>
+
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button asChild size="xs">
+          <Link to={`/tools/${node.slug}`}>View details</Link>
+        </Button>
+      </div>
 
       <Separator className="my-3" />
 

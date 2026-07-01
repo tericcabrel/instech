@@ -1,0 +1,52 @@
+import { Link } from '@tanstack/react-router';
+
+import type { ToolAlternativeOutput } from '@/api/generated/model/ToolAlternative.zod';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+
+type ToolAlternativeCardProps = {
+  item: ToolAlternativeOutput;
+};
+
+const toLabel = (value: string): string => `${value.charAt(0).toUpperCase()}${value.slice(1).replaceAll('_', ' ')}`;
+
+export const ToolAlternativeCard = ({ item }: ToolAlternativeCardProps) => {
+  const reason = item.metadata.reason?.trim();
+
+  return (
+    <Card className="feature-panel p-0">
+      <CardHeader className="space-y-2">
+        <CardTitle>{item.name}</CardTitle>
+        <p className="text-muted-foreground text-xs">{item.id}</p>
+        <div className="flex flex-wrap gap-1.5">
+          <Badge variant="secondary">{toLabel(item.category)}</Badge>
+          <Badge variant="outline">{toLabel(item.subType)}</Badge>
+          <Badge variant="outline">{toLabel(item.devStatus)}</Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-2 pb-2 text-xs">
+        <div className="space-y-1">
+          <p className="text-muted-foreground">Reason</p>
+          <p>{reason ? reason : 'No reason provided.'}</p>
+        </div>
+        {item.details?.trim() ? (
+          <div className="space-y-1">
+            <p className="text-muted-foreground">Details</p>
+            <p>{item.details}</p>
+          </div>
+        ) : null}
+      </CardContent>
+      <CardFooter className="flex flex-wrap justify-end gap-2">
+        <Button asChild size="xs" variant="outline">
+          <Link search={(previous) => ({ ...previous, tool: item.id })} to="/">
+            View graph
+          </Link>
+        </Button>
+        <Button asChild size="xs">
+          <Link to={`/tools/${item.id}`}>View details</Link>
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+};

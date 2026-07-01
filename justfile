@@ -1,5 +1,5 @@
-mod web
-mod api
+mod web 'apps/frontend'
+mod api 'apps/backend'
 
 default:
   @just --list --list-submodules

@@ -1,3 +1,5 @@
+import { Link } from '@tanstack/react-router';
+
 import type { ToolSearchResultItemOutput } from '@/api/generated/model/ToolSearchResultItem.zod';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -62,6 +64,11 @@ export const ToolGraphControls = ({
     <div className="space-y-2">
       <Label className="text-xs font-medium uppercase">Search tools</Label>
       <Input onChange={(event) => onQueryChange(event.target.value)} placeholder="Type to find a tool..." value={q} />
+      <Button asChild className="w-full" size="xs" variant="outline">
+        <Link search={{ q: q.trim() }} to="/search">
+          {q.trim() ? 'View all search results' : 'Open search page'}
+        </Link>
+      </Button>
       {isSearching ? <p className="text-muted-foreground text-xs">Searching…</p> : null}
       {q.trim() && suggestions.length > 0 ? (
         <ul className="feature-suggestion-list">

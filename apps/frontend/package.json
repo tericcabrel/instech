@@ -17,7 +17,8 @@
     "lint:staged": "lint-staged",
     "preview": "vite preview",
     "tanstack:create": "tanstack create",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "5.2.8",
@@ -73,9 +74,6 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [
       "eslint --fix",
-      "biome check --write"
-    ],
-    "*.{json,jsonc}": [
       "biome check --write"
     ]
   },
