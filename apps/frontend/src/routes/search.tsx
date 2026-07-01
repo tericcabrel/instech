@@ -33,6 +33,6 @@ export const Route = createFileRoute('/search')({
 
     await context.queryClient.ensureQueryData(toolSearchQueryOptions(query));
   },
-  loaderDeps: ({ search }) => ({ q: search.q.trim() }),
+  loaderDeps: ({ search }: { search: ToolSearchRouteSearch }) => ({ q: search.q.trim() }),
   validateSearch: parseToolSearch,
 });

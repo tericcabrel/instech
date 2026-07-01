@@ -42,7 +42,9 @@ export const ToolGraphSidePanel = ({ graph, selectedNodeId }: ToolGraphSidePanel
 
       <div className="flex flex-wrap justify-end gap-2">
         <Button asChild size="xs">
-          <Link to={`/tools/${node.slug}`}>View details</Link>
+          <Link params={{ slug: node.slug }} to="/tools/$slug">
+            View details
+          </Link>
         </Button>
       </div>
 

@@ -34,7 +34,9 @@ export const ToolAlternativesContainer = ({ slug }: ToolAlternativesContainerPro
         </div>
         {normalizedSlug ? (
           <Button asChild size="xs" variant="outline">
-            <Link to={`/tools/${slug}`}>Back to tool details</Link>
+            <Link params={{ slug }} to="/tools/$slug">
+              Back to tool details
+            </Link>
           </Button>
         ) : null}
       </header>

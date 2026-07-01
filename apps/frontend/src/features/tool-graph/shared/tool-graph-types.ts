@@ -1,5 +1,3 @@
-import type { GetToolsIdGraphParamsOutput } from '@/api/generated/model/GetToolsIdGraphParams.zod';
-
 export const TOOL_GRAPH_RELATIONSHIP_KINDS = [
   'built_on',
   'inspired_by',
@@ -14,7 +12,7 @@ export const TOOL_GRAPH_DEPTHS = [1, 2] as const;
 
 export const DEFAULT_TOOL_GRAPH_SEARCH = {
   depth: 1 as const,
-  kinds: [] as GetToolsIdGraphParamsOutput['kinds'],
+  kinds: [] as ToolGraphRelationshipKind[],
   layoutMode: 'force' as const,
   q: '',
   tool: '',

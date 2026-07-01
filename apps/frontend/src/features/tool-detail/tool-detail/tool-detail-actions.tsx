@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { DEFAULT_TOOL_GRAPH_SEARCH } from '@/features/tool-graph/shared/tool-graph-types';
 
 type ToolDetailActionsProps = {
   slug: string;
@@ -16,12 +17,14 @@ export const ToolDetailActions = ({ slug }: ToolDetailActionsProps) => (
     <CardContent />
     <CardFooter className="flex flex-wrap justify-end gap-2">
       <Button asChild size="xs" variant="outline">
-        <Link search={(previous) => ({ ...previous, tool: slug })} to="/">
+        <Link search={{ ...DEFAULT_TOOL_GRAPH_SEARCH, tool: slug }} to="/">
           View graph
         </Link>
       </Button>
       <Button asChild size="xs">
-        <Link to={`/alternatives/${slug}`}>View alternatives</Link>
+        <Link params={{ slug }} to="/alternatives/$slug">
+          View alternatives
+        </Link>
       </Button>
     </CardFooter>
   </Card>

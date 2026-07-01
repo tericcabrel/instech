@@ -4,6 +4,7 @@ import type { ToolAlternativeOutput } from '@/api/generated/model/ToolAlternativ
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { DEFAULT_TOOL_GRAPH_SEARCH } from '@/features/tool-graph/shared/tool-graph-types';
 
 type ToolAlternativeCardProps = {
   item: ToolAlternativeOutput;
@@ -39,12 +40,14 @@ export const ToolAlternativeCard = ({ item }: ToolAlternativeCardProps) => {
       </CardContent>
       <CardFooter className="flex flex-wrap justify-end gap-2">
         <Button asChild size="xs" variant="outline">
-          <Link search={(previous) => ({ ...previous, tool: item.id })} to="/">
+          <Link search={{ ...DEFAULT_TOOL_GRAPH_SEARCH, tool: item.id }} to="/">
             View graph
           </Link>
         </Button>
         <Button asChild size="xs">
-          <Link to={`/tools/${item.id}`}>View details</Link>
+          <Link params={{ slug: item.id }} to="/tools/$slug">
+            View details
+          </Link>
         </Button>
       </CardFooter>
     </Card>

@@ -37,7 +37,7 @@ const parseKinds = (value: unknown): ToolGraphRelationshipKind[] => {
     );
   }
 
-  return DEFAULT_TOOL_GRAPH_SEARCH.kinds;
+  return DEFAULT_TOOL_GRAPH_SEARCH.kinds ?? [];
 };
 
 const parseDepth = (value: unknown): ToolGraphDepth => {
